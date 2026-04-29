@@ -1,8 +1,37 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
-from .models import Product, Category
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django import forms
+from django.contrib.auth.models import User
+
+
+class SignupForm(forms.ModelForm):
+    password1 = forms.CharField(widget=forms.PasswordInput, label='Password')
+    password2 = forms.CharField(widget=forms.PasswordInput, label='Confirm Password')
+    phone = forms.CharField(max_length=20, label='Phone Number')
+    
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('Email already in use.')
+        return email
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError('Passwords do not match.')
+        return cleaned_data
+from django.conf import settings
+from .models import Product, Category, Profile
 import json
 
 
@@ -133,9 +162,56 @@ def remove_from_cart(request, product_id):
     request.session['cart'] = cart
     request.session.modified = True
     messages.info(request, 'Item removed from cart.')
-    return JsonResponse({'success': True})
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True})
+    return redirect('store:cart')
 
 
 def cart_view(request):
     from django.shortcuts import redirect
     return redirect('store:cart')
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password1'])
+            user.save()
+            Profile.objects.create(user=user, phone=form.cleaned_data['phone'])
+            login(request, user)
+            messages.success(request, 'Account created successfully!')
+            return redirect('store:home')
+    else:
+        form = SignupForm()
+    return render(request, 'registration/signup.html', {'form': form})
+
+
+def account_settings(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if request.method == 'POST':        # Update user
+        request.user.first_name = request.POST.get('first_name', '')
+        request.user.last_name = request.POST.get('last_name', '')
+        email = request.POST.get('email', '')
+        if email != request.user.email:
+            if User.objects.filter(email=email).exclude(id=request.user.id).exists():
+                messages.error(request, 'Email already in use.')
+                return redirect('store:account_settings')
+            request.user.email = email
+        request.user.save()
+        
+        # Update profile        profile.phone = request.POST.get('phone', '')
+        profile.address = request.POST.get('address', '')
+        profile.city = request.POST.get('city', '')
+        profile.region = request.POST.get('region', '')
+        profile.save()
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('store:account_settings')
+    context = {
+        'profile': profile,
+        'delivery_regions': settings.DELIVERY_REGIONS,  # Assuming settings is imported
+    }
+    return render(request, 'store/account_settings.html', context)

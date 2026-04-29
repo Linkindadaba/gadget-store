@@ -87,9 +87,16 @@
         <li class="nav-item"><a class="nav-link" href="{% url 'store:product_list' %}">Shop</a></li>
         {% if user.is_authenticated %}
           <li class="nav-item"><a class="nav-link" href="{% url 'orders:my_orders' %}">My Orders</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'store:account_settings' %}">Account</a></li>
+          <li class="nav-item">
+            <form method="post" action="{% url 'logout' %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-link nav-link p-0 border-0 bg-transparent">Logout</button>
+            </form>
+          </li>
         {% else %}
           <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'store:signup' %}">Sign Up</a></li>
         {% endif %}
         <li class="nav-item">
           <a class="nav-link cart-btn" href="{% url 'store:cart' %}">

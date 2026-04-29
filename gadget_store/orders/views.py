@@ -1,12 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.conf import settings
+from decimal import Decimal
 from .models import Order, OrderItem
 from .forms import CheckoutForm
-from store.models import Product
+from store.models import Product, Profile
 
 
 def checkout(request):
+    if not request.user.is_authenticated:
+        messages.info(request, 'Please log in to proceed with checkout.')
+        return redirect(f"{settings.LOGIN_URL}?next={request.path}")
+    
     cart = request.session.get('cart', {})
     if not cart:
         messages.warning(request, 'Your cart is empty.')
@@ -27,7 +32,7 @@ def checkout(request):
         form = CheckoutForm(request.POST)
         if form.is_valid():
             region = form.cleaned_data['region']
-            delivery_fee = settings.DELIVERY_REGIONS.get(region, 50.00)
+            delivery_fee = Decimal(settings.DELIVERY_REGIONS.get(region, 50.00))
             total = subtotal + delivery_fee
             
             order = form.save(commit=False)
@@ -61,11 +66,19 @@ def checkout(request):
     else:
         initial = {}
         if request.user.is_authenticated:
+            profile = Profile.objects.filter(user=request.user).first()
             initial = {
                 'first_name': request.user.first_name,
                 'last_name': request.user.last_name,
                 'email': request.user.email,
             }
+            if profile:
+                initial.update({
+                    'phone': profile.phone,
+                    'address': profile.address,
+                    'city': profile.city,
+                    'region': profile.region,
+                })
         form = CheckoutForm(initial=initial)
 
     context = {

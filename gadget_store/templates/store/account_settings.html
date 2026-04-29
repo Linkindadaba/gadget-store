@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Account Settings - TechHub Ghana{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="bg-white rounded-xl p-5 shadow-sm">
+        <h3 style="font-family:'Syne',sans-serif;font-weight:800" class="mb-4">Account Settings</h3>
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">First Name</label>
+              <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Last Name</label>
+              <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Email</label>
+              <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Phone</label>
+              <input type="text" name="phone" class="form-control" value="{{ profile.phone }}" placeholder="Enter phone number" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Address</label>
+              <textarea name="address" class="form-control" rows="3" placeholder="Enter delivery address">{{ profile.address }}</textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">City</label>
+              <input type="text" name="city" class="form-control" value="{{ profile.city }}" placeholder="Enter city">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Region</label>
+              <select name="region" class="form-select">
+                <option value="">Select region</option>
+                {% for region, fee in delivery_regions.items %}
+                <option value="{{ region }}" {% if profile.region == region %}selected{% endif %}>{{ region }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary-custom w-100 btn-lg mt-4">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
