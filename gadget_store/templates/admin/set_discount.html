@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div class="container">
+  <h1>{{ title }}</h1>
+  <form method="post">
+    {% csrf_token %}
+    <p>Selected products: {{ products.count }}</p>
+    <div class="form-group">
+      <label for="discount_percent">Discount Percentage:</label>
+      <input type="number" name="discount_percent" id="discount_percent" min="0" max="100" class="form-control" style="width:200px;">
+    </div>
+    <button type="submit" name="apply" class="btn btn-primary">Apply Discount</button>
+    <a href="{% url 'admin:store_product_changelist' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}
