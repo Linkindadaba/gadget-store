@@ -1,0 +1,99 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  @media (max-width: 768px) {
+    #container { margin: 0; padding: 0; }
+    #header { 
+      position: fixed; 
+      top: 0; left: 0; right: 0; 
+      z-index: 1050;
+      padding: 0.5rem 1rem !important;
+    }
+    #header .branding { font-size: 1rem; }
+    #header .user-tools { display: none; }
+    #content { margin-top: 60px; padding: 1rem !important; }
+    
+    /* Mobile sidebar */
+    #suit-side { 
+      position: fixed; 
+      top: 0; left: 0; bottom: 0; 
+      width: 280px; 
+      background: #1a1a1a;
+      z-index: 1100;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      padding-top: 60px;
+    }
+    #suit-side.show { transform: translateX(0); }
+    
+    /* Toggle button */
+    .sidebar-toggle {
+      display: block !important;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1060;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #0a0a0a;
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .sidebar-toggle i { font-size: 1.5rem; }
+    
+    /* Overlay */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1090;
+    }
+    .sidebar-overlay.show { display: block; }
+    
+    /* Menu items */
+    #suit-side ul li a {
+      color: rgba(255,255,255,0.8) !important;
+      padding: 12px 20px !important;
+      border-left: 3px solid transparent;
+    }
+    #suit-side ul li a:hover {
+      background: rgba(255,255,255,0.1);
+      border-left-color: #f5c518;
+    }
+    #suit-side .section { color: #f5c518 !important; font-weight: 600; }
+  }
+  
+  @media (min-width: 769px) {
+    .sidebar-toggle, .sidebar-overlay { display: none !important; }
+  }
+</style>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<button class="sidebar-toggle" onclick="toggleSidebar()">
+  <i class="bi bi-list"></i>
+</button>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('suit-side').classList.toggle('show');
+  document.querySelector('.sidebar-overlay').classList.toggle('show');
+}
+
+// Auto-close sidebar when clicking outside on mobile
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.innerWidth < 769) {
+    document.getElementById('suit-side').classList.remove('show');
+  }
+});
+</script>
+{% endblock %}
