@@ -1,16 +1,24 @@
 {% extends "admin/base_site.html" %}
 {% block content %}
-<div class="container">
-  <h1>{{ title }}</h1>
-  <form method="post">
-    {% csrf_token %}
-    <p>Selected products: {{ products.count }}</p>
-    <div class="form-group">
-      <label for="discount_percent">Discount Percentage:</label>
-      <input type="number" name="discount_percent" id="discount_percent" min="0" max="100" class="form-control" style="width:200px;">
+<div class="container-fluid px-2 px-md-3 py-3">
+  <h1 class="h3 mb-3">{{ title }}</h1>
+  <div class="card">
+    <div class="card-body">
+      <p class="mb-3">Selected products: <strong>{{ products.count }}</strong></p>
+      <form method="post" class="row g-3 align-items-end">
+        {% csrf_token %}
+        <div class="col-12 col-sm-auto">
+          <label for="discount_percent" class="form-label">Discount Percentage:</label>
+          <input type="number" name="discount_percent" id="discount_percent" min="0" max="100" class="form-control" placeholder="0-100">
+        </div>
+        <div class="col-12 col-sm-auto">
+          <button type="submit" name="apply" class="btn btn-primary w-100">Apply</button>
+        </div>
+        <div class="col-12 col-sm-auto">
+          <a href="{% url 'admin:store_product_changelist' %}" class="btn btn-outline-secondary w-100">Cancel</a>
+        </div>
+      </form>
     </div>
-    <button type="submit" name="apply" class="btn btn-primary">Apply Discount</button>
-    <a href="{% url 'admin:store_product_changelist' %}" class="btn btn-secondary">Cancel</a>
-  </form>
+  </div>
 </div>
 {% endblock %}
