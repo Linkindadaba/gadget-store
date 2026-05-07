@@ -5,11 +5,8 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production-use-env-vars')
-DEBUG = config('DEBUG', default='True').lower() in ['1', 'true', 'yes', 'on']
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,gadget-store-production-280d.up.railway.app').split(',')
-
-# CSRF trusted origins for production
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='https://gadget-store-production-280d.up.railway.app').split(',')
+DEBUG = config('DEBUG', default=True, cast=bool)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -20,6 +17,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'crispy_bootstrap5',
+    'cloudinary_storage',
+    'cloudinary',
     'store',
     'orders',
     'payments',
@@ -94,6 +93,14 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Cloudinary Storage Configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY': config('CLOUDINARY_API_KEY', default=''),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -103,16 +110,9 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Payment settings (Flutterwave v4 sandbox/live)
-FLUTTERWAVE_CLIENT_ID = config('FLUTTERWAVE_CLIENT_ID', default='')
-FLUTTERWAVE_CLIENT_SECRET = config('FLUTTERWAVE_CLIENT_SECRET', default='')
-FLUTTERWAVE_ENCRYPTION_KEY = config('FLUTTERWAVE_ENCRYPTION_KEY', default='')
-FLUTTERWAVE_BASE_URL = config('FLUTTERWAVE_BASE_URL', default='https://developersandbox-api.flutterwave.com')
-FLUTTERWAVE_AUTH_URL = config(
-    'FLUTTERWAVE_AUTH_URL',
-    default='https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token',
-)
-FLUTTERWAVE_CURRENCY = config('FLUTTERWAVE_CURRENCY', default='GHS')
+# Payment settings (Paystack - popular in Ghana/Africa)
+PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default='pk_test_your_paystack_public_key')
+PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default='sk_test_your_paystack_secret_key')
 
 # Delivery fee settings (in GHS)
 DELIVERY_REGIONS = {
@@ -136,3 +136,10 @@ DELIVERY_REGIONS = {
 
 # Ensure auth form inputs have Bootstrap styling
 from django import forms
+
+# Social Media Handles
+SOCIAL_MEDIA = {
+    'facebook': config('SOCIAL_FB', default='https://facebook.com/fbnation'),
+    'instagram': config('SOCIAL_INSTA', default='https://instagram.com/fbnation'),
+    'twitter': config('SOCIAL_TWITTER', default='https://twitter.com/fbnation'),
+}

@@ -31,7 +31,7 @@ class SignupForm(forms.ModelForm):
             raise forms.ValidationError('Passwords do not match.')
         return cleaned_data
 from django.conf import settings
-from .models import Product, Category, Profile
+from .models import Product, Category, Profile, Review
 import json
 
 
@@ -85,9 +85,11 @@ def product_detail(request, slug):
     related_products = Product.objects.filter(
         category=product.category, is_active=True
     ).exclude(id=product.id)[:4]
+    reviews = product.reviews.all()
     context = {
         'product': product,
         'related_products': related_products,
+        'reviews': reviews,
     }
     return render(request, 'store/product_detail.html', context)
 
@@ -215,3 +217,7 @@ def account_settings(request):
         'delivery_regions': settings.DELIVERY_REGIONS,  # Assuming settings is imported
     }
     return render(request, 'store/account_settings.html', context)
+
+
+def help_support(request):
+    return render(request, 'store/help_support.html')

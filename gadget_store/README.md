@@ -1,4 +1,4 @@
-# TechHub Ghana — Django E-Commerce
+# FB Nation — Django E-Commerce
 
 A full-featured e-commerce platform for gadgets & accessories built with Django.
 
@@ -8,7 +8,7 @@ A full-featured e-commerce platform for gadgets & accessories built with Django.
 
 ```bash
 # 1. Install dependencies
-pip install django pillow django-crispy-forms crispy-bootstrap5 requests
+pip install -r requirements.txt
 
 # 2. Apply migrations
 python manage.py migrate
@@ -110,11 +110,6 @@ DELIVERY_REGIONS = {
 Fees can also be updated live from the admin panel under **Logistics → Delivery Zones**.
 
 ---
-
-## 🔐 Admin Panel
-
-URL: `/admin/` | Default: `admin` / `admin123`
-
 Manage:
 - **Products** — add images, set prices, mark featured, manage stock
 - **Categories** — add/edit with Bootstrap icon names
