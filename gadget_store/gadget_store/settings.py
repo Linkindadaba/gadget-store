@@ -110,9 +110,10 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Payment settings (Paystack - popular in Ghana/Africa)
-PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default='pk_test_your_paystack_public_key')
-PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default='sk_test_your_paystack_secret_key')
+# Payment settings (Flutterwave Sandbox)
+FLUTTERWAVE_CLIENT_ID = config('FLUTTERWAVE_CLIENT_ID', default='43119868-75b3-47e1-a79f-86ff7b85cdb1')
+FLUTTERWAVE_CLIENT_SECRET = config('FLUTTERWAVE_CLIENT_SECRET', default='ep5QnlkeWoP0dlqFrsBxMRCLQ94HZUxm')
+FLUTTERWAVE_ENCRYPTION_KEY = config('FLUTTERWAVE_ENCRYPTION_KEY', default='UO9BOWQpvWbd1rY+Qs2+IzLhhHrwoqfAnD+h/SwQqOQ=')
 
 # Delivery fee settings (in GHS)
 DELIVERY_REGIONS = {

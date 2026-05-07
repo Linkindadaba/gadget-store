@@ -74,8 +74,8 @@ gadget_store/
 - Guest checkout — no account required
 - Order tracking for logged-in users
 
-### 3. Integrated Payments (Paystack)
-- Paystack popup checkout (card, mobile money, bank)
+### 3. Integrated Payments (Flutterwave)
+- Flutterwave sandbox checkout for Ghana mobile money
 - Payment reference tracking
 - Webhook handler for async confirmation
 - Payment status: pending → success/failed
@@ -91,10 +91,11 @@ gadget_store/
 
 ## ⚙️ Configuration
 
-### Paystack Keys (settings.py)
+### Flutterwave Keys (settings.py)
 ```python
-PAYSTACK_PUBLIC_KEY = 'pk_live_xxxx'   # from dashboard.paystack.com
-PAYSTACK_SECRET_KEY = 'sk_live_xxxx'
+FLUTTERWAVE_CLIENT_ID = '43119868-75b3-47e1-a79f-86ff7b85cdb1'
+FLUTTERWAVE_CLIENT_SECRET = 'ep5QnlkeWoP0dlqFrsBxMRCLQ94HZUxm'
+FLUTTERWAVE_ENCRYPTION_KEY = 'UO9BOWQpvWbd1rY+Qs2+IzLhhHrwoqfAnD+h/SwQqOQ='
 ```
 
 ### Delivery Fees (settings.py)
