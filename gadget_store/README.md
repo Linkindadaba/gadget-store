@@ -74,8 +74,8 @@ gadget_store/
 - Guest checkout — no account required
 - Order tracking for logged-in users
 
-### 3. Integrated Payments (Paystack)
-- Paystack popup checkout (card, mobile money, bank)
+### 3. Integrated Payments (Flutterwave)
+- Flutterwave v4 sandbox checkout for Ghana mobile money
 - Payment reference tracking
 - Webhook handler for async confirmation
 - Payment status: pending → success/failed
@@ -91,10 +91,12 @@ gadget_store/
 
 ## ⚙️ Configuration
 
-### Paystack Keys (settings.py)
+### Flutterwave Keys (.env)
 ```python
-PAYSTACK_PUBLIC_KEY = 'pk_live_xxxx'   # from dashboard.paystack.com
-PAYSTACK_SECRET_KEY = 'sk_live_xxxx'
+import os
+FLUTTERWAVE_CLIENT_ID = os.getenv('FLUTTERWAVE_CLIENT_ID')
+FLUTTERWAVE_CLIENT_SECRET = os.getenv('FLUTTERWAVE_CLIENT_SECRET')
+FLUTTERWAVE_ENCRYPTION_KEY = os.getenv('FLUTTERWAVE_ENCRYPTION_KEY')
 ```
 
 ### Delivery Fees (settings.py)
@@ -126,9 +128,9 @@ Manage:
 
 - [ ] Set `DEBUG = False` in settings.py
 - [ ] Set `SECRET_KEY` from environment variable
-- [ ] Replace Paystack test keys with live keys
+- [ ] Replace Flutterwave sandbox credentials with live credentials
 - [ ] Configure `ALLOWED_HOSTS` with your domain
 - [ ] Set up PostgreSQL (replace SQLite)
 - [ ] Configure media file storage (Cloudinary or S3)
-- [ ] Add Paystack webhook URL in Paystack dashboard: `yourdomain.com/payments/webhook/`
+- [ ] Add Flutterwave webhook URL in Flutterwave dashboard: `yourdomain.com/payments/webhook/`
 - [ ] Run `python manage.py collectstatic`

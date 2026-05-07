@@ -5,7 +5,7 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production-use-env-vars')
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default='True').lower() in ['1', 'true', 'yes', 'on']
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,gadget-store-production-280d.up.railway.app').split(',')
 
 # CSRF trusted origins for production
@@ -103,9 +103,16 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Payment settings (Paystack - popular in Ghana/Africa)
-PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default='pk_test_your_paystack_public_key')
-PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default='sk_test_your_paystack_secret_key')
+# Payment settings (Flutterwave v4 sandbox/live)
+FLUTTERWAVE_CLIENT_ID = config('FLUTTERWAVE_CLIENT_ID', default='')
+FLUTTERWAVE_CLIENT_SECRET = config('FLUTTERWAVE_CLIENT_SECRET', default='')
+FLUTTERWAVE_ENCRYPTION_KEY = config('FLUTTERWAVE_ENCRYPTION_KEY', default='')
+FLUTTERWAVE_BASE_URL = config('FLUTTERWAVE_BASE_URL', default='https://developersandbox-api.flutterwave.com')
+FLUTTERWAVE_AUTH_URL = config(
+    'FLUTTERWAVE_AUTH_URL',
+    default='https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token',
+)
+FLUTTERWAVE_CURRENCY = config('FLUTTERWAVE_CURRENCY', default='GHS')
 
 # Delivery fee settings (in GHS)
 DELIVERY_REGIONS = {
