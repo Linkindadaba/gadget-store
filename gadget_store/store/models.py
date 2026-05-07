@@ -63,6 +63,11 @@ class Product(models.Model):
         if self.discount_price and self.price > 0:
             return round((1 - self.discount_price / self.price) * 100)
         return 0
+        
+    @property
+    def average_rating(self):
+        reviews = self.reviews.all()
+        return reviews.aggregate(models.Avg('rating'))['rating__avg'] or 0
 
     @property
     def in_stock(self):
@@ -87,3 +92,17 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Profile for {self.user.username}"
+
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField(choices=[(i, str(i)) for i in range(1, 6)])
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name} ({self.rating})"

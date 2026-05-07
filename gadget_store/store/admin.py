@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.shortcuts import render
-from .models import Category, Product, ProductImage, Profile
+from .models import Category, Product, ProductImage, Profile, Review
 
 
 class ProductImageInline(admin.TabularInline):
@@ -51,8 +51,8 @@ class ProfileAdmin(admin.ModelAdmin):
 
 # Custom admin site
 class MyAdminSite(admin.AdminSite):
-    site_header = "TechHub Ghana Administration"
-    site_title = "TechHub Admin"
+    site_header = "FB Nation Administration"
+    site_title = "FB Nation Admin"
     index_title = "Dashboard"
 
     def index(self, request, extra_context=None):
@@ -87,6 +87,13 @@ admin.site = MyAdminSite()
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Profile, ProfileAdmin)
+
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ['product', 'user', 'rating', 'created_at']
+    list_filter = ['rating', 'created_at']
+    search_fields = ['product__name', 'user__username', 'comment']
+
+admin.site.register(Review, ReviewAdmin)
 
 # Register Order models
 from orders.models import Order, OrderItem

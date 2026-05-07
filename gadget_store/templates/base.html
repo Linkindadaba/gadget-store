@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}TechHub Ghana{% endblock %}</title>
+    <title>{% block title %}F.B Nation{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -74,7 +74,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
   <div class="container">
-    <a class="navbar-brand" href="{% url 'store:home' %}">Tech<span>Hub</span></a>
+    <a class="navbar-brand" href="{% url 'store:home' %}">F.B <span>Nation</span></a>
     <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -85,6 +85,7 @@
       </form>
       <ul class="navbar-nav ms-auto align-items-center gap-2">
         <li class="nav-item"><a class="nav-link" href="{% url 'store:product_list' %}">Shop</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'store:help_support' %}">Help</a></li>
         {% if user.is_authenticated %}
           <li class="nav-item"><a class="nav-link" href="{% url 'orders:my_orders' %}">My Orders</a></li>
           <li class="nav-item"><a class="nav-link" href="{% url 'store:account_settings' %}">Account</a></li>
@@ -126,7 +127,7 @@
   <div class="container">
     <div class="row g-4">
       <div class="col-md-4">
-        <h5 class="navbar-brand mb-3 ps-0">Tech<span style="color:rgba(255,255,255,0.7)">Hub</span></h5>
+        <h5 class="navbar-brand mb-3 ps-0">F.B <span style="color:rgba(255,255,255,0.7)">Nation</span></h5>
         <p style="font-size:0.9rem">Your one-stop shop for the latest gadgets and accessories in Ghana. Quality products, fast delivery.</p>
       </div>
       <div class="col-md-2">
@@ -135,18 +136,24 @@
           <li><a href="{% url 'store:product_list' %}">All Products</a></li>
         </ul>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-3" id="help-support">
         <h6>Customer Care</h6>
         <ul class="list-unstyled" style="font-size:0.9rem">
-          <li><a href="#">Delivery Info</a></li>
-          <li><a href="#">Returns Policy</a></li>
-          <li><a href="#">Contact Us</a></li>
+          <li><a href="mailto:support@fbnation.com">Help & Support</a></li>
+          <li><a href="https://wa.me/233000000000">WhatsApp Assistance</a></li>
+          <li><a href="mailto:support@fbnation.com">Returns Policy</a></li>
         </ul>
       </div>
       <div class="col-md-3">
         <h6>Contact</h6>
-        <p style="font-size:0.9rem"><i class="bi bi-whatsapp me-2 text-accent"></i>+233 XX XXX XXXX<br>
-        <i class="bi bi-envelope me-2 text-accent"></i>hello@techhub.gh</p>
+        <p style="font-size:0.9rem"><i class="bi bi-whatsapp me-2 text-accent"></i>+233 00 000 0000<br>
+        <i class="bi bi-envelope me-2 text-accent"></i>support@fbnation.com</p>
+        <div class="d-flex gap-3" style="font-size:1.25rem">
+          <a href="https://facebook.com/fbnation" aria-label="F.B Nation on Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="https://instagram.com/fbnation" aria-label="F.B Nation on Instagram"><i class="bi bi-instagram"></i></a>
+          <a href="https://x.com/fbnation" aria-label="F.B Nation on X"><i class="bi bi-twitter-x"></i></a>
+          <a href="https://tiktok.com/@fbnation" aria-label="F.B Nation on TikTok"><i class="bi bi-tiktok"></i></a>
+        </div>
       </div>
     </div>
     <hr style="border-color:rgba(255,255,255,0.1)" class="mt-4">
