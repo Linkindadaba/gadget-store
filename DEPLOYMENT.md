@@ -49,8 +49,9 @@ In Railway dashboard:
 SECRET_KEY = (generate a new one: https://djecrety.ir/)
 DEBUG = False
 ALLOWED_HOSTS = your-app.railway.app,yourdomain.com
-PAYSTACK_PUBLIC_KEY = your_key (optional)
-PAYSTACK_SECRET_KEY = your_key (optional)
+FLUTTERWAVE_CLIENT_ID = 43119868-75b3-47e1-a79f-86ff7b85cdb1
+FLUTTERWAVE_CLIENT_SECRET = ep5QnlkeWoP0dlqFrsBxMRCLQ94HZUxm
+FLUTTERWAVE_WEBHOOK_SECRET = your_webhook_secret
 ```
 
 ### Step 4: Set Up Database

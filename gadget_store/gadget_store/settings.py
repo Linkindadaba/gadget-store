@@ -114,6 +114,9 @@ LOGOUT_REDIRECT_URL = '/'
 FLUTTERWAVE_CLIENT_ID = config('FLUTTERWAVE_CLIENT_ID', default='43119868-75b3-47e1-a79f-86ff7b85cdb1')
 FLUTTERWAVE_CLIENT_SECRET = config('FLUTTERWAVE_CLIENT_SECRET', default='ep5QnlkeWoP0dlqFrsBxMRCLQ94HZUxm')
 FLUTTERWAVE_ENCRYPTION_KEY = config('FLUTTERWAVE_ENCRYPTION_KEY', default='UO9BOWQpvWbd1rY+Qs2+IzLhhHrwoqfAnD+h/SwQqOQ=')
+FLUTTERWAVE_WEBHOOK_SECRET = config('FLUTTERWAVE_WEBHOOK_SECRET', default='your_flutterwave_webhook_secret') # IMPORTANT: Change this default!
+FLUTTERWAVE_CURRENCY = 'GHS' # Assuming Ghana Cedi
+FLUTTERWAVE_AUTH_URL = 'https://api.flutterwave.com/oauth/token' # Use https://api.flutterwave.com/sandbox/oauth/token for sandbox
 
 # Delivery fee settings (in GHS)
 DELIVERY_REGIONS = {

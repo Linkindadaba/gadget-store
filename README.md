@@ -96,6 +96,7 @@ gadget_store/
 FLUTTERWAVE_CLIENT_ID = '43119868-75b3-47e1-a79f-86ff7b85cdb1'
 FLUTTERWAVE_CLIENT_SECRET = 'ep5QnlkeWoP0dlqFrsBxMRCLQ94HZUxm'
 FLUTTERWAVE_ENCRYPTION_KEY = 'UO9BOWQpvWbd1rY+Qs2+IzLhhHrwoqfAnD+h/SwQqOQ='
+FLUTTERWAVE_WEBHOOK_SECRET = 'your_flutterwave_webhook_secret'
 ```
 
 ### Delivery Fees (settings.py)
