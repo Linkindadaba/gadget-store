@@ -109,11 +109,16 @@ def _create_mobile_money_charge(request, order, payment, network, phone_number):
 def initiate_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id, status='pending')
     
+    # Calculate total price manually to resolve AttributeError if total_price is missing on Order model
+    items_total = sum(item.price * item.quantity for item in order.items.all())
+    delivery_fee = order.delivery_zone.fee if order.delivery_zone else Decimal('0.00')
+    calculated_total = items_total + delivery_fee
+
     # Create or retrieve the payment record
     payment, _ = Payment.objects.get_or_create(
         order=order,
         defaults={
-            'amount': order.total_price,
+            'amount': calculated_total,
             'reference': f"FLW-{order.order_number}-{uuid.uuid4().hex[:8]}",
             'status': 'pending'
         }
