@@ -2,11 +2,13 @@ from django.core.management.base import BaseCommand
 from store.models import Category, Product
 from logistics.models import DeliveryZone
 from django.conf import settings
+from django.db import transaction
 
 
 class Command(BaseCommand):
     help = 'Seed database with demo data'
 
+    @transaction.atomic
     def handle(self, *args, **kwargs):
         # Seed delivery zones
         for region, fee in settings.DELIVERY_REGIONS.items():
@@ -46,6 +48,10 @@ class Command(BaseCommand):
 
         for name, cat_name, price, disc, stock, featured, desc in products:
             cat = cat_objs.get(cat_name)
+            if not cat:
+                self.stdout.write(self.style.WARNING(f'⚠️ Category "{cat_name}" not found for product "{name}". Skipping.'))
+                continue
+                
             Product.objects.get_or_create(
                 name=name,
                 defaults={
