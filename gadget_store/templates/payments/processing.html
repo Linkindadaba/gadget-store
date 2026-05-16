@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Processing - F.B Nation{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="bg-white rounded-xl p-5 shadow-sm border-0">
+                <div class="mb-4">
+                    <div class="spinner-grow text-primary" style="width: 1.5rem; height: 1.5rem;" role="status"></div>
+                    <div class="spinner-grow text-dark" style="width: 1.5rem; height: 1.5rem;" role="status"></div>
+                    <div class="spinner-grow text-secondary" style="width: 1.5rem; height: 1.5rem;" role="status"></div>
+                </div>
+
+                <h2 style="font-family:'Syne',sans-serif;font-weight:800;" class="mb-3">Action Required</h2>
+                <p class="lead mb-4 text-muted">{{ message }}</p>
+
+                <div class="alert alert-warning border-0 rounded-xl d-inline-block text-start mb-4" style="background-color: #fff9e6;">
+                    <ul class="mb-0 text-dark">
+                        <li>Check your phone for the Mobile Money prompt.</li>
+                        <li>Enter your PIN to authorize the transaction.</li>
+                        <li><strong>Do not refresh</strong> this page while waiting.</li>
+                    </ul>
+                </div>
+
+                <div class="mt-4 pt-4 border-top">
+                    <p class="text-muted small mb-4">Once authorized, your order status will be updated automatically. You can safely return to the store or check your order history.</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'store:home' %}" class="btn btn-outline-dark rounded-pill px-4">Return Home</a>
+                        <a href="{% url 'store:account_settings' %}" class="btn btn-primary-custom px-4">My Orders</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Redirect to home if user stays too long without interacting (3 mins)
+    setTimeout(function() {
+        window.location.href = "{% url 'store:home' %}";
+    }, 180000);
+</script>
+{% endblock %}

@@ -49,6 +49,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'store.context_processors.social_media_links',
                 'store.context_processors.cart_count',
             ],
         },
@@ -110,13 +111,11 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Payment settings (Flutterwave Sandbox)
-FLUTTERWAVE_CLIENT_ID = config('FLUTTERWAVE_CLIENT_ID', default='43119868-75b3-47e1-a79f-86ff7b85cdb1')
-FLUTTERWAVE_CLIENT_SECRET = config('FLUTTERWAVE_CLIENT_SECRET', default='ep5QnlkeWoP0dlqFrsBxMRCLQ94HZUxm')
+# Payment settings (Flutterwave)
+FLUTTERWAVE_SECRET_KEY = config('FLUTTERWAVE_SECRET_KEY', default='FLWSECK_TEST-XXXXXXXXXXXXXXXX-X') # IMPORTANT: Replace with your actual Secret Key
 FLUTTERWAVE_ENCRYPTION_KEY = config('FLUTTERWAVE_ENCRYPTION_KEY', default='UO9BOWQpvWbd1rY+Qs2+IzLhhHrwoqfAnD+h/SwQqOQ=')
 FLUTTERWAVE_WEBHOOK_SECRET = config('FLUTTERWAVE_WEBHOOK_SECRET', default='your_flutterwave_webhook_secret') # IMPORTANT: Change this default!
 FLUTTERWAVE_CURRENCY = 'GHS' # Assuming Ghana Cedi
-FLUTTERWAVE_AUTH_URL = 'https://api.flutterwave.com/oauth/token' # Use https://api.flutterwave.com/sandbox/oauth/token for sandbox
 
 # Delivery fee settings (in GHS)
 DELIVERY_REGIONS = {
@@ -145,5 +144,6 @@ from django import forms
 SOCIAL_MEDIA = {
     'facebook': config('SOCIAL_FB', default='https://facebook.com/fbnation'),
     'instagram': config('SOCIAL_INSTA', default='https://instagram.com/fbnation'),
-    'twitter': config('SOCIAL_TWITTER', default='https://twitter.com/fbnation'),
+    'twitter': config('SOCIAL_TWITTER', default='https://x.com/fbnation'),
+    'tiktok': config('SOCIAL_TIKTOK', default='https://tiktok.com/@fbnation'),
 }

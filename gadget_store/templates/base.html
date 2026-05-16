@@ -149,10 +149,18 @@
         <p style="font-size:0.9rem"><i class="bi bi-whatsapp me-2 text-accent"></i>+233 00 000 0000<br>
         <i class="bi bi-envelope me-2 text-accent"></i>support@fbnation.com</p>
         <div class="d-flex gap-3" style="font-size:1.25rem">
-          <a href="https://facebook.com/fbnation" aria-label="F.B Nation on Facebook"><i class="bi bi-facebook"></i></a>
-          <a href="https://instagram.com/fbnation" aria-label="F.B Nation on Instagram"><i class="bi bi-instagram"></i></a>
-          <a href="https://x.com/fbnation" aria-label="F.B Nation on X"><i class="bi bi-twitter-x"></i></a>
-          <a href="https://tiktok.com/@fbnation" aria-label="F.B Nation on TikTok"><i class="bi bi-tiktok"></i></a>
+          {% if SOCIAL_MEDIA.facebook %}
+            <a href="{{ SOCIAL_MEDIA.facebook }}" aria-label="F.B Nation on Facebook"><i class="bi bi-facebook"></i></a>
+          {% endif %}
+          {% if SOCIAL_MEDIA.instagram %}
+            <a href="{{ SOCIAL_MEDIA.instagram }}" aria-label="F.B Nation on Instagram"><i class="bi bi-instagram"></i></a>
+          {% endif %}
+          {% if SOCIAL_MEDIA.twitter %}
+            <a href="{{ SOCIAL_MEDIA.twitter }}" aria-label="F.B Nation on X"><i class="bi bi-twitter-x"></i></a>
+          {% endif %}
+          {% if SOCIAL_MEDIA.tiktok %}
+            <a href="{{ SOCIAL_MEDIA.tiktok }}" aria-label="F.B Nation on TikTok"><i class="bi bi-tiktok"></i></a>
+          {% endif %}
         </div>
       </div>
     </div>

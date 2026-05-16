@@ -1,4 +1,4 @@
-# FB Nation — Django E-Commerce
+# F.B Nation — Django E-Commerce
 
 A full-featured e-commerce platform for gadgets & accessories built with Django.
 
@@ -43,7 +43,7 @@ gadget_store/
 │   ├── models.py          # Order, OrderItem
 │   ├── forms.py           # CheckoutForm with region selector
 │   └── views.py           # Checkout, order history
-├── payments/              # Paystack integration
+├── payments/              # Flutterwave integration
 │   ├── models.py          # Payment record
 │   └── views.py           # Initiate, verify, webhook
 ├── logistics/             # Delivery fee engine

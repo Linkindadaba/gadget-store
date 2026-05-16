@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Login - F.B Nation{% endblock %}
+{% block title %}Join F.B Nation{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-5">
+        <div class="col-md-6">
             <div class="bg-white rounded-xl p-5 shadow-sm">
                 <div class="text-center mb-4">
-                    <h2 style="font-family:'Syne',sans-serif;font-weight:800;" class="mb-1">Welcome Back</h2>
-                    <p class="text-muted">Login to your <strong>F.B Nation</strong> account</p>
+                    <h2 style="font-family:'Syne',sans-serif;font-weight:800;" class="mb-1">Create Account</h2>
+                    <p class="text-muted">Join the <strong>F.B Nation</strong> community today</p>
                 </div>
 
                 <form method="post">
@@ -19,15 +19,15 @@
                     
                     <div class="d-grid gap-2 mt-4">
                         <button type="submit" class="btn btn-primary-custom btn-lg">
-                            Login to Account
+                            Create My Account
                         </button>
                     </div>
                 </form>
 
                 <div class="text-center mt-4 pt-3 border-top">
                     <p class="text-muted small">
-                        Don't have an account? 
-                        <a href="{% url 'store:signup' %}" class="text-primary fw-bold text-decoration-none">Sign Up</a>
+                        Already have an account? 
+                        <a href="{% url 'login' %}" class="text-primary fw-bold text-decoration-none">Login here</a>
                     </p>
                 </div>
             </div>

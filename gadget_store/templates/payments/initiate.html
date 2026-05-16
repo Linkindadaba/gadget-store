@@ -16,7 +16,7 @@
         <hr>
         <div class="d-flex justify-content-between py-2 mb-4">
           <strong style="font-family:'Syne',sans-serif;font-size:1.2rem">Total</strong>
-          <strong style="font-family:'Syne',sans-serif;font-size:1.5rem;color:#0a0a0a">{{ currency }} {{ order.total }}</strong>
+          <strong style="font-family:'Syne',sans-serif;font-size:1.5rem;color:#0a0a0a">{{ currency }} {{ order.total_price }}</strong>
         </div>
 
         {% if payment_instruction %}
@@ -52,7 +52,7 @@
             >
 
             <button type="submit" class="btn btn-primary-custom btn-lg w-100">
-              <i class="bi bi-phone me-2"></i>Pay {{ currency }} {{ order.total }} with Flutterwave
+              <i class="bi bi-phone me-2"></i>Pay {{ currency }} {{ order.total_price }} with Flutterwave
             </button>
           </form>
 
