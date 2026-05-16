@@ -51,8 +51,8 @@ class ProfileAdmin(admin.ModelAdmin):
 
 # Custom admin site
 class MyAdminSite(admin.AdminSite):
-    site_header = "FB Nation Administration"
-    site_title = "FB Nation Admin"
+    site_header = "F.B Nation Administration"
+    site_title = "F.B Nation Admin"
     index_title = "Dashboard"
 
     def index(self, request, extra_context=None):

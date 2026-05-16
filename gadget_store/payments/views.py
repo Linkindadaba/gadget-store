@@ -26,6 +26,8 @@ MOBILE_MONEY_NETWORKS = [
     ('AIRTELTIGO', 'AirtelTigo Money'),
 ]
 
+FLW_CHARGE_URL = "https://api.flutterwave.com/v3/charges?type=mobile_money_ghana"
+
 
 class FlutterwaveError(Exception):
     pass
@@ -77,8 +79,8 @@ def _mark_payment_from_charge(payment, charge):
     payment.gateway_transaction_id = charge.get('id') or payment.gateway_transaction_id
     
     if (
-        charge.get('reference') == payment.reference
-        and charge.get('status') == 'succeeded'
+        (charge.get('tx_ref') == payment.reference or charge.get('reference') == payment.reference)
+        and charge.get('status') in ['successful', 'succeeded']
         and charge.get('currency') == settings.FLUTTERWAVE_CURRENCY
         and _payment_amount_matches(charge.get('amount'), payment.amount)
     ):
@@ -98,7 +100,85 @@ def _mark_payment_from_charge(payment, charge):
 
 def _create_mobile_money_charge(request, order, payment, network, phone_number):
     token = _get_flutterwave_token()
-    call
+    
+    payload = {
+        "amount": str(payment.amount),
+        "currency": settings.FLUTTERWAVE_CURRENCY,
+        "email": order.email,
+        "tx_ref": payment.reference,
+        "phone_number": phone_number,
+        "network": network,
+        "fullname": f"{order.first_name} {order.last_name}",
+        "redirect_url": request.build_absolute_uri(reverse('payments:payment_callback')),
+    }
+    
+    headers = _flutterwave_headers(token, idempotency_key=payment.reference)
+    
+    try:
+        response = requests.post(FLW_CHARGE_URL, json=payload, headers=headers, timeout=20)
+        data = response.json()
+        
+        if response.status_code >= 400:
+            logger.error(f"Flutterwave Charge Error: {data}")
+            raise FlutterwaveError(data.get('message', 'Could not initiate mobile money charge.'))
+            
+        return data
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Flutterwave Request Exception: {e}")
+        raise FlutterwaveError("Communication error with Flutterwave.")
+
+
+@require_http_methods(['GET', 'POST'])
+def initiate_payment(request, order_id):
+    order = get_object_or_404(Order, id=order_id, status='pending')
+    
+    # Create or retrieve the payment record
+    payment, _ = Payment.objects.get_or_create(
+        order=order,
+        defaults={
+            'amount': order.total_price,
+            'reference': f"FLW-{order.order_number}-{uuid.uuid4().hex[:8]}",
+            'status': 'pending'
+        }
+    )
+
+    if request.method == 'POST':
+        network = request.POST.get('network')
+        phone_number = request.POST.get('phone_number')
+        
+        if not network or not phone_number:
+            return render(request, 'payments/initiate.html', {
+                'order': order,
+                'payment': payment,
+                'currency': settings.FLUTTERWAVE_CURRENCY,
+                'networks': MOBILE_MONEY_NETWORKS,
+                'error': 'Please provide both network and phone number.'
+            })
+            
+        try:
+            charge_response = _create_mobile_money_charge(request, order, payment, network, phone_number)
+            payment.gateway_transaction_id = charge_response.get('data', {}).get('id')
+            payment.save()
+            
+            return render(request, 'payments/processing.html', {
+                'order': order,
+                'message': charge_response.get('message', 'A prompt has been sent to your phone. Please approve to complete payment.')
+            })
+        except FlutterwaveError as e:
+            return render(request, 'payments/initiate.html', {
+                'order': order,
+                'payment': payment,
+                'currency': settings.FLUTTERWAVE_CURRENCY,
+                'networks': MOBILE_MONEY_NETWORKS,
+                'error': str(e)
+            })
+
+    return render(request, 'payments/initiate.html', {
+        'order': order,
+        'payment': payment,
+        'currency': settings.FLUTTERWAVE_CURRENCY,
+        'networks': MOBILE_MONEY_NETWORKS
+    })
 
 
 @csrf_exempt
@@ -155,3 +235,31 @@ def flutterwave_webhook(request):
 
     # Always return 200 OK to Flutterwave to acknowledge receipt, even if processing failed internally.
     return JsonResponse({"status": "success"})
+
+
+def payment_callback(request):
+    """Handle the redirect from Flutterwave after a payment attempt."""
+    tx_ref = request.GET.get('tx_ref')
+    transaction_id = request.GET.get('transaction_id')
+    
+    if not tx_ref or not transaction_id:
+        logger.warning(f"Callback accessed without required parameters. tx_ref: {tx_ref}, transaction_id: {transaction_id}")
+        return redirect('store:home')
+        
+    payment = get_object_or_404(Payment, reference=tx_ref)
+    
+    try:
+        token = _get_flutterwave_token() # Or settings.FLUTTERWAVE_SECRET_KEY for standard V3
+        verify_url = f"https://api.flutterwave.com/v3/transactions/{transaction_id}/verify"
+        headers = _flutterwave_headers(token)
+        
+        response = requests.get(verify_url, headers=headers, timeout=15)
+        data = response.json()
+        
+        if data.get('status') == 'success':
+            if _mark_payment_from_charge(payment, data.get('data')):
+                return render(request, 'payments/success.html', {'order': payment.order})
+    except Exception as e:
+        logger.error(f"Error verifying payment {tx_ref}: {e}")
+
+    return render(request, 'payments/failure.html', {'order': payment.order})

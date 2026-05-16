@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Avg
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -36,9 +37,9 @@ import json
 
 
 def home(request):
-    featured_products = Product.objects.filter(is_featured=True, is_active=True)[:8]
+    featured_products = Product.objects.filter(is_featured=True, is_active=True).annotate(avg_rating=Avg('reviews__rating'))[:8]
     categories = Category.objects.all()
-    new_arrivals = Product.objects.filter(is_active=True).order_by('-created_at')[:8]
+    new_arrivals = Product.objects.filter(is_active=True).annotate(avg_rating=Avg('reviews__rating')).order_by('-created_at')[:8]
     context = {
         'featured_products': featured_products,
         'categories': categories,
@@ -48,7 +49,7 @@ def home(request):
 
 
 def product_list(request):
-    products = Product.objects.filter(is_active=True)
+    products = Product.objects.filter(is_active=True).annotate(avg_rating=Avg('reviews__rating'))
     categories = Category.objects.all()
     
     category_slug = request.GET.get('category')
@@ -82,14 +83,32 @@ def product_list(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
+    
+    if request.method == 'POST' and request.user.is_authenticated:
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment')
+        if rating and comment:
+            Review.objects.create(
+                product=product,
+                user=request.user,
+                rating=rating,
+                comment=comment
+            )
+            messages.success(request, 'Thank you for your review!')
+            return redirect('store:product_detail', slug=slug)
+
     related_products = Product.objects.filter(
         category=product.category, is_active=True
-    ).exclude(id=product.id)[:4]
+    ).annotate(avg_rating=Avg('reviews__rating')).exclude(id=product.id)[:4]
+    
     reviews = product.reviews.all()
+    avg_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+    
     context = {
         'product': product,
         'related_products': related_products,
         'reviews': reviews,
+        'avg_rating': avg_rating,
     }
     return render(request, 'store/product_detail.html', context)
 
