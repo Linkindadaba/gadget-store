@@ -46,27 +46,6 @@ def _flutterwave_headers(token, trace_id=None, idempotency_key=None):
     return headers
 
 
-def _get_flutterwave_token():
-    if not settings.FLUTTERWAVE_CLIENT_ID or not settings.FLUTTERWAVE_CLIENT_SECRET:
-        raise FlutterwaveError('Flutterwave credentials are not configured.')
-    
-    response = requests.post(
-        settings.FLUTTERWAVE_AUTH_URL,
-        data={
-            'client_id': settings.FLUTTERWAVE_CLIENT_ID,
-            'client_secret': settings.FLUTTERWAVE_CLIENT_SECRET,
-            'grant_type': 'client_credentials',
-        },
-        headers={'Content-Type': 'application/x-www-form-urlencoded'},
-        timeout=15,
-    )
-    data = response.json() # type: ignore
-    token = data.get('access_token')
-    if response.status_code >= 400 or not token:
-        raise FlutterwaveError(data.get('error_description') or data.get('message') or 'Unable to authenticate with Flutterwave.')
-    return token
-
-
 def _payment_amount_matches(received_amount, expected_amount):
     try:
         return Decimal(str(received_amount)).quantize(Decimal('0.01')) == expected_amount.quantize(Decimal('0.01'))
@@ -99,8 +78,6 @@ def _mark_payment_from_charge(payment, charge):
 
 
 def _create_mobile_money_charge(request, order, payment, network, phone_number):
-    token = _get_flutterwave_token()
-    
     payload = {
         "amount": str(payment.amount),
         "currency": settings.FLUTTERWAVE_CURRENCY,
@@ -112,7 +89,7 @@ def _create_mobile_money_charge(request, order, payment, network, phone_number):
         "redirect_url": request.build_absolute_uri(reverse('payments:payment_callback')),
     }
     
-    headers = _flutterwave_headers(token, idempotency_key=payment.reference)
+    headers = _flutterwave_headers(settings.FLUTTERWAVE_SECRET_KEY, idempotency_key=payment.reference)
     
     try:
         response = requests.post(FLW_CHARGE_URL, json=payload, headers=headers, timeout=20)
@@ -249,9 +226,8 @@ def payment_callback(request):
     payment = get_object_or_404(Payment, reference=tx_ref)
     
     try:
-        token = _get_flutterwave_token() # Or settings.FLUTTERWAVE_SECRET_KEY for standard V3
         verify_url = f"https://api.flutterwave.com/v3/transactions/{transaction_id}/verify"
-        headers = _flutterwave_headers(token)
+        headers = _flutterwave_headers(settings.FLUTTERWAVE_SECRET_KEY)
         
         response = requests.get(verify_url, headers=headers, timeout=15)
         data = response.json()
