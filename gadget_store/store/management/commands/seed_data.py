@@ -19,10 +19,10 @@ class Command(BaseCommand):
         cats = [
             ('Smartphones', 'bi-phone', 'Latest smartphones and mobile phones'),
             ('Earbuds & Headphones', 'bi-headphones', 'Wireless and wired audio'),
-            ('Smartwatches', 'bi-smartwatch', 'Smart wearables'),
+            ('Smartwatches', 'bi-watch', 'Smart wearables'),
             ('Laptop Accessories', 'bi-laptop', 'Bags, stands, keyboards and more'),
             ('Chargers & Cables', 'bi-plug', 'Fast chargers and cables'),
-            ('Phone Cases', 'bi-phone-flip', 'Protective cases and covers'),
+            ('Phone Cases', 'bi-phone', 'Protective cases and covers'),
         ]
         cat_objs = {}
         for name, icon, desc in cats:
