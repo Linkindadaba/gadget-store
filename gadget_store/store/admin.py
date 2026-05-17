@@ -1,6 +1,6 @@
 from django.contrib import admin
-from django.shortcuts import render
-from .models import Category, Product, ProductImage, Profile, Review
+from django.shortcuts import render, redirect
+from .models import Category, Product, ProductImage, Profile, Review, User
 
 
 class ProductImageInline(admin.TabularInline):
@@ -21,6 +21,20 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ['price', 'discount_price', 'stock', 'is_featured', 'is_active']
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name', 'description']
+    fieldsets = (
+        (None, { # This fieldset will contain fields for the main content area
+            'fields': (
+                'name', 'slug', 'description', 'category',
+                'is_featured', 'is_active'
+            ),
+            'description': 'Basic product details and categorization.',
+        }),
+        ('Pricing and Inventory', { # This fieldset will contain fields for the sidebar
+            'fields': ('price', 'discount_price', 'stock'),
+            'description': 'Set product pricing and manage stock levels.',
+        }),
+        # The 'image' field is handled separately in the custom template for the drop zone
+    )
     inlines = [ProductImageInline]
     actions = ['set_discount_percent']
     
@@ -35,7 +49,7 @@ class ProductAdmin(admin.ModelAdmin):
                     product.discount_price = None
                 product.save()
             self.message_user(request, f'Discount applied to {queryset.count()} products.')
-            return
+            return redirect(request.get_full_path())
         return render(request, 'admin/set_discount.html', {
             'products': queryset,
             'title': 'Set Discount Percentage',

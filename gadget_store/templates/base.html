@@ -67,23 +67,52 @@
         .text-accent { color: var(--accent); }
         .bg-accent { background: var(--accent); }
         .rounded-xl { border-radius: 16px; }
+
+        /* Smooth search bar slide-down on mobile */
+        @media (max-width: 991.98px) {
+            #searchCollapse.collapsing {
+                transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+                opacity: 0.5;
+            }
+            #searchCollapse.show { opacity: 1; transition: opacity 0.3s ease; }
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-  <div class="container">
-    <a class="navbar-brand" href="{% url 'store:home' %}">F.B <span>Nation</span></a>
-    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navMenu">
-      <form class="d-flex mx-auto search-form" action="{% url 'store:product_list' %}" method="get" style="width:380px">
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+  <div class="container d-flex flex-wrap align-items-center justify-content-between">
+    <!-- Brand -->
+    <a class="navbar-brand me-0 me-lg-4" href="{% url 'store:home' %}">F.B <span>Nation</span></a>
+
+    <!-- Utility Icons (Search Toggle + Cart + Hamburger): Order 2 on mobile -->
+    <div class="d-flex align-items-center order-2 order-lg-3 ms-lg-auto">
+      <!-- Search Toggle (Mobile only) -->
+      <button class="btn text-white d-lg-none me-2 p-0 border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
+        <i class="bi bi-search" style="font-size: 1.25rem;"></i>
+      </button>
+
+      <a class="nav-link cart-btn me-2" href="{% url 'store:cart' %}">
+        <i class="bi bi-bag"></i> <span class="d-none d-sm-inline ms-1">Cart</span>
+        {% if cart_count > 0 %}<span class="cart-badge ms-1">{{ cart_count }}</span>{% endif %}
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+
+    <!-- Search Bar: Expandable on Mobile, Always visible on Desktop -->
+    <div class="collapse d-lg-flex order-3 order-lg-2 w-100 w-lg-auto flex-grow-1" id="searchCollapse">
+      <form class="d-flex search-form mx-auto mt-2 mt-lg-0" action="{% url 'store:product_list' %}" method="get" style="max-width: 450px; width: 100%;">
         <input class="form-control" type="search" name="q" placeholder="Search gadgets & accessories..." value="{{ request.GET.q }}">
-        <button class="btn px-3" type="submit"><i class="bi bi-search"></i></button>
+        <button class="btn px-3" type="submit" aria-label="Search"><i class="bi bi-search"></i></button>
       </form>
-      <ul class="navbar-nav ms-auto align-items-center gap-2">
+    </div>
+
+    <!-- Collapsible Menu: Order 4 -->
+    <div class="collapse navbar-collapse order-4" id="navMenu">
+      <ul class="navbar-nav ms-auto align-items-center gap-2 pt-3 pt-lg-0">
         <li class="nav-item"><a class="nav-link" href="{% url 'store:product_list' %}">Shop</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'store:help_support' %}">Help</a></li>
         {% if user.is_authenticated %}
@@ -99,12 +128,6 @@
           <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
           <li class="nav-item"><a class="nav-link" href="{% url 'store:signup' %}">Sign Up</a></li>
         {% endif %}
-        <li class="nav-item">
-          <a class="nav-link cart-btn" href="{% url 'store:cart' %}">
-            <i class="bi bi-bag me-1"></i> Cart
-            {% if cart_count > 0 %}<span class="cart-badge ms-1">{{ cart_count }}</span>{% endif %}
-          </a>
-        </li>
       </ul>
     </div>
   </div>

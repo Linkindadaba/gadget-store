@@ -1,36 +1,14 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.db.models import Avg
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
+from django.contrib.auth import login, update_session_auth_hash
 from django import forms
 from django.contrib.auth.models import User
-
-
-class SignupForm(forms.ModelForm):
-    password1 = forms.CharField(widget=forms.PasswordInput, label='Password')
-    password2 = forms.CharField(widget=forms.PasswordInput, label='Confirm Password')
-    phone = forms.CharField(max_length=20, label='Phone Number')
-    
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
-    
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('Email already in use.')
-        return email
-    
-    def clean(self):
-        cleaned_data = super().clean()
-        password1 = cleaned_data.get('password1')
-        password2 = cleaned_data.get('password2')
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError('Passwords do not match.')
-        return cleaned_data
+from django.contrib.auth.decorators import login_required
+from .forms import SignupForm, ProfileForm
 from django.conf import settings
 from .models import Product, Category, Profile, Review
 import json
@@ -115,21 +93,23 @@ def product_detail(request, slug):
 
 def cart(request):
     cart_data = request.session.get('cart', {})
+    # Optimization: Fetch all products in one query to avoid N+1 hits
+    product_ids = [int(pid) for pid in cart_data.keys()]
+    products_map = Product.objects.in_bulk(product_ids)
+    
     cart_items = []
     subtotal = 0
     
-    for product_id, item in cart_data.items():
-        try:
-            product = Product.objects.get(id=product_id)
-            item_total = product.effective_price * item['quantity']
+    for pid_str, item in cart_data.items():
+        product = products_map.get(int(pid_str))
+        if product:
+            item_total = product.effective_price * item.get('quantity', 1)
             subtotal += item_total
             cart_items.append({
                 'product': product,
                 'quantity': item['quantity'],
                 'item_total': item_total,
             })
-        except Product.DoesNotExist:
-            pass
     
     context = {'cart_items': cart_items, 'subtotal': subtotal}
     return render(request, 'store/cart.html', context)
@@ -157,7 +137,7 @@ def add_to_cart(request, product_id):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'success': True, 'cart_count': total_items})
     
-    return cart_view(request)
+    return redirect('store:cart')
 
 
 @require_POST
@@ -188,11 +168,6 @@ def remove_from_cart(request, product_id):
     return redirect('store:cart')
 
 
-def cart_view(request):
-    from django.shortcuts import redirect
-    return redirect('store:cart')
-
-
 def signup(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
@@ -209,30 +184,49 @@ def signup(request):
     return render(request, 'registration/signup.html', {'form': form})
 
 
+@login_required
 def account_settings(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
     profile, created = Profile.objects.get_or_create(user=request.user)
-    if request.method == 'POST':        # Update user
-        request.user.first_name = request.POST.get('first_name', '')
-        request.user.last_name = request.POST.get('last_name', '')
-        email = request.POST.get('email', '')
-        if email != request.user.email:
-            if User.objects.filter(email=email).exclude(id=request.user.id).exists():
-                messages.error(request, 'Email already in use.')
+    
+    if request.method == 'POST':
+        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
+        password_form = PasswordChangeForm(request.user, request.POST)
+
+        if 'update_profile' in request.POST:
+            if profile_form.is_valid():
+                # Update core User fields manually
+                request.user.first_name = request.POST.get('first_name', '')
+                request.user.last_name = request.POST.get('last_name', '')
+                email = request.POST.get('email', '')
+                if email != request.user.email:
+                    if User.objects.filter(email=email).exclude(id=request.user.id).exists():
+                        messages.error(request, 'Email already in use.')
+                        return redirect('store:account_settings')
+                    request.user.email = email
+                request.user.save()
+                
+                profile_form.save()
+                messages.success(request, 'Profile updated successfully!')
                 return redirect('store:account_settings')
-            request.user.email = email
-        request.user.save()
-        
-        # Update profile        profile.phone = request.POST.get('phone', '')
-        profile.address = request.POST.get('address', '')
-        profile.city = request.POST.get('city', '')
-        profile.region = request.POST.get('region', '')
-        profile.save()
-        messages.success(request, 'Profile updated successfully!')
-        return redirect('store:account_settings')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+            
+        elif 'change_password' in request.POST:
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Your password was successfully updated!')
+                return redirect('store:account_settings')
+            else:
+                messages.error(request, 'Please correct the error below.')
+    else:
+        password_form = PasswordChangeForm(request.user)
+        profile_form = ProfileForm(instance=profile)
+
     context = {
         'profile': profile,
+        'profile_form': profile_form,
+        'password_form': password_form,
         'delivery_regions': settings.DELIVERY_REGIONS,  # Assuming settings is imported
     }
     return render(request, 'store/account_settings.html', context)
