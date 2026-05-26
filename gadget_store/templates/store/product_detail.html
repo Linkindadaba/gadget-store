@@ -34,7 +34,7 @@
       <p>{{ product.description }}</p>
       {% if product.in_stock %}
         <p class="text-success"><i class="bi bi-check-circle-fill me-1"></i> In Stock ({{ product.stock }} available)</p>
-        <form method="post" action="{% url 'store:add_to_cart' product.id %}" class="d-flex gap-3 align-items-center mt-4">
+        <form method="post" action="{% url 'store:add_to_cart' product.id %}" class="ajax-add-to-cart d-flex gap-3 align-items-center mt-4" data-product-name="{{ product.name }}">
           {% csrf_token %}
           <div class="d-flex align-items-center border rounded-pill" style="background:#fff">
             <button type="button" class="btn px-3" onclick="adjustQty(-1)">−</button>

@@ -7,13 +7,13 @@ from decimal import Decimal
 import requests
 from django.conf import settings
 from django.http import HttpResponseBadRequest, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.contrib import messages
 
-from .forms import MobileMoneyPaymentForm
 from orders.models import Order
 from .models import Payment
 import logging
@@ -21,7 +21,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-FLW_CHARGE_URL = "https://api.flutterwave.com/v3/charges?type=mobile_money_ghana"
+FLW_PAYMENT_URL = "https://api.flutterwave.com/v3/payments"
 
 
 class FlutterwaveError(Exception):
@@ -72,29 +72,35 @@ def _mark_payment_from_charge(payment, charge):
     return False
 
 
-def _create_mobile_money_charge(request, order, payment, network, phone_number):
+def _generate_payment_link(request, order, payment):
+    """Generate a hosted payment link from Flutterwave."""
     payload = {
-        "amount": str(payment.amount),
-        "currency": settings.FLUTTERWAVE_CURRENCY,
-        "email": order.email,
         "tx_ref": payment.reference,
-        "phone_number": phone_number,
-        "network": network,
-        "fullname": f"{order.first_name} {order.last_name}",
+        "amount": str(order.get_total_amount()),
+        "currency": settings.FLUTTERWAVE_CURRENCY,
         "redirect_url": request.build_absolute_uri(reverse('payments:payment_callback')),
+        "customer": {
+            "email": order.email,
+            "phonenumber": getattr(order, 'phone', ""),
+            "name": f"{order.first_name} {order.last_name}",
+        },
+        "customizations": {
+            "title": "F.B Nation Gadget Store",
+            "description": f"Payment for Order {order.order_number}",
+        }
     }
-    
-    headers = _flutterwave_headers(settings.FLUTTERWAVE_SECRET_KEY, idempotency_key=payment.reference)
-    
+
+    headers = _flutterwave_headers(settings.FLUTTERWAVE_SECRET_KEY)
+
     try:
-        response = requests.post(FLW_CHARGE_URL, json=payload, headers=headers, timeout=20)
+        response = requests.post(FLW_PAYMENT_URL, json=payload, headers=headers, timeout=20)
         data = response.json()
-        
-        if response.status_code >= 400:
-            logger.error(f"Flutterwave Charge Error: {data}")
-            raise FlutterwaveError(data.get('message', 'Could not initiate mobile money charge.'))
-            
-        return data
+
+        if response.status_code >= 400 or data.get('status') != 'success':
+            logger.error(f"Flutterwave Link Error: {data}")
+            raise FlutterwaveError(data.get('message', 'Could not generate payment link.'))
+
+        return data.get('data', {}).get('link')
     except requests.exceptions.RequestException as e:
         logger.error(f"Flutterwave Request Exception: {e}")
         raise FlutterwaveError("Communication error with Flutterwave.")
@@ -116,35 +122,12 @@ def initiate_payment(request, order_id):
     )
 
     if request.method == 'POST':
-        network = request.POST.get('network')
-        phone_number = request.POST.get('phone_number')
-        
-        if not network or not phone_number:
-            return render(request, 'payments/initiate.html', {
-                'order': order,
-                'payment': payment,
-                'currency': settings.FLUTTERWAVE_CURRENCY,
-                'networks': settings.FLUTTERWAVE_MOBILE_MONEY_NETWORKS,
-                'error': 'Please provide both network and phone number.'
-            })
-            
         try:
-            charge_response = _create_mobile_money_charge(request, order, payment, network, phone_number)
-            payment.gateway_transaction_id = charge_response.get('data', {}).get('id')
-            payment.save()
-            
-            return render(request, 'payments/processing.html', {
-                'order': order,
-                'message': charge_response.get('message', 'A prompt has been sent to your phone. Please approve to complete payment.')
-            })
+            payment_link = _generate_payment_link(request, order, payment)
+            return redirect(payment_link)
         except FlutterwaveError as e:
-            return render(request, 'payments/initiate.html', {
-                'order': order,
-                'payment': payment,
-                'currency': settings.FLUTTERWAVE_CURRENCY,
-                'networks': settings.FLUTTERWAVE_MOBILE_MONEY_NETWORKS,
-                'error': str(e)
-            })
+            messages.error(request, str(e))
+            return redirect('store:cart')
 
     return render(request, 'payments/initiate.html', {
         'order': order,
