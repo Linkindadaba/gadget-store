@@ -46,6 +46,9 @@ class Order(models.Model):
             self.order_number = str(uuid.uuid4()).upper()[:12]
         super().save(*args, **kwargs)
 
+    def get_total_amount(self):
+        return self.total
+
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"

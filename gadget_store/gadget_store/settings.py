@@ -139,6 +139,11 @@ FLUTTERWAVE_SECRET_KEY = config('FLUTTERWAVE_SECRET_KEY', default='FLWSECK_TEST-
 FLUTTERWAVE_ENCRYPTION_KEY = config('FLUTTERWAVE_ENCRYPTION_KEY', default='UO9BOWQpvWbd1rY+Qs2+IzLhhHrwoqfAnD+h/SwQqOQ=')
 FLUTTERWAVE_WEBHOOK_SECRET = config('FLUTTERWAVE_WEBHOOK_SECRET', default='your_flutterwave_webhook_secret') # IMPORTANT: Change this default!
 FLUTTERWAVE_CURRENCY = 'GHS' # Assuming Ghana Cedi
+FLUTTERWAVE_MOBILE_MONEY_NETWORKS = [
+    ('MTN', 'MTN Mobile Money'),
+    ('VODAFONE', 'Vodafone Cash'),
+    ('AIRTELTIGO', 'AirtelTigo Money'),
+]
 
 # Delivery fee settings (in GHS)
 DELIVERY_REGIONS = {
