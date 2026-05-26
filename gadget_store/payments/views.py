@@ -13,18 +13,13 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from .forms import MobileMoneyPaymentForm
 from orders.models import Order
 from .models import Payment
 import logging
 
 
 logger = logging.getLogger(__name__)
-
-MOBILE_MONEY_NETWORKS = [
-    ('MTN', 'MTN Mobile Money'),
-    ('VODAFONE', 'Telecel Cash'),
-    ('AIRTELTIGO', 'AirtelTigo Money'),
-]
 
 FLW_CHARGE_URL = "https://api.flutterwave.com/v3/charges?type=mobile_money_ghana"
 
@@ -109,12 +104,8 @@ def _create_mobile_money_charge(request, order, payment, network, phone_number):
 def initiate_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id, status='pending')
     
-    # Calculate total price manually to resolve AttributeError if total_price is missing on Order model
-    items_total = sum(item.price * item.quantity for item in order.items.all())
-    delivery_fee = order.delivery_zone.fee if order.delivery_zone else Decimal('0.00')
-    calculated_total = items_total + delivery_fee
-
     # Create or retrieve the payment record
+    calculated_total = order.get_total_amount() # Use the new method
     payment, _ = Payment.objects.get_or_create(
         order=order,
         defaults={
@@ -133,7 +124,7 @@ def initiate_payment(request, order_id):
                 'order': order,
                 'payment': payment,
                 'currency': settings.FLUTTERWAVE_CURRENCY,
-                'networks': MOBILE_MONEY_NETWORKS,
+                'networks': settings.FLUTTERWAVE_MOBILE_MONEY_NETWORKS,
                 'error': 'Please provide both network and phone number.'
             })
             
@@ -151,7 +142,7 @@ def initiate_payment(request, order_id):
                 'order': order,
                 'payment': payment,
                 'currency': settings.FLUTTERWAVE_CURRENCY,
-                'networks': MOBILE_MONEY_NETWORKS,
+                'networks': settings.FLUTTERWAVE_MOBILE_MONEY_NETWORKS,
                 'error': str(e)
             })
 
@@ -159,7 +150,7 @@ def initiate_payment(request, order_id):
         'order': order,
         'payment': payment,
         'currency': settings.FLUTTERWAVE_CURRENCY,
-        'networks': MOBILE_MONEY_NETWORKS
+        'networks': settings.FLUTTERWAVE_MOBILE_MONEY_NETWORKS
     })
 
 
