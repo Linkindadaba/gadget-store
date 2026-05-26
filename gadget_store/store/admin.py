@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.shortcuts import render, redirect
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, F
 from django.contrib.auth.models import User, Group
 from orders.models import Order, OrderItem
 from payments.models import Payment
-from .models import Category, Product, ProductImage, Profile, Review, User
+from .models import Category, Product, ProductImage, Profile, Review
 
 
 class ProductImageInline(admin.TabularInline):
