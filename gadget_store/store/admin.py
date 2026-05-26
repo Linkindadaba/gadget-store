@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.shortcuts import render, redirect
 from django.db.models import Sum, Count
 from django.contrib.auth.models import User, Group
+from django.utils.html import format_html
 from orders.models import Order, OrderItem
 from payments.models import Payment
 from .models import Category, Product, ProductImage, Profile, Review
@@ -12,13 +13,11 @@ class ProductImageInline(admin.TabularInline):
     extra = 1
 
 
-@admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug']
     prepopulated_fields = {'slug': ('name',)}
 
 
-@admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['name', 'category', 'price', 'discount_price', 'effective_price', 'stock', 'is_featured', 'is_active']
     list_filter = ['category', 'is_featured', 'is_active']
@@ -61,10 +60,15 @@ class ProductAdmin(admin.ModelAdmin):
     set_discount_percent.short_description = 'Set discount percentage on selected products'
 
 
-@admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'phone', 'city', 'region']
+    list_display = ['user', 'thumbnail', 'phone', 'city', 'region']
     search_fields = ['user__username', 'user__email', 'phone']
+
+    def thumbnail(self, obj):
+        if obj.profile_picture:
+            return format_html('<img src="{}" style="width: 45px; height:45px; border-radius: 50%;" />', obj.profile_picture.url)
+        return "No Image"
+    thumbnail.short_description = 'Photo'
 
 
 # Custom admin site
@@ -81,10 +85,13 @@ class MyAdminSite(admin.AdminSite):
         extra_context['total_revenue'] = Order.objects.filter(status__in=['paid', 'shipped', 'delivered']).aggregate(Sum('total'))['total__sum'] or 0
         # Status data
         status_counts = Order.objects.values('status').annotate(count=Count('status')).order_by('status')
-        status_data = {
-            'labels': [dict(Order.STATUS_CHOICES)[s['status']] for s in status_counts],
-            'data': [s['count'] for s in status_counts]
-        }
+        status_data = [
+            {
+                'label': dict(Order.STATUS_CHOICES).get(s['status'], s['status']),
+                'count': s['count'],
+            }
+            for s in status_counts
+        ]
         extra_context['status_data'] = status_data
         # Top products
         top_products = OrderItem.objects.values('product_name').annotate(order_count=Sum('quantity')).order_by('-order_count')[:5]
@@ -98,16 +105,15 @@ class MyAdminSite(admin.AdminSite):
 # Replace the default admin site
 admin.site = MyAdminSite()
 
-# Re-register models
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Product, ProductAdmin)
-admin.site.register(Profile, ProfileAdmin)
-
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ['product', 'user', 'rating', 'created_at']
     list_filter = ['rating', 'created_at']
     search_fields = ['product__name', 'user__username', 'comment']
 
+# Register Store models to the custom site
+admin.site.register(Category, CategoryAdmin)
+admin.site.register(Product, ProductAdmin)
+admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Review, ReviewAdmin)
 
 # Register Order models

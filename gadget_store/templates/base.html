@@ -144,6 +144,8 @@
 </div>
 {% endif %}
 
+<div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px;"></div>
+
 {% block content %}{% endblock %}
 
 <footer class="mt-5 pt-5 pb-3">
@@ -195,6 +197,75 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function updateCartBadge(count) {
+  let badge = document.querySelector('.cart-badge');
+  if (!badge) {
+    const cartLink = document.querySelector('.cart-btn');
+    if (!cartLink) return;
+    badge = document.createElement('span');
+    badge.className = 'cart-badge ms-1';
+    cartLink.appendChild(badge);
+  }
+  badge.textContent = count;
+}
+
+function showCartToast(productName) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast align-items-center text-bg-dark border-0 show';
+  toast.role = 'alert';
+  toast.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">
+        <strong>${productName}</strong> added to cart. <a href="{% url 'store:cart' %}" class="text-info text-decoration-underline">View Cart</a>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close"></button>
+    </div>
+  `;
+  container.appendChild(toast);
+
+  toast.querySelector('.btn-close').addEventListener('click', () => {
+    toast.remove();
+  });
+  setTimeout(() => toast.remove(), 4000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('form.ajax-add-to-cart').forEach(function(form) {
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const formData = new FormData(form);
+      const action = form.action;
+      const productName = form.dataset.productName || 'Item';
+
+      fetch(action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(function(response) {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+      })
+      .then(function(data) {
+        if (data.success) {
+          updateCartBadge(data.cart_count);
+          showCartToast(productName);
+        } else {
+          form.submit();
+        }
+      })
+      .catch(function() {
+        form.submit();
+      });
+    });
+  });
+});
+</script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

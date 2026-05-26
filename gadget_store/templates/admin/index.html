@@ -38,10 +38,11 @@
   @media (min-width: 768px) {
     .stat-number { font-size: 2rem; }
     .dashboard-card { padding: 1.5rem; }
-      overflow: visible; 
-      margin: 0;
-      padding: 0;
+    .table-responsive table {
+      font-size: 1rem;
+      min-width: auto;
     }
+  }
     .table-responsive table {
       font-size: 1rem;
       min-width: auto;
@@ -95,7 +96,7 @@
         <ul class="list-group list-group-flush">
           {% for product in top_products %}
           <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-            <span class="text-truncate">{{ product.name }}</span>
+            <span class="text-truncate">{{ product.product_name }}</span>
             <span class="badge bg-primary rounded-pill">{{ product.order_count }}</span>
           </li>
           {% endfor %}
@@ -139,14 +140,23 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const statusData = {{ status_data|safe }};
+  const statusLabels = [
+    {% for status in status_data %}
+      "{{ status.label }}"{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+  const statusCounts = [
+    {% for status in status_data %}
+      {{ status.count }}{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
   const ctx = document.getElementById('statusChart').getContext('2d');
   new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: statusData.labels,
+      labels: statusLabels,
       datasets: [{
-        data: statusData.data,
+        data: statusCounts,
         backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d'],
       }]
     }
