@@ -4,6 +4,8 @@
     "builder": "dockerfile"
   },
   "deploy": {
+    "preDeployCommand": "python manage.py migrate",
     "startCommand": "gunicorn gadget_store.wsgi"
   }
 }
+
