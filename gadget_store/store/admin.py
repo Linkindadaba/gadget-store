@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.shortcuts import render, redirect
-from django.db.models import Sum, Count, F
+from django.db.models import Sum, Count
 from django.contrib.auth.models import User, Group
 from orders.models import Order, OrderItem
 from payments.models import Payment
@@ -87,7 +87,7 @@ class MyAdminSite(admin.AdminSite):
         }
         extra_context['status_data'] = status_data
         # Top products
-        top_products = OrderItem.objects.values(name=F('product_name')).annotate(order_count=Sum('quantity')).order_by('-order_count')[:5]
+        top_products = OrderItem.objects.values('product_name').annotate(order_count=Sum('quantity')).order_by('-order_count')[:5]
         extra_context['top_products'] = top_products
         # Recent orders
         recent_orders = Order.objects.order_by('-created_at')[:10]
