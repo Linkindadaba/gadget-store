@@ -43,11 +43,6 @@
       min-width: auto;
     }
   }
-    .table-responsive table {
-      font-size: 1rem;
-      min-width: auto;
-    }
-  }
 </style>
 {% endblock %}
 {% block content %}
@@ -139,17 +134,12 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{ status_data|json_script:"status-data" }}
 <script>
-  const statusLabels = [
-    {% for status in status_data %}
-      "{{ status.label }}"{% if not forloop.last %},{% endif %}
-    {% endfor %}
-  ];
-  const statusCounts = [
-    {% for status in status_data %}
-      {{ status.count }}{% if not forloop.last %},{% endif %}
-    {% endfor %}
-  ];
+  const statusData = JSON.parse(document.getElementById('status-data').textContent);
+  const statusLabels = statusData.length > 0 ? statusData.map(s => s.label) : ["No Data"];
+  const statusCounts = statusData.length > 0 ? statusData.map(s => s.count) : [0];
+
   const ctx = document.getElementById('statusChart').getContext('2d');
   new Chart(ctx, {
     type: 'pie',

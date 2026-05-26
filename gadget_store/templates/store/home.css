@@ -1,0 +1,102 @@
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 60%, #16213e 100%);
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(245, 197, 24, 0.15) 0%, transparent 70%);
+}
+
+.hero-badge {
+  background: rgba(245, 197, 24, 0.15);
+  color: #f5c518;
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: 'Syne', sans-serif;
+}
+
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  color: #fff;
+  margin-top: 1rem;
+  line-height: 1.1;
+}
+
+.hero-description {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+  margin: 1.5rem 0;
+}
+
+.hero-stat {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.hero-stat-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  color: #f5c518;
+  display: block;
+}
+
+.hero-stat-value.accent {
+  color: #00d4aa;
+}
+
+.hero-emoji {
+  font-size: 12rem;
+  line-height: 1;
+  filter: drop-shadow(0 20px 60px rgba(245, 197, 24, 0.3));
+}
+
+/* Category Section */
+.category-card {
+  transition: all 0.2s;
+  border: 2px solid transparent !important;
+}
+
+.category-card:hover {
+  border-color: #f5c518 !important;
+  transform: translateY(-3px);
+}
+
+.category-icon-wrapper {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.category-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #0a0a0a;
+  margin: 0;
+}
+
+/* Global Utility */
+.text-accent-yellow {
+  color: #f5c518;
+}
+
+.featured-section { background: #fff; }
+.new-arrivals-section { background: #f8f8f6; }
+.trust-section { background: #0a0a0a; color: #fff; }
+.trust-icon { font-size: 2.5rem; }
+.trust-icon.accent-yellow { color: #f5c518; }
+.trust-icon.accent-teal { color: #00d4aa; }
+.trust-title { font-family: 'Syne', sans-serif; margin-top: 1rem; }
