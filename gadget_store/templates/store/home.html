@@ -1,26 +1,28 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}F.B Nation - Gadgets & Accessories{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
 {% block content %}
 <!-- Hero -->
-<section style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 60%,#16213e 100%);min-height:80vh;display:flex;align-items:center;position:relative;overflow:hidden;">
-  <div style="position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(245,197,24,0.15) 0%,transparent 70%);"></div>
+<section class="hero-section">
+  <div class="hero-glow"></div>
   <div class="container py-5">
     <div class="row align-items-center">
       <div class="col-lg-6">
-        <span style="background:rgba(245,197,24,0.15);color:#f5c518;padding:6px 16px;border-radius:30px;font-size:0.85rem;font-weight:600;font-family:'Syne',sans-serif;">F.B Nation Gadget Store</span>
-        <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.5rem,5vw,4rem);color:#fff;margin-top:1rem;line-height:1.1;">Next-Level<br><span style="color:#f5c518;">Tech</span> at Your<br>Fingertips</h1>
-        <p style="color:rgba(255,255,255,0.7);font-size:1.1rem;margin:1.5rem 0;">Shop the latest smartphones, earbuds, smartwatches and accessories. Fast delivery across all regions.</p>
+        <span class="hero-badge">F.B Nation Gadget Store</span>
+        <h1 class="hero-title">Next-Level<br><span class="text-accent-yellow">Tech</span> at Your<br>Fingertips</h1>
+        <p class="hero-description">Shop the latest smartphones, earbuds, smartwatches and accessories. Fast delivery across all regions.</p>
         <div class="d-flex gap-3 flex-wrap">
           <a href="{% url 'store:product_list' %}" class="btn btn-primary-custom btn-lg">Shop Now <i class="bi bi-arrow-right ms-1"></i></a>
         </div>
         <div class="d-flex gap-4 mt-4">
-          <div style="color:rgba(255,255,255,0.8);font-size:0.9rem"><strong style="font-family:'Syne',sans-serif;font-size:1.5rem;color:#00d4aa;display:block">100%</strong>Authentic</div>
-          <div style="color:rgba(255,255,255,0.8);font-size:0.9rem"><strong style="font-family:'Syne',sans-serif;font-size:1.5rem;color:#f5c518;display:block">16</strong>Regions</div>
-          <div style="color:rgba(255,255,255,0.8);font-size:0.9rem"><strong style="font-family:'Syne',sans-serif;font-size:1.5rem;color:#f5c518;display:block">🔒</strong>Secure Pay</div>
+          <div class="hero-stat"><strong class="hero-stat-value accent">100%</strong>Authentic</div>
+          <div class="hero-stat"><strong class="hero-stat-value">16</strong>Regions</div>
+          <div class="hero-stat"><strong class="hero-stat-value">🔒</strong>Secure Pay</div>
         </div>
       </div>
       <div class="col-lg-6 text-center mt-5 mt-lg-0">
-        <div style="font-size:12rem;line-height:1;filter:drop-shadow(0 20px 60px rgba(245,197,24,0.3))">📱</div>
+        <div class="hero-emoji">📱</div>
       </div>
     </div>
   </div>
@@ -34,9 +36,9 @@
     {% for cat in categories %}
     <div class="col-6 col-md-3 col-lg-2">
       <a href="{% url 'store:product_list' %}?category={{ cat.slug }}" class="text-decoration-none">
-        <div class="text-center p-3 rounded-xl bg-white" style="transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='#f5c518';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='transparent';this.style.transform='none'">
-          <div style="font-size:2.5rem;margin-bottom:0.5rem"><i class="bi {{ cat.icon }}"></i></div>
-          <p style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:#0a0a0a;margin:0">{{ cat.name }}</p>
+        <div class="text-center p-3 rounded-xl bg-white category-card">
+          <div class="category-icon-wrapper"><i class="bi {{ cat.icon }}"></i></div>
+          <p class="category-name">{{ cat.name }}</p>
         </div>
       </a>
     </div>
@@ -46,7 +48,7 @@
 {% endif %}
 
 {% if featured_products %}
-<section class="py-5" style="background:#fff">
+<section class="py-5 featured-section">
   <div class="container">
     <div class="d-flex justify-content-between align-items-end mb-4">
       <div><h2 class="section-title mb-1">Featured Products</h2><div class="accent-bar"></div></div>
@@ -60,7 +62,7 @@
           {% else %}<div class="product-placeholder"><i class="bi bi-box-seam"></i></div>{% endif %}
           <div class="card-body d-flex flex-column p-3">
             {% if product.discount_percent and product.discount_percent > 0 %}<span class="badge-discount mb-2 align-self-start">-{{ product.discount_percent }}%</span>{% endif %}
-            <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px">{{ product.category.name }}</p>
+            <p class="product-category-label">{{ product.category.name }}</p>
             <h6 style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;flex:1"><a href="{{ product.get_absolute_url }}" class="text-decoration-none text-dark">{{ product.name }}</a></h6>
             <div class="d-flex align-items-center gap-2 mb-3">
               <span class="price-current">GHS {{ product.effective_price }}</span>
@@ -68,7 +70,7 @@
             </div>
             {% if product.in_stock %}
             <form method="post" action="{% url 'store:add_to_cart' product.id %}" class="ajax-add-to-cart" data-product-name="{{ product.name }}">{% csrf_token %}
-              <input type="hidden" name="quantity" value="1">
+              <input type="hidden" name="quantity" value="1" title="Quantity">
               <button type="submit" class="btn btn-cart w-100 btn-sm"><i class="bi bi-bag-plus me-1"></i> Add to Cart</button>
             </form>
             {% else %}<button class="btn btn-secondary w-100 btn-sm" disabled>Out of Stock</button>{% endif %}
@@ -82,7 +84,7 @@
 {% endif %}
 
 {% if new_arrivals %}
-<section class="py-5" style="background:#f8f8f6">
+<section class="py-5 new-arrivals-section">
   <div class="container">
     <div class="d-flex justify-content-between align-items-end mb-4">
       <div><h2 class="section-title mb-1">New Arrivals</h2><div class="accent-bar"></div></div>
@@ -96,7 +98,7 @@
           {% else %}<div class="product-placeholder"><i class="bi bi-box-seam"></i></div>{% endif %}
           <div class="card-body d-flex flex-column p-3">
             {% if product.discount_percent > 0 %}<span class="badge-discount mb-2 align-self-start">-{{ product.discount_percent }}%</span>{% endif %}
-            <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px">{{ product.category.name }}</p>
+            <p class="product-category-label">{{ product.category.name }}</p>
             <h6 style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;flex:1"><a href="{{ product.get_absolute_url }}" class="text-decoration-none text-dark">{{ product.name }}</a></h6>
             <div class="d-flex align-items-center gap-2 mb-3">
               <span class="price-current">GHS {{ product.effective_price }}</span>
@@ -104,7 +106,7 @@
             </div>
             {% if product.in_stock %}
             <form method="post" action="{% url 'store:add_to_cart' product.id %}">{% csrf_token %}
-              <input type="hidden" name="quantity" value="1">
+              <input type="hidden" name="quantity" value="1" title="Quantity">
               <button type="submit" class="btn btn-cart w-100 btn-sm"><i class="bi bi-bag-plus me-1"></i> Add to Cart</button>
             </form>
             {% else %}<button class="btn btn-secondary w-100 btn-sm" disabled>Out of Stock</button>{% endif %}
@@ -117,13 +119,13 @@
 </section>
 {% endif %}
 
-<section style="background:#0a0a0a;color:#fff" class="py-5">
+<section class="py-5 trust-section">
   <div class="container">
     <div class="row g-4 text-center">
-      <div class="col-6 col-md-3"><i class="bi bi-shield-check" style="font-size:2.5rem;color:#f5c518"></i><h6 style="font-family:'Syne',sans-serif;margin-top:1rem">100% Authentic</h6></div>
-      <div class="col-6 col-md-3"><i class="bi bi-truck" style="font-size:2.5rem;color:#00d4aa"></i><h6 style="font-family:'Syne',sans-serif;margin-top:1rem">Nationwide Delivery</h6></div>
-      <div class="col-6 col-md-3"><i class="bi bi-lock" style="font-size:2.5rem;color:#f5c518"></i><h6 style="font-family:'Syne',sans-serif;margin-top:1rem">Secure Payments</h6></div>
-      <div class="col-6 col-md-3"><i class="bi bi-headset" style="font-size:2.5rem;color:#00d4aa"></i><h6 style="font-family:'Syne',sans-serif;margin-top:1rem">Customer Support</h6></div>
+      <div class="col-6 col-md-3"><i class="bi bi-shield-check trust-icon accent-yellow"></i><h6 class="trust-title">100% Authentic</h6></div>
+      <div class="col-6 col-md-3"><i class="bi bi-truck trust-icon accent-teal"></i><h6 class="trust-title">Nationwide Delivery</h6></div>
+      <div class="col-6 col-md-3"><i class="bi bi-lock trust-icon accent-yellow"></i><h6 class="trust-title">Secure Payments</h6></div>
+      <div class="col-6 col-md-3"><i class="bi bi-headset trust-icon accent-teal"></i><h6 class="trust-title">Customer Support</h6></div>
     </div>
   </div>
 </section>

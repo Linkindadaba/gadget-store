@@ -3,8 +3,7 @@ from django.shortcuts import render, redirect
 from django.db.models import Sum, Count
 from django.contrib.auth.models import User, Group
 from django.utils.html import format_html
-from orders.models import Order, OrderItem
-from payments.models import Payment
+from django.core.exceptions import ObjectDoesNotExist
 from .models import Category, Product, ProductImage, Profile, Review
 
 
@@ -65,9 +64,12 @@ class ProfileAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'user__email', 'phone']
 
     def thumbnail(self, obj):
-        if obj.profile_picture:
-            return format_html('<img src="{}" style="width: 45px; height:45px; border-radius: 50%;" />', obj.profile_picture.url)
-        return "No Image"
+        try:
+            if obj.profile_picture and hasattr(obj.profile_picture, 'url'):
+                return format_html('<img src="{}" style="width: 45px; height:45px; border-radius: 50%; object-fit: cover;" />', obj.profile_picture.url)
+        except (AttributeError, ObjectDoesNotExist):
+            pass
+        return format_html('<div style="width: 45px; height: 45px; border-radius: 50%; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #999;">No Pix</div>')
     thumbnail.short_description = 'Photo'
 
 
@@ -77,7 +79,9 @@ class MyAdminSite(admin.AdminSite):
     site_title = "F.B Nation Admin"
     index_title = "Dashboard"
 
+    # Move internal imports here to avoid circular dependencies if models change
     def index(self, request, extra_context=None):
+        from orders.models import Order, OrderItem
         extra_context = extra_context or {}
         extra_context['total_products'] = Product.objects.count()
         extra_context['total_orders'] = Order.objects.count()
@@ -105,21 +109,17 @@ class MyAdminSite(admin.AdminSite):
 # Replace the default admin site
 admin.site = MyAdminSite()
 
+# Defined here so it uses the new admin.site
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ['product', 'user', 'rating', 'created_at']
     list_filter = ['rating', 'created_at']
     search_fields = ['product__name', 'user__username', 'comment']
 
-# Register Store models to the custom site
+# Register Store models
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Review, ReviewAdmin)
-
-# Register Order models
-from orders.models import Order, OrderItem
-from payments.models import Payment
-from django.contrib.auth.models import User, Group
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['order_number', 'first_name', 'last_name', 'total', 'status', 'created_at']
@@ -134,6 +134,9 @@ class PaymentAdmin(admin.ModelAdmin):
     list_filter = ['status']
     search_fields = ['reference', 'order__order_number']
 
+# Register remaining models to custom site
+from orders.models import Order, OrderItem
+from payments.models import Payment
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 admin.site.register(Payment, PaymentAdmin)
