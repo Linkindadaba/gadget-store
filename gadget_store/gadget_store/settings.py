@@ -73,28 +73,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gadget_store.wsgi.application'
 
-# Database configuration - uses PostgreSQL on Railway, SQLite locally
+# Database configuration
+# Use PostgreSQL whenever DATABASE_URL is configured.
+# Fall back to local SQLite only when DEBUG=True and DATABASE_URL is not set.
 DATABASE_URL = config('DATABASE_URL', default='')
 
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-else:
-    if not DATABASE_URL:
-        raise ImproperlyConfigured(
-            'DATABASE_URL must be set when DEBUG=False. '
-            'Set the Railway environment variable to your PostgreSQL URL.'
-        )
+if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(
             DATABASE_URL,
             conn_max_age=600,
             conn_health_checks=True,
         )
+    }
+else:
+    if not DEBUG:
+        raise ImproperlyConfigured(
+            'DATABASE_URL must be set when DEBUG=False. '
+            'Set the Railway environment variable to your PostgreSQL URL.'
+        )
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
 
 AUTH_PASSWORD_VALIDATORS = [

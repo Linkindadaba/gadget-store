@@ -50,12 +50,15 @@ Updated deployment commands:
 Add these variables to your Django service in Railway:
 - `DEBUG` = `False` (required for production)
 - `SECRET_KEY` = `<your-django-secret-key>` (required)
+- `DATABASE_URL` = `${{ Postgres.DATABASE_URL }}` (required for PostgreSQL)
 - `ALLOWED_HOSTS` = `your-domain.up.railway.app,www.your-domain.com` (if custom domain)
 - Other optional variables:
   - `PAYSTACK_SECRET_KEY`
   - `PAYSTACK_PUBLIC_KEY`
   - `CLOUDINARY_CLOUD_NAME`
   - etc.
+
+> The app will use PostgreSQL whenever `DATABASE_URL` is provided. SQLite is only used as a local fallback when `DEBUG=True` and `DATABASE_URL` is absent.
 
 ### Step 4: Deploy
 ```bash
@@ -77,6 +80,21 @@ If you have products or users in your local `db.sqlite3` that you want to move t
    $env:DATABASE_URL="your-postgres-connection-string"
    python scripts/migrate_to_postgres.py
    ```
+
+### Step 6: Verify Schema via SQL
+To ensure all fields (including custom ones like 'gateway') were created correctly, you can run these SQL commands in the Railway "Query" tab or your local SQL client:
+```sql
+-- Verify all tables exist
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';
+
+-- Verify specific fields in the Product table
+SELECT column_name, data_type FROM information_schema.columns 
+WHERE table_name = 'store_product';
+
+-- Verify the Payment gateway field exists
+SELECT column_name, data_type FROM information_schema.columns 
+WHERE table_name = 'payments_payment' AND column_name = 'gateway';
+```
 
 ## Troubleshooting
 
