@@ -197,6 +197,14 @@
 </style>
 {% endblock %}
 
+{% block breadcrumbs %}
+<div class="breadcrumbs" style="background: transparent; border: none; padding: 1.5rem 1rem 0 1rem; font-size: 0.85rem;">
+    <a href="{{ site_url|default:'/' }}" style="color: #facc15; text-decoration: none;"><i class="bi bi-globe me-1"></i>View Site</a>
+    <span style="color: rgba(255,255,255,0.3); margin: 0 8px;">/</span>
+    <span style="color: #94a3b8;">Admin Dashboard</span>
+</div>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid px-3 py-4" x-data="{ view:'summary' }">
   <div class="d-flex justify-content-between align-items-center mb-4">
