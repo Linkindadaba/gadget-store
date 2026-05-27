@@ -145,6 +145,12 @@ FLUTTERWAVE_MOBILE_MONEY_NETWORKS = [
     ('AIRTELTIGO', 'AirtelTigo Money'),
 ]
 
+# Payment settings (Paystack)
+PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default='PAYSTACK_TEST_xxxxxxxxxxxxxxxxxxxxxxxxx')
+PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default='PAYSTACK_TEST_xxxxxxxxxxxxxxxxxxxxxxxxx')
+PAYSTACK_WEBHOOK_SECRET = config('PAYSTACK_WEBHOOK_SECRET', default='your_paystack_webhook_secret')
+PAYSTACK_CURRENCY = 'GHS'
+
 # Delivery fee settings (in GHS)
 DELIVERY_REGIONS = {
     'Greater Accra': 15.00,
