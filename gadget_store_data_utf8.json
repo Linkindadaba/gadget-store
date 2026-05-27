@@ -1,0 +1,743 @@
+﻿[
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$QxBk12s65VOvtYJ4opJVET$y+J1h9a/8mR3+zNmPFMpH9Cwpik3p/3RdzX2Fg8x6nU=",
+    "last_login": "2026-04-11T15:24:12.013Z",
+    "is_superuser": true,
+    "username": "sikapa",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-04-11T14:48:28.020Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$FfmKRUueRJ7rcd62I4jFac$53YZgBujpdd5OX9xX2hButcub6SWTIr2nZ0pj8DaJbs=",
+    "last_login": "2026-04-21T06:12:59.278Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@example.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-04-21T04:44:41.717Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$B4QVASbxYYmsd8UOqeGcKN$Pwr00BzUnSZfkwCvVufWLP88oAXuryPTy1/1xN421dM=",
+    "last_login": "2026-04-21T06:21:59.710Z",
+    "is_superuser": false,
+    "username": "linkin",
+    "first_name": "prince",
+    "last_name": "agyei",
+    "email": "princentiamoah3476@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-21T05:00:04.470Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$QNFa2H34QcZkoVmPXVG4m9$ioAcBrP/CTRNupcXFKAX9d7db7JEa9PuDz5pOetEnY4=",
+    "last_login": "2026-04-21T06:10:54.152Z",
+    "is_superuser": false,
+    "username": "kali",
+    "first_name": "sikapa",
+    "last_name": "agyei",
+    "email": "sikapalinkz@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-21T06:10:48.917Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "16t02ddjtwiga57d3c83gwlommevfro9",
+  "fields": {
+    "session_data": ".eJxVjDsOwyAQBe9CHSHMH5fpfQa0LCQ4ibAEuLJ899iSi6R9M2824mHt2a8tVT9HMpKB3H63APhO5QTxBeW5UFxKr3Ogp0Iv2ui0xPS5X-5fIEPLx5tz9rA6SieUTpYpIVQ0IVlUnKNFYxCRKylYgOBcEEaKARVDaQ0DzeQRRaidjNu-fwH0WDoq:1wBa9r:XIXI2q_jzZU0dvi92dIJBBaeRgs7ABb59qhyAdGsQvs",
+    "expire_date": "2026-04-25T15:22:03.016Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "1s0slb3jiaaxmreyinw4218q8mxbhmwe",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlkbr7-U9DmD5V0bHECOFCcV4u4QKQW0b2beS8S0rTVuvSxxyuIsBnH63Sjxo7Qd5Htqt1ny3NZlIrkr8qBdjnMuz8vh_h3U1Ou3Vgqu3mYd0NjiwSCa7Kh4NkqxZ-eYWRmNQIlCIHQaBzbA2jtIFrR4fwDA4jbe:1wBaBr:4XECe22lYO5eR7lkTEsF8fLFwOBQ2JsTAkX-Tb2wyDk",
+    "expire_date": "2026-04-25T15:24:07.936Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "996v7g7kfzskvnchg2ngzbtw5vhiwal6",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlkbr7-U9DmD5V0bHECOFCcV4u4QKQW0b2beS8S0rTVuvSxxyuIsBnH63Sjxo7Qd5Htqt1ny3NZlIrkr8qBdjnMuz8vh_h3U1Ou3Vgqu3mYd0NjiwSCa7Kh4NkqxZ-eYWRmNQIlCIHQaBzbA2jtIFrR4fwDA4jbe:1wBaBt:duYrlIJ4ti2zoOfSwE6KNETTsJ7XrQ2UMG4-iAlFKY8",
+    "expire_date": "2026-04-25T15:24:09.569Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "9ngmivvldntmemlaxgh0xa38i8ibkgkp",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlkbr7-U9DmD5V0bHECOFCcV4u4QKQW0b2beS8S0rTVuvSxxyuIsBnH63Sjxo7Qd5Htqt1ny3NZlIrkr8qBdjnMuz8vh_h3U1Ou3Vgqu3mYd0NjiwSCa7Kh4NkqxZ-eYWRmNQIlCIHQaBzbA2jtIFrR4fwDA4jbe:1wBaBu:gT_XNwkK6-sxsLdWGiq0W4R7OfTBhMge3PqJQHMdEY4",
+    "expire_date": "2026-04-25T15:24:10.851Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "ev0fgdf7a7vhvpxtnrwdxvpu6bay2vo8",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlkbr7-U9DmD5V0bHECOFCcV4u4QKQW0b2beS8S0rTVuvSxxyuIsBnH63Sjxo7Qd5Htqt1ny3NZlIrkr8qBdjnMuz8vh_h3U1Ou3Vgqu3mYd0NjiwSCa7Kh4NkqxZ-eYWRmNQIlCIHQaBzbA2jtIFrR4fwDA4jbe:1wBaBs:PI64b8dxx4O6tZ1ljMSprWyc6-0BBT2z0bnufl8gFPE",
+    "expire_date": "2026-04-25T15:24:08.802Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "gdvrbu745s4wk9aphvod3681xn2cao69",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlkbr7-U9DmD5V0bHECOFCcV4u4QKQW0b2beS8S0rTVuvSxxyuIsBnH63Sjxo7Qd5Htqt1ny3NZlIrkr8qBdjnMuz8vh_h3U1Ou3Vgqu3mYd0NjiwSCa7Kh4NkqxZ-eYWRmNQIlCIHQaBzbA2jtIFrR4fwDA4jbe:1wBaBw:TxJl_wqjETySh8XCrHc7h_dIueUj8Kp4NiblDTPRubU",
+    "expire_date": "2026-04-25T15:24:12.270Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "qr4zx54pobryjcstcg3mtoeuy82wh89g",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlkbr7-U9DmD5V0bHECOFCcV4u4QKQW0b2beS8S0rTVuvSxxyuIsBnH63Sjxo7Qd5Htqt1ny3NZlIrkr8qBdjnMuz8vh_h3U1Ou3Vgqu3mYd0NjiwSCa7Kh4NkqxZ-eYWRmNQIlCIHQaBzbA2jtIFrR4fwDA4jbe:1wBaBu:gT_XNwkK6-sxsLdWGiq0W4R7OfTBhMge3PqJQHMdEY4",
+    "expire_date": "2026-04-25T15:24:10.106Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "t8tigmrw7gcnptvrzavp5zdikiw4jen4",
+  "fields": {
+    "session_data": ".eJxVjDEOwjAMAP_iGUWNiU3bkZ03VHac0gJKpKadEH9HlTrAene6NwyyrdOw1bQMs0EPZzj9MpX4THkX9pB8Ly6WvC6zuj1xh63uViy9rkf7N5ikTtBDDNR2wYjQR5LRFIkpECGxV9-imCl3I6ZIF0b2bBa8NNg1OqpwhM8XzHQ3mQ:1wF4Uh:3vIcGwo6If0-DfyjXZYHDP4LrCN2sJ-As8hPLuCg71U",
+    "expire_date": "2026-05-05T06:21:59.845Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "yh824m123tw97108ak5u04yzzkq2luvv",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlkbr7-U9DmD5V0bHECOFCcV4u4QKQW0b2beS8S0rTVuvSxxyuIsBnH63Sjxo7Qd5Htqt1ny3NZlIrkr8qBdjnMuz8vh_h3U1Ou3Vgqu3mYd0NjiwSCa7Kh4NkqxZ-eYWRmNQIlCIHQaBzbA2jtIFrR4fwDA4jbe:1wBaBq:CQpxFLlek5MkW0vhrzm5yFAHN8DBSth0Glyr4UcwDpY",
+    "expire_date": "2026-04-25T15:24:06.530Z"
+  }
+},
+{
+  "model": "store.category",
+  "pk": 1,
+  "fields": {
+    "name": "Smartphones",
+    "slug": "smartphones",
+    "description": "Latest smartphones and mobile phones",
+    "icon": "bi-phone"
+  }
+},
+{
+  "model": "store.category",
+  "pk": 2,
+  "fields": {
+    "name": "Earbuds & Headphones",
+    "slug": "earbuds-headphones",
+    "description": "Wireless and wired audio",
+    "icon": "bi-headphones"
+  }
+},
+{
+  "model": "store.category",
+  "pk": 3,
+  "fields": {
+    "name": "Smartwatches",
+    "slug": "smartwatches",
+    "description": "Smart wearables",
+    "icon": "bi-smartwatch"
+  }
+},
+{
+  "model": "store.category",
+  "pk": 4,
+  "fields": {
+    "name": "Laptop Accessories",
+    "slug": "laptop-accessories",
+    "description": "Bags, stands, keyboards and more",
+    "icon": "bi-laptop"
+  }
+},
+{
+  "model": "store.category",
+  "pk": 5,
+  "fields": {
+    "name": "Chargers & Cables",
+    "slug": "chargers-cables",
+    "description": "Fast chargers and cables",
+    "icon": "bi-plug"
+  }
+},
+{
+  "model": "store.category",
+  "pk": 6,
+  "fields": {
+    "name": "Phone Cases",
+    "slug": "phone-cases",
+    "description": "Protective cases and covers",
+    "icon": "bi-phone-flip"
+  }
+},
+{
+  "model": "store.category",
+  "pk": 7,
+  "fields": {
+    "name": "music-box",
+    "slug": "music-box",
+    "description": "",
+    "icon": "bi-grid"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 1,
+  "fields": {
+    "category": 1,
+    "name": "iPhone 15 Pro Max 256GB",
+    "slug": "iphone-15-pro-max-256gb",
+    "description": "Latest Apple flagship with titanium design, A17 Pro chip, and 48MP camera system.",
+    "price": "8999.00",
+    "discount_price": null,
+    "image": "",
+    "stock": 5,
+    "is_featured": true,
+    "is_active": true,
+    "created_at": "2026-04-11T14:39:25.837Z",
+    "updated_at": "2026-04-11T14:39:25.837Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 2,
+  "fields": {
+    "category": 1,
+    "name": "Samsung Galaxy S24 Ultra",
+    "slug": "samsung-galaxy-s24-ultra",
+    "description": "Samsung's most powerful phone with built-in S Pen, 200MP camera and Galaxy AI.",
+    "price": "7500.00",
+    "discount_price": "6999.00",
+    "image": "",
+    "stock": 8,
+    "is_featured": true,
+    "is_active": true,
+    "created_at": "2026-04-11T14:39:25.971Z",
+    "updated_at": "2026-04-11T14:39:25.971Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 3,
+  "fields": {
+    "category": 1,
+    "name": "Tecno Phantom X2 Pro",
+    "slug": "tecno-phantom-x2-pro",
+    "description": "Premium Tecno flagship with retractable portrait lens and Dimensity 9000 chip.",
+    "price": "3200.00",
+    "discount_price": "2800.00",
+    "image": "",
+    "stock": 12,
+    "is_featured": false,
+    "is_active": true,
+    "created_at": "2026-04-11T14:39:26.104Z",
+    "updated_at": "2026-04-11T14:39:26.104Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 4,
+  "fields": {
+    "category": 2,
+    "name": "AirPods Pro 2nd Gen",
+    "slug": "airpods-pro-2nd-gen",
+    "description": "Active noise cancellation, Adaptive Audio, and up to 30hrs battery life.",
+    "price": "1800.00",
+    "discount_price": "1500.00",
+    "image": "",
+    "stock": 15,
+    "is_featured": true,
+    "is_active": true,
+    "created_at": "2026-04-11T14:39:26.268Z",
+    "updated_at": "2026-04-11T14:39:26.268Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 5,
+  "fields": {
+    "category": 2,
+    "name": "Samsung Galaxy Buds2 Pro",
+    "slug": "samsung-galaxy-buds2-pro",
+    "description": "Hi-Fi 24-bit audio, intelligent ANC, and IPX7 water resistance.",
+    "price": "1200.00",
+    "discount_price": null,
+    "image": "",
+    "stock": 20,
+    "is_featured": false,
+    "is_active": true,
+    "created_at": "2026-04-11T14:39:26.406Z",
+    "updated_at": "2026-04-11T14:39:26.406Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 6,
+  "fields": {
+    "category": 3,
+    "name": "Apple Watch Series 9",
+    "slug": "apple-watch-series-9",
+    "description": "The most advanced Apple Watch with Double Tap gesture and brighter display.",
+    "price": "3500.00",
+    "discount_price": "3200.00",
+    "image": "",
+    "stock": 7,
+    "is_featured": true,
+    "is_active": true,
+    "created_at": "2026-04-11T14:39:26.556Z",
+    "updated_at": "2026-04-11T14:39:26.556Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 7,
+  "fields": {
+    "category": 3,
+    "name": "Samsung Galaxy Watch 6",
+    "slug": "samsung-galaxy-watch-6",
+    "description": "Advanced health tracking, sleep coaching, and 3-day battery life.",
+    "price": "2200.00",
+    "discount_price": "1900.00",
+    "image": "",
+    "stock": 10,
+    "is_featured": false,
+    "is_active": true,
+    "created_at": "2026-04-11T14:39:26.696Z",
+    "updated_at": "2026-04-11T14:39:26.696Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 8,
+  "fields": {
+    "category": 5,
+    "name": "Anker 65W GaN Charger",
+    "slug": "anker-65w-gan-charger",
+    "description": "Ultra-compact 65W GaN charger with 2 USB-C and 1 USB-A ports.",
+    "price": "250.00",
+    "discount_price": null,
+    "image": "",
+    "stock": 50,
+    "is_featured": false,
+    "is_active": true,
+    "created_at": "2026-04-11T14:39:26.872Z",
+    "updated_at": "2026-04-11T14:39:26.872Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 9,
+  "fields": {
+    "category": 5,
+    "name": "Baseus 100W USB-C Cable 2m",
+    "slug": "baseus-100w-usb-c-cable-2m",
+    "description": "Braided nylon 100W fast charge cable, supports up to 100W power delivery.",
+    "price": "80.00",
+    "discount_price": null,
+    "image": "",
+    "stock": 100,
+    "is_featured": false,
+    "is_active": true,
+    "created_at": "2026-04-11T14:39:27.000Z",
+    "updated_at": "2026-04-11T14:39:27.000Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 10,
+  "fields": {
+    "category": 6,
+    "name": "iPhone 15 Pro Silicone Case",
+    "slug": "iphone-15-pro-silicone-case",
+    "description": "Premium silicone case with MagSafe compatibility and microfibre lining.",
+    "price": "120.00",
+    "discount_price": "99.00",
+    "image": "",
+    "stock": 30,
+    "is_featured": false,
+    "is_active": true,
+    "created_at": "2026-04-11T14:39:27.176Z",
+    "updated_at": "2026-04-11T14:39:27.176Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 11,
+  "fields": {
+    "category": 4,
+    "name": "Laptop Stand Adjustable",
+    "slug": "laptop-stand-adjustable",
+    "description": "Ergonomic aluminium laptop stand, adjustable height, supports up to 17 inches.",
+    "price": "180.00",
+    "discount_price": null,
+    "image": "",
+    "stock": 25,
+    "is_featured": false,
+    "is_active": true,
+    "created_at": "2026-04-11T14:39:27.317Z",
+    "updated_at": "2026-04-11T14:39:27.317Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 12,
+  "fields": {
+    "category": 4,
+    "name": "Logitech MX Keys Mini",
+    "slug": "logitech-mx-keys-mini",
+    "description": "Compact wireless keyboard with smart illumination and multi-device connectivity.",
+    "price": "750.00",
+    "discount_price": "680.00",
+    "image": "",
+    "stock": 8,
+    "is_featured": true,
+    "is_active": true,
+    "created_at": "2026-04-11T14:39:27.483Z",
+    "updated_at": "2026-04-11T14:39:27.483Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 13,
+  "fields": {
+    "category": 2,
+    "name": "music box",
+    "slug": "music-box",
+    "description": "smart bluetooth device",
+    "price": "300.00",
+    "discount_price": "249.00",
+    "image": "products/1.jpg",
+    "stock": 9,
+    "is_featured": true,
+    "is_active": true,
+    "created_at": "2026-04-11T15:07:38.986Z",
+    "updated_at": "2026-04-21T05:31:07.691Z"
+  }
+},
+{
+  "model": "store.productimage",
+  "pk": 1,
+  "fields": {
+    "product": 13,
+    "image": "products/gallery/1.jpg",
+    "alt_text": ""
+  }
+},
+{
+  "model": "store.profile",
+  "pk": 1,
+  "fields": {
+    "user": [
+      "linkin"
+    ],
+    "profile_picture": "",
+    "phone": "",
+    "address": "dwomo",
+    "city": "bechem",
+    "region": "Bono East"
+  }
+},
+{
+  "model": "store.profile",
+  "pk": 2,
+  "fields": {
+    "user": [
+      "kali"
+    ],
+    "profile_picture": "",
+    "phone": "0205096296",
+    "address": "",
+    "city": "",
+    "region": ""
+  }
+},
+{
+  "model": "store.profile",
+  "pk": 3,
+  "fields": {
+    "user": [
+      "admin"
+    ],
+    "profile_picture": "",
+    "phone": "",
+    "address": "",
+    "city": "",
+    "region": ""
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 1,
+  "fields": {
+    "order_number": "C0DB5F65-B7A",
+    "user": [
+      "linkin"
+    ],
+    "first_name": "prince",
+    "last_name": "agyei",
+    "email": "princentiamoah3476@gmail.com",
+    "phone": "0205096296",
+    "address": "dwomo",
+    "city": "bechem",
+    "region": "Bono East",
+    "subtotal": "249.00",
+    "delivery_fee": "55.00",
+    "total": "304.00",
+    "status": "pending",
+    "notes": "",
+    "created_at": "2026-04-21T05:31:07.291Z",
+    "updated_at": "2026-04-21T05:31:07.291Z"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 1,
+  "fields": {
+    "order": 1,
+    "product": 13,
+    "product_name": "music box",
+    "price": "249.00",
+    "quantity": 1
+  }
+},
+{
+  "model": "payments.payment",
+  "pk": 1,
+  "fields": {
+    "order": 1,
+    "reference": "GS-C0DB5F65-B7A-45AB49",
+    "gateway": "flutterwave",
+    "gateway_transaction_id": "",
+    "amount": "304.00",
+    "status": "pending",
+    "gateway_response": "",
+    "paid_at": null,
+    "created_at": "2026-04-21T05:31:08.179Z"
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 1,
+  "fields": {
+    "region": "Greater Accra",
+    "fee": "15.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 2,
+  "fields": {
+    "region": "Ashanti",
+    "fee": "35.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 3,
+  "fields": {
+    "region": "Western",
+    "fee": "45.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 4,
+  "fields": {
+    "region": "Eastern",
+    "fee": "30.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 5,
+  "fields": {
+    "region": "Central",
+    "fee": "40.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 6,
+  "fields": {
+    "region": "Volta",
+    "fee": "50.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 7,
+  "fields": {
+    "region": "Northern",
+    "fee": "70.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 8,
+  "fields": {
+    "region": "Upper East",
+    "fee": "80.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 9,
+  "fields": {
+    "region": "Upper West",
+    "fee": "80.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 10,
+  "fields": {
+    "region": "Brong-Ahafo",
+    "fee": "55.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 11,
+  "fields": {
+    "region": "Bono East",
+    "fee": "55.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 12,
+  "fields": {
+    "region": "Ahafo",
+    "fee": "55.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 13,
+  "fields": {
+    "region": "Savannah",
+    "fee": "75.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 14,
+  "fields": {
+    "region": "North East",
+    "fee": "78.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 15,
+  "fields": {
+    "region": "Oti",
+    "fee": "60.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "logistics.deliveryzone",
+  "pk": 16,
+  "fields": {
+    "region": "Western North",
+    "fee": "50.00",
+    "estimated_days": "2-5 business days",
+    "is_active": true
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2026-04-11T15:05:47.924Z",
+    "user": [
+      "sikapa"
+    ],
+    "content_type": [
+      "store",
+      "category"
+    ],
+    "object_id": "7",
+    "object_repr": "music-box",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2026-04-11T15:07:38.996Z",
+    "user": [
+      "sikapa"
+    ],
+    "content_type": [
+      "store",
+      "product"
+    ],
+    "object_id": "13",
+    "object_repr": "music box",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}, {\"added\": {\"name\": \"product image\", \"object\": \"Image for music box\"}}]"
+  }
+}
+]
