@@ -135,7 +135,22 @@ if CLOUDINARY_STORAGE['CLOUD_NAME']:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Log database configuration for debugging (shown in Railway logs)
+import sys
+_db_engine = DATABASES['default'].get('ENGINE', 'unknown')
+_db_name = DATABASES['default'].get('NAME', 'unknown')
+_db_host = DATABASES['default'].get('HOST', 'N/A')
+print(f"[Django] Database Engine: {_db_engine}", file=sys.stderr)
+print(f"[Django] Database Name: {_db_name}", file=sys.stderr)
+if _db_host:
+    print(f"[Django] Database Host: {_db_host}", file=sys.stderr)
+if not DEBUG:
+    print(f"[Django] Running in PRODUCTION mode (DEBUG=False)", file=sys.stderr)
+else:
+    print(f"[Django] Running in DEVELOPMENT mode (DEBUG=True)", file=sys.stderr)
+
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 LOGIN_URL = '/accounts/login/'
