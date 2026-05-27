@@ -32,27 +32,46 @@
         {% else %}
           <form method="post" class="mb-3">
             {% csrf_token %}
-            <label class="form-label fw-semibold" for="network">Mobile money network</label>
-            <select class="form-select mb-3" id="network" name="network" required>
-              <option value="">Select network</option>
-              {% for value, label in networks %}
-                <option value="{{ value }}">{{ label }}</option>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Choose payment method</label>
+              {% for value, label in gateways %}
+                <div class="form-check mb-2">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="gateway"
+                    id="gateway_{{ value }}"
+                    value="{{ value }}"
+                    {% if selected_gateway == value %}checked{% endif %}
+                  />
+                  <label class="form-check-label" for="gateway_{{ value }}">{{ label }}</label>
+                </div>
               {% endfor %}
-            </select>
+            </div>
 
-            <label class="form-label fw-semibold" for="phone_number">Mobile money number</label>
-            <input
-              class="form-control mb-4"
-              id="phone_number"
-              name="phone_number"
-              type="tel"
-              value="{{ order.phone }}"
-              placeholder="0241234567"
-              required
-            >
+            <div id="mobile-money-fields">
+              <label class="form-label fw-semibold" for="network">Mobile money network</label>
+              <select class="form-select mb-3" id="network" name="network">
+                <option value="">Select network</option>
+                {% for value, label in networks %}
+                  <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
 
-            <button type="submit" class="btn btn-primary-custom btn-lg w-100">
-              <i class="bi bi-phone me-2"></i>Pay {{ currency }} {{ order.total_price }} with Flutterwave
+              <label class="form-label fw-semibold" for="phone_number">Mobile money number</label>
+              <input
+                class="form-control mb-4"
+                id="phone_number"
+                name="phone_number"
+                type="tel"
+                value="{{ order.phone }}"
+                placeholder="0241234567"
+              >
+            </div>
+
+            <button type="submit" class="btn btn-primary-custom btn-lg w-100" id="payment-submit-btn">
+              <i class="bi bi-lock-fill me-2"></i>Proceed to secure checkout
             </button>
           </form>
 
@@ -61,6 +80,33 @@
               I have approved the payment
             </a>
           {% endif %}
+
+          <div class="text-muted small mt-3" id="gateway-note">
+            Mobile money details are required for Flutterwave payments.
+          </div>
+
+          <script>
+            const gatewayRadios = document.querySelectorAll('input[name="gateway"]');
+            const mobileMoneyFields = document.getElementById('mobile-money-fields');
+            const gatewayNote = document.getElementById('gateway-note');
+            const submitBtn = document.getElementById('payment-submit-btn');
+
+            function updateGatewayUI() {
+              const selectedGateway = document.querySelector('input[name="gateway"]:checked').value;
+              if (selectedGateway === 'paystack') {
+                mobileMoneyFields.style.display = 'none';
+                gatewayNote.textContent = 'Paystack will redirect you to a secure hosted checkout for cards, mobile money, and USSD payments.';
+                submitBtn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Pay {{ currency }} {{ order.total_price }} with Paystack';
+              } else {
+                mobileMoneyFields.style.display = '';
+                gatewayNote.textContent = 'Mobile money details are required for Flutterwave payments.';
+                submitBtn.innerHTML = '<i class="bi bi-phone me-2"></i>Pay {{ currency }} {{ order.total_price }} with Flutterwave';
+              }
+            }
+
+            gatewayRadios.forEach((radio) => radio.addEventListener('change', updateGatewayUI));
+            updateGatewayUI();
+          </script>
         {% endif %}
 
         <p class="text-muted mt-3 text-center" style="font-size:0.8rem">

@@ -1,5 +1,5 @@
 {% extends "admin/change_form.html" %}
-{% load static %}
+{% load static admin_modify %}
 
 {% block extrastyle %}
 {{ block.super }}
@@ -94,6 +94,22 @@
     }
     .gallery-drop-zone i { font-size: 3rem; color: #bbb; display: block; margin-bottom: 10px; }
     .gallery-drop-zone p { margin: 0; color: #777; font-weight: 600; }
+
+    /* Two-Column Fieldset Layout */
+    fieldset.two-columns {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 30px;
+        border: none !important;
+    }
+    fieldset.two-columns .form-row { grid-column: span 1; width: 100% !important; border-bottom: none !important; }
+    /* Make the description field span both columns */
+    fieldset.two-columns .field-description { grid-column: span 2; }
+    
+    @media (max-width: 768px) {
+        fieldset.two-columns { grid-template-columns: 1fr; }
+        fieldset.two-columns .field-description { grid-column: span 1; }
+    }
 </style>
 {% endblock %}
 
@@ -155,7 +171,9 @@
                     </div>
                 </div>
                 
-                {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
+                {% block submit_buttons_bottom %}
+                    {% submit_row %}
+                {% endblock %}
             </div>
         </div>
     </form>

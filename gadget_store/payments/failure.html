@@ -18,7 +18,7 @@
                     </small>
                 </div>
                 <div class="d-grid gap-2">
-                    <a href="{% url 'payments:initiate_payment' order.id %}" class="btn btn-primary-custom btn-lg">
+                    <a href="{% url 'payments:initiate' order.id %}" class="btn btn-primary-custom btn-lg">
                         Try Paying Again
                     </a>
                     <a href="{% url 'store:help_support' %}" class="btn btn-outline-dark rounded-pill fw-semibold py-2">

@@ -1,155 +1,372 @@
 {% extends "admin/base.html" %}
 {% load static %}
+{% block extrahead %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.3"></script>
+<script defer src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js"></script>
+{% endblock %}
+
 {% block extrastyle %}
+{{ block.super }}
 <style>
-  :root { --admin-accent: #f5c518; --admin-dark: #0a0a0a; }
-  .dashboard-card { 
-    background: #ffffff; 
-    border: 1px solid rgba(0,0,0,0.05); 
-    border-radius: 12px; 
-    padding: 1.25rem; 
-    margin-bottom: 1.5rem; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-    transition: transform 0.2s;
+  .container-fluid {
+    width: 100%;
+    max-width: 100%;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    margin-right: auto;
+    margin-left: auto;
   }
-  .dashboard-card:hover { transform: translateY(-2px); }
-  .stat-number { font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 800; color: var(--admin-dark); }
-  .stat-label { font-size: 0.8rem; font-weight: 600; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; }
-  .stat-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-  
-  .chart-container { position: relative; height: 300px; }
-  
-  .table-responsive { 
-    overflow-x: auto; 
-    -webkit-overflow-scrolling: touch; 
-    border-radius: 8px;
-    margin: 0 -1rem;
-    padding: 0 1rem;
+
+  .d-flex { display: flex !important; }
+  .flex { display: flex !important; }
+  .justify-content-between { justify-content: space-between !important; }
+  .align-items-center { align-items: center !important; }
+  .gap-2 { gap: 0.75rem; }
+
+  .text-white { color: #f8fafc !important; }
+  .text-muted { color: #94a3b8 !important; }
+
+  .mb-4 { margin-bottom: 1.5rem !important; }
+  .mt-4 { margin-top: 1.5rem !important; }
+  .mb-1 { margin-bottom: 0.25rem !important; }
+  .mb-3 { margin-bottom: 1rem !important; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.65rem 1rem;
   }
-  .table-responsive table {
+
+  .btn-sm { padding: 0.5rem 0.85rem; font-size: 0.9rem; }
+  .btn-accent { background: #facc15; color: #0f172a; }
+  .btn-outline-secondary {
+    background: transparent;
+    border-color: rgba(255,255,255,0.18);
+    color: #f8fafc;
+  }
+  .btn-outline-secondary:hover { background: rgba(255,255,255,0.08); }
+
+  .w-100 { width: 100% !important; }
+
+  .dashboard-hero {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .dashboard-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .col-12 { grid-column: span 12 / span 12; }
+  .col-xl-7 { grid-column: span 12 / span 12; }
+  .col-xl-5 { grid-column: span 12 / span 12; }
+
+  @media (min-width: 1200px) {
+    .col-xl-7 { grid-column: span 7 / span 7; }
+    .col-xl-5 { grid-column: span 5 / span 5; }
+  }
+
+  .hero-card,
+  .panel-card {
+    border-radius: 1.25rem;
+    background: rgba(15, 23, 42, 0.96);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    padding: 1.5rem;
+  }
+
+  .hero-card h3,
+  .panel-card h4,
+  .panel-card h3 {
+    color: #facc15;
+  }
+
+  .hero-value {
+    font-size: 2.35rem;
+    font-weight: 800;
+    color: #f8fafc;
+  }
+
+  .hero-metric {
+    color: #94a3b8;
+    margin-top: 0.5rem;
+  }
+
+  .badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+    font-size: 0.82rem;
+  }
+
+  .status-chip {
+    border-radius: 9999px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .status-chip.pending { background: rgba(245, 158, 11, 0.16); color: #facc15; }
+  .status-chip.paid { background: rgba(34, 197, 94, 0.14); color: #86efac; }
+  .status-chip.shipped { background: rgba(59, 130, 246, 0.14); color: #bfdbfe; }
+  .status-chip.delivered { background: rgba(34, 197, 94, 0.14); color: #4ade80; }
+  .status-chip.cancelled { background: rgba(248, 113, 113, 0.14); color: #fca5a5; }
+  .status-chip.unknown { background: rgba(148, 163, 184, 0.14); color: #cbd5e1; }
+
+  .quick-links {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    margin-top: 1rem;
+  }
+
+  .quick-link {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(148, 163, 184, 0.10);
+    border-radius: 1rem;
+    padding: 1rem 1.15rem;
+    color: #e2e8f0;
+    transition: transform 0.2s ease, background 0.2s ease;
+    text-decoration: none;
+  }
+
+  .quick-link:hover {
+    background: rgba(250, 204, 21, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .table-dashboard {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .table-dashboard th,
+  .table-dashboard td {
+    padding: 0.95rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+    color: #cbd5e1;
+  }
+
+  .table-dashboard th {
+    color: #f8fafc;
+    font-weight: 700;
+  }
+
+  .table-dashboard tbody tr:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .chart-wrap {
+    min-height: 320px;
+    padding: 1rem;
+    border-radius: 1rem;
+  }
+
+  @media (min-width: 1024px) {
+    .dashboard-hero { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .hero-card { padding: 1.75rem; }
+  }
+
+  .form-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 0.5rem;
+    color: #f8fafc;
+    padding: 0.4rem 0.6rem;
     font-size: 0.85rem;
-    min-width: 600px;
   }
-  .table-responsive table th,
-  .table-responsive table td {
-    white-space: nowrap;
-    padding: 0.5rem 0.75rem;
-  }
-  @media (min-width: 768px) {
-    .stat-number { font-size: 2rem; }
-    .dashboard-card { padding: 1.5rem; }
-    .table-responsive table {
-      font-size: 1rem;
-      min-width: auto;
-    }
+  .form-input:focus {
+    outline: none;
+    border-color: #facc15;
   }
 </style>
 {% endblock %}
+
 {% block content %}
-<div class="container-fluid px-2 px-md-3">
-  <h1 class="h3 mb-3">F.B Nation Admin</h1>
-  
-  <div class="row g-2 g-md-3">
-    <div class="col-6 col-md-3">
-      <div class="dashboard-card text-center">
-        <h6 class="text-muted mb-1">Products</h6>
-        <div class="stat-number">{{ total_products }}</div>
+<div class="container-fluid px-3 py-4" x-data="{ view:'summary' }">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h2 text-white mb-1">Apex-style Admin Dashboard</h1>
+      <p class="text-muted mb-0">A modern Django admin console with store performance insights.</p>
+    </div>
+    <form method="get" class="d-flex align-items-center gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <input type="date" name="start_date" value="{{ start_date }}" class="form-input">
+        <span class="text-white small">to</span>
+        <input type="date" name="end_date" value="{{ end_date }}" class="form-input">
+      </div>
+      <button type="submit" class="btn btn-sm btn-accent">Filter</button>
+      {% if start_date or end_date %}
+        <a href="." class="btn btn-sm btn-outline-secondary">Clear</a>
+      {% endif %}
+    </form>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-accent" @click="view='summary'">Summary</button>
+      <button class="btn btn-sm btn-outline-secondary text-white" @click="view='orders'">Orders</button>
+    </div>
+  </div>
+
+  <div class="dashboard-hero">
+    <div class="hero-card">
+      <h3>Total Products</h3>
+      <div class="hero-value">{{ total_products }}</div>
+      {% if low_stock_count > 0 %}
+        <p class="hero-metric" style="color: #fca5a5;"><i class="bi bi-exclamation-triangle-fill"></i> {{ low_stock_count }} items low on stock</p>
+      {% else %}
+        <p class="hero-metric">Inventory tracked in the product catalog</p>
+      {% endif %}
+    </div>
+    <div class="hero-card">
+      <h3>Total Orders</h3>
+      <div class="hero-value">{{ total_orders }}</div>
+      <p class="hero-metric">All orders recorded in the store</p>
+    </div>
+    <div class="hero-card">
+      <h3>Pending Orders</h3>
+      <div class="hero-value">{{ pending_orders }}</div>
+      <p class="hero-metric">Waiting on payment or fulfillment</p>
+    </div>
+    <div class="hero-card">
+      <h3>Total Revenue</h3>
+      <div class="hero-value">GHS {{ total_revenue }}</div>
+      <p class="hero-metric">Revenue from paid, shipped, and delivered orders</p>
+    </div>
+  </div>
+
+  <div class="dashboard-grid mt-4">
+    <div class="chart-card col-12 col-xl-7">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h4>Order Status Breakdown</h4>
+          <p class="text-muted mb-0">Live slice of order health across statuses.</p>
+        </div>
+        <span class="badge-pill">Updated now</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="statusChart"></canvas>
       </div>
     </div>
-    <div class="col-6 col-md-3">
-      <div class="dashboard-card text-center">
-        <h6 class="text-muted mb-1">Orders</h6>
-        <div class="stat-number">{{ total_orders }}</div>
+
+    <div class="panel-card col-12 col-xl-5">
+      {% if low_stock_count > 0 %}
+        <div class="mb-4">
+          <h4 style="color: #f87171;"><i class="bi bi-exclamation-triangle-fill me-2"></i>Low Stock Alerts</h4>
+          <div class="list-group list-group-flush">
+            {% for product in low_stock_list %}
+              <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center" style="border:none; background:transparent;">
+                <div>
+                  <a href="/admin/store/product/{{ product.id }}/change/" class="text-white text-decoration-none small">{{ product.name|truncatechars:30 }}</a>
+                </div>
+                <span class="badge bg-danger rounded-pill">{{ product.stock }} left</span>
+              </div>
+            {% endfor %}
+          </div>
+          <a href="/admin/store/product/?stock__lte=5" class="text-muted small mt-2 d-inline-block">View all inventory &rarr;</a>
+          <hr style="border-color: rgba(148, 163, 184, 0.12);">
+        </div>
+      {% endif %}
+
+      <h4 class="mb-3">Top Products</h4>
+      <div class="list-group list-group-flush">
+        {% for product in top_products %}
+          <div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center" style="border:none;">
+            <div>
+              <strong class="text-white">{{ product.product_name }}</strong>
+              <div class="text-muted small">Units sold</div>
+            </div>
+            <span class="badge bg-warning text-dark rounded-pill">{{ product.order_count }}</span>
+          </div>
+        {% empty %}
+          <p class="text-muted">No orders yet.</p>
+        {% endfor %}
       </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="dashboard-card text-center">
-        <h6 class="text-muted mb-1">Pending</h6>
-        <div class="stat-number">{{ pending_orders }}</div>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="dashboard-card text-center">
-        <h6 class="text-muted mb-1">Revenue</h6>
-        <div class="stat-number">GHS {{ total_revenue }}</div>
+      <div class="quick-links mt-4">
+        <a href="/admin/orders/order/" class="quick-link">Manage Orders</a>
+        <a href="/admin/store/product/" class="quick-link">Product Catalog</a>
+        <a href="/admin/store/profile/" class="quick-link">Customer Profiles</a>
       </div>
     </div>
   </div>
-  
-  <div class="row g-2 g-md-3">
-    <div class="col-12 col-md-6">
-      <div class="dashboard-card">
-        <h5 class="h6 mb-2">Orders by Status</h5>
-        <div class="chart-container">
-          <canvas id="statusChart"></canvas>
-        </div>
+
+  <div class="panel-card mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h4>Recent Transactions</h4>
+        <p class="text-muted mb-0">Latest orders and payment statuses.</p>
       </div>
+      <span class="badge-pill">{{ recent_orders|length }} records</span>
     </div>
-    <div class="col-12 col-md-6">
-      <div class="dashboard-card">
-        <h5 class="h6 mb-2">Top Products</h5>
-        <ul class="list-group list-group-flush">
-          {% for product in top_products %}
-          <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-            <span class="text-truncate">{{ product.product_name }}</span>
-            <span class="badge bg-primary rounded-pill">{{ product.order_count }}</span>
-          </li>
+    <div class="table-responsive">
+      <table class="table-dashboard w-100">
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in recent_orders %}
+            <tr>
+              <td>{{ order.order_number }}</td>
+              <td>{{ order.first_name }} {{ order.last_name|truncatechars:8 }}</td>
+              <td>GHS {{ order.total }}</td>
+              <td>
+                <span class="status-chip {% if order.status == 'pending' %}pending{% elif order.status == 'paid' %}paid{% elif order.status == 'shipped' %}shipped{% elif order.status == 'delivered' %}delivered{% elif order.status == 'cancelled' %}cancelled{% else %}unknown{% endif %}">{{ order.get_status_display }}</span>
+              </td>
+              <td>{{ order.created_at|date:"M d, Y" }}</td>
+            </tr>
           {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-  
-  <div class="row">
-    <div class="col-12">
-      <div class="dashboard-card">
-        <h5 class="h6 mb-3 fw-bold"><i class="bi bi-list-check me-2"></i>Recent Transactions</h5>
-        <div class="table-responsive">
-          <table class="table table-sm table-striped mb-0">
-            <thead class="thead-light">
-              <tr>
-                <th>Order</th>
-                <th>Customer</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for order in recent_orders %}
-              <tr>
-                <td>{{ order.order_number }}</td>
-                <td>{{ order.first_name }} {{ order.last_name|truncatechars:8 }}</td>
-                <td>GHS {{ order.total }}</td>
-                <td><span class="badge bg-{% if order.status == 'delivered' %}success{% elif order.status == 'pending' %}warning{% else %}secondary{% endif %} small">{{ order.get_status_display }}</span></td>
-                <td>{{ order.created_at|date:"M d" }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {{ status_data|json_script:"status-data" }}
 <script>
-  const statusData = JSON.parse(document.getElementById('status-data').textContent);
-  const statusLabels = statusData.length > 0 ? statusData.map(s => s.label) : ["No Data"];
-  const statusCounts = statusData.length > 0 ? statusData.map(s => s.count) : [0];
+  document.addEventListener('DOMContentLoaded', function () {
+    const statusData = JSON.parse(document.getElementById('status-data').textContent || '[]');
+    const labels = statusData.map(item => item.label);
+    const values = statusData.map(item => item.count);
+    const colors = ['#facc15', '#34d399', '#60a5fa', '#818cf8', '#f87171', '#94a3b8'];
 
-  const ctx = document.getElementById('statusChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: statusLabels,
-      datasets: [{
-        data: statusCounts,
-        backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d'],
-      }]
-    }
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors.slice(0, values.length),
+          borderWidth: 0,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#cbd5e1' } },
+          tooltip: { backgroundColor: '#111827', titleColor: '#f8fafc', bodyColor: '#e2e8f0' }
+        }
+      }
+    });
   });
 </script>
 {% endblock %}

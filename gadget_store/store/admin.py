@@ -18,7 +18,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price', 'discount_price', 'effective_price', 'stock', 'is_featured', 'is_active']
+    list_display = ['name', 'category', 'price', 'discount_price', 'effective_price', 'stock', 'stock_alert', 'is_featured', 'is_active']
     list_filter = ['category', 'is_featured', 'is_active']
     list_editable = ['price', 'discount_price', 'stock', 'is_featured', 'is_active']
     prepopulated_fields = {'slug': ('name',)}
@@ -29,6 +29,7 @@ class ProductAdmin(admin.ModelAdmin):
                 'name', 'slug', 'description', 'category',
                 'is_featured', 'is_active'
             ),
+            'classes': ('two-columns',),
             'description': 'Basic product details and categorization.',
         }),
         ('Pricing and Inventory', { # This fieldset will contain fields for the sidebar
@@ -58,6 +59,12 @@ class ProductAdmin(admin.ModelAdmin):
         })
     set_discount_percent.short_description = 'Set discount percentage on selected products'
 
+    def stock_alert(self, obj):
+        if obj.stock <= 5:
+            return format_html('<span style="color: #f87171; font-weight: bold;"><i class="bi bi-exclamation-triangle-fill"></i> Low</span>')
+        return format_html('<span style="color: #22c55e;"><i class="bi bi-check-circle"></i> OK</span>')
+    stock_alert.short_description = 'Status'
+
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'thumbnail', 'phone', 'city', 'region']
@@ -82,13 +89,45 @@ class MyAdminSite(admin.AdminSite):
     # Move internal imports here to avoid circular dependencies if models change
     def index(self, request, extra_context=None):
         from orders.models import Order, OrderItem
+        from django.utils import timezone
+        import datetime
+
         extra_context = extra_context or {}
+
+        # Date range filtering
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
+        order_qs = Order.objects.all()
+
+        if start_date_str:
+            try:
+                start_date = timezone.make_aware(datetime.datetime.strptime(start_date_str, '%Y-%m-%d'))
+                order_qs = order_qs.filter(created_at__gte=start_date)
+                extra_context['start_date'] = start_date_str
+            except ValueError:
+                pass
+
+        if end_date_str:
+            try:
+                end_date = timezone.make_aware(datetime.datetime.strptime(end_date_str, '%Y-%m-%d'))
+                end_date = end_date.replace(hour=23, minute=59, second=59)
+                order_qs = order_qs.filter(created_at__lte=end_date)
+                extra_context['end_date'] = end_date_str
+            except ValueError:
+                pass
+
         extra_context['total_products'] = Product.objects.count()
-        extra_context['total_orders'] = Order.objects.count()
-        extra_context['pending_orders'] = Order.objects.filter(status='pending').count()
-        extra_context['total_revenue'] = Order.objects.filter(status__in=['paid', 'shipped', 'delivered']).aggregate(Sum('total'))['total__sum'] or 0
+        extra_context['total_orders'] = order_qs.count()
+        extra_context['pending_orders'] = order_qs.filter(status='pending').count()
+        extra_context['total_revenue'] = order_qs.filter(status__in=['paid', 'shipped', 'delivered']).aggregate(Sum('total'))['total__sum'] or 0
+        
+        # Low stock alerts (Threshold: 5)
+        low_stock_qs = Product.objects.filter(stock__lte=5, is_active=True)
+        extra_context['low_stock_count'] = low_stock_qs.count()
+        extra_context['low_stock_list'] = low_stock_qs.order_by('stock')[:5]
+
         # Status data
-        status_counts = Order.objects.values('status').annotate(count=Count('status')).order_by('status')
+        status_counts = order_qs.values('status').annotate(count=Count('status')).order_by('status')
         status_data = [
             {
                 'label': dict(Order.STATUS_CHOICES).get(s['status'], s['status']),
@@ -98,10 +137,10 @@ class MyAdminSite(admin.AdminSite):
         ]
         extra_context['status_data'] = status_data
         # Top products
-        top_products = OrderItem.objects.values('product_name').annotate(order_count=Sum('quantity')).order_by('-order_count')[:5]
+        top_products = OrderItem.objects.filter(order__in=order_qs).values('product_name').annotate(order_count=Sum('quantity')).order_by('-order_count')[:5]
         extra_context['top_products'] = top_products
         # Recent orders
-        recent_orders = Order.objects.order_by('-created_at')[:10]
+        recent_orders = order_qs.select_related('user').order_by('-created_at')[:10]
         extra_context['recent_orders'] = recent_orders
         return super().index(request, extra_context)
 
