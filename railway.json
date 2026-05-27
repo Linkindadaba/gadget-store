@@ -5,7 +5,7 @@
   },
   "deploy": {
     "preDeployCommand": "python manage.py migrate --noinput",
-    "startCommand": "gunicorn gadget_store.wsgi --bind 0.0.0.0:${PORT:-8000} --workers 2 --timeout 120"
+    "startCommand": "gunicorn gadget_store.wsgi --workers 2 --timeout 120"
   }
 }
 
