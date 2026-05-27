@@ -356,61 +356,42 @@ def _handle_paystack_webhook(request):
     return JsonResponse({"status": "success"})
 
 
-@require_http_methods(['GET'])
-def verify_payment(request, reference):
-    payment = get_object_or_404(Payment, reference=reference)
+def _process_verification(payment, transaction_id=None):
+    """Unified logic to verify and process a payment from any gateway."""
     gateway = _get_payment_gateway(payment)
-
     try:
         if gateway == 'flutterwave':
-            if not payment.gateway_transaction_id:
-                raise PaymentGatewayError('No Flutterwave transaction ID is available for manual verification.')
-
-            verify_url = f"https://api.flutterwave.com/v3/transactions/{payment.gateway_transaction_id}/verify"
+            tid = transaction_id or payment.gateway_transaction_id
+            if not tid:
+                raise PaymentGatewayError('Missing transaction ID for verification.')
+            
+            verify_url = f"https://api.flutterwave.com/v3/transactions/{tid}/verify"
             headers = _flutterwave_headers(settings.FLUTTERWAVE_SECRET_KEY)
             response = requests.get(verify_url, headers=headers, timeout=15)
             data = response.json()
-            if data.get('status') == 'success' and _mark_payment_from_charge(payment, data.get('data'), gateway='flutterwave'):
-                return render(request, 'payments/success.html', {'order': payment.order})
-
+            return _mark_payment_from_charge(payment, data.get('data'), gateway='flutterwave')
         else:
             paystack_data = _verify_paystack_transaction(payment.reference)
-            if _mark_payment_from_charge(payment, paystack_data, gateway='paystack'):
-                return render(request, 'payments/success.html', {'order': payment.order})
+            return _mark_payment_from_charge(payment, paystack_data, gateway='paystack')
     except Exception as e:
-        logger.error(f"Error verifying payment {reference}: {e}")
+        logger.error(f"Verification Failed for {payment.reference}: {e}")
+        return False
 
+
+@require_http_methods(['GET'])
+def verify_payment(request, reference):
+    payment = get_object_or_404(Payment, reference=reference)
+    if _process_verification(payment):
+        return render(request, 'payments/success.html', {'order': payment.order})
     return render(request, 'payments/failure.html', {'order': payment.order})
 
 
 def payment_callback(request):
     reference = request.GET.get('reference') or request.GET.get('tx_ref') or request.GET.get('trxref')
-    transaction_id = request.GET.get('transaction_id')
-
-    if not reference:
-        logger.warning(f"Callback accessed without required reference. reference: {reference}")
-        return redirect('store:home')
-
-    payment = get_object_or_404(Payment, reference=reference)
-    gateway = _get_payment_gateway(payment)
-
-    try:
-        if gateway == 'flutterwave':
-            if not transaction_id:
-                raise PaymentGatewayError('Missing Flutterwave transaction ID on callback.')
-
-            verify_url = f"https://api.flutterwave.com/v3/transactions/{transaction_id}/verify"
-            headers = _flutterwave_headers(settings.FLUTTERWAVE_SECRET_KEY)
-            response = requests.get(verify_url, headers=headers, timeout=15)
-            data = response.json()
-            if data.get('status') == 'success' and _mark_payment_from_charge(payment, data.get('data'), gateway='flutterwave'):
-                return render(request, 'payments/success.html', {'order': payment.order})
-
-        else:
-            paystack_data = _verify_paystack_transaction(payment.reference)
-            if _mark_payment_from_charge(payment, paystack_data, gateway='paystack'):
-                return render(request, 'payments/success.html', {'order': payment.order})
-    except Exception as e:
-        logger.error(f"Error verifying payment {reference}: {e}")
-
+    if reference:
+        payment = get_object_or_404(Payment, reference=reference)
+        if _process_verification(payment, transaction_id=request.GET.get('transaction_id')):
+            return render(request, 'payments/success.html', {'order': payment.order})
+    
+    if not reference: return redirect('store:home')
     return render(request, 'payments/failure.html', {'order': payment.order})

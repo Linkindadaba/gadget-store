@@ -4,218 +4,25 @@
 {% block extrastyle %}
 {{ block.super }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-<style>
-  body {
-    background: #0f172a !important;
-    color: #e2e8f0 !important;
-  }
-
-  #header {
-    background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
-  }
-
-  #header .branding a {
-    color: #fbbf24 !important;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-  }
-
-  #header a:link,
-  #header a:visited,
-  #user-tools a:link,
-  #user-tools a:visited {
-    color: #cbd5e1 !important;
-  }
-
-  .module,
-  .dashboard,
-  .inline-group,
-  .app-list,
-  .dashboard-card,
-  .admin-card,
-  .results {
-    background: rgba(15, 23, 42, 0.95) !important;
-    border: 1px solid rgba(148, 163, 184, 0.12) !important;
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
-    border-radius: 1rem !important;
-  }
-
-  .module h2,
-  .inline-group h2,
-  .module caption {
-    background: transparent !important;
-    color: #f8fafc !important;
-  }
-
-  .module table th,
-  .module table td,
-  .results table th,
-  .results table td {
-    color: #cbd5e1 !important;
-  }
-
-  .dashboard-card,
-  .admin-summary-card,
-  .admin-card {
-    background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.82)) !important;
-    border: 1px solid rgba(148, 163, 184, 0.12) !important;
-    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
-  }
-
-  .dashboard-card {
-    padding: 1.5rem;
-    border-radius: 1.25rem;
-  }
-
-  .dashboard-card h3,
-  .dashboard-card h4,
-  .admin-card h4,
-  .admin-summary-card h3 {
-    color: #facc15 !important;
-  }
-
-  .stat-number,
-  .admin-summary-card .value {
-    color: #f8fafc !important;
-    font-weight: 800;
-  }
-
-  .stat-label,
-  .admin-card small,
-  .dashboard-card p {
-    color: #94a3b8 !important;
-  }
-
-  .chart-card {
-    padding: 1.5rem;
-    border-radius: 1.25rem;
-    background: rgba(15, 23, 42, 0.95);
-    border: 1px solid rgba(148, 163, 184, 0.10);
-  }
-
-  .btn-accent {
-    background: #facc15;
-    color: #0f172a;
-    box-shadow: 0 12px 30px rgba(250, 204, 21, 0.18);
-  }
-
-  .btn-accent:hover {
-    background: #eab308;
-  }
-
-  .badge-panel {
-    background: rgba(248, 250, 252, 0.08);
-    color: #e2e8f0;
-    border-radius: 9999px;
-    padding: 0.4rem 0.85rem;
-    font-size: 0.85rem;
-  }
-
-  .mobile-menu-btn {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 10000;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: #0f172a;
-    color: #facc15;
-    border: 1px solid rgba(250, 204, 21, 0.18);
-    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.4);
-    font-size: 1.45rem;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .mobile-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.75);
-    z-index: 9999;
-    backdrop-filter: blur(4px);
-  }
-
-  .mobile-overlay.show {
-    display: block;
-  }
-
-  .mobile-nav {
-    display: none;
-    position: fixed;
-    inset: 0 auto 0 0;
-    width: 320px;
-    max-width: 95vw;
-    background: #0b1120;
-    z-index: 10001;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    overflow-y: auto;
-  }
-
-  .mobile-nav.show {
-    display: block;
-    transform: translateX(0);
-  }
-
-  .mobile-nav-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-  }
-
-  .mobile-nav-section {
-    padding: 0.85rem 0;
-  }
-
-  .mobile-nav-item {
-    display: block;
-    color: #e2e8f0 !important;
-    padding: 0.95rem 1.25rem !important;
-    text-decoration: none !important;
-    transition: background 0.2s ease, transform 0.2s ease;
-  }
-
-  .mobile-nav-item:hover {
-    background: rgba(250, 204, 21, 0.12);
-    transform: translateX(4px);
-  }
-
-  @media (max-width: 768px) {
-    .mobile-menu-btn { display: flex !important; }
-  }
-
-  @media (max-width: 992px) {
-    .dashboard-card,
-    .chart-card,
-    .admin-card,
-    .admin-summary-card {
-      margin-bottom: 1.5rem;
-    }
-  }
-</style>
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin-mobile-nav.css' %}">
 {% endblock %}
 
 {% block footer %}
 {{ block.super }}
-<div class="mobile-overlay" id="mobileOverlay" onclick="toggleMobileMenu()"></div>
+<div class="mobile-overlay" id="mobileOverlay"></div>
 
 <nav class="mobile-nav" id="mobileNav">
   <div class="mobile-nav-header">
-    <div class="flex items-center justify-between">
-      <div>
-        <h3 class="text-lg font-semibold text-amber-300">F.B Nation</h3>
-        <p class="text-sm text-slate-400">Admin mobile navigation</p>
-      </div>
-      <button class="text-slate-100" onclick="toggleMobileMenu()">×</button>
+    <div>
+      <h3 style="font-size: 1.125rem; font-weight: 600; color: #fbbf24; margin: 0;">F.B Nation</h3>
+      <p style="font-size: 0.875rem; color: #cbd5e1; margin: 0.25rem 0 0 0;">Admin mobile navigation</p>
     </div>
+    <button class="mobile-nav-close" aria-label="Close navigation" onclick="closeMobileMenu()">×</button>
   </div>
 
   <div class="mobile-nav-section">
-    <p class="text-xs uppercase tracking-[0.2em] text-amber-300 px-5 mb-2">Store</p>
+    <p style="color: #fbbf24; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; padding: 0 1.25rem; margin: 0 0 0.5rem 0;">Store</p>
     <a class="mobile-nav-item" href="/admin/store/category/">Categories</a>
     <a class="mobile-nav-item" href="/admin/store/product/">Products</a>
     <a class="mobile-nav-item" href="/admin/store/product/add/">+ Add Product</a>
@@ -223,51 +30,32 @@
   </div>
 
   <div class="mobile-nav-section">
-    <p class="text-xs uppercase tracking-[0.2em] text-amber-300 px-5 mb-2">Orders</p>
+    <p style="color: #fbbf24; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; padding: 0 1.25rem; margin: 0 0 0.5rem 0;">Orders</p>
     <a class="mobile-nav-item" href="/admin/orders/order/">Orders</a>
     <a class="mobile-nav-item" href="/admin/orders/order/add/">+ Add Order</a>
     <a class="mobile-nav-item" href="/admin/orders/orderitem/">Order Items</a>
   </div>
 
   <div class="mobile-nav-section">
-    <p class="text-xs uppercase tracking-[0.2em] text-amber-300 px-5 mb-2">Payments</p>
+    <p style="color: #fbbf24; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; padding: 0 1.25rem; margin: 0 0 0.5rem 0;">Payments</p>
     <a class="mobile-nav-item" href="/admin/payments/payment/">Payments</a>
     <a class="mobile-nav-item" href="/admin/payments/payment/add/">+ Add Payment</a>
   </div>
 
   <div class="mobile-nav-section">
-    <p class="text-xs uppercase tracking-[0.2em] text-amber-300 px-5 mb-2">Authentication</p>
+    <p style="color: #fbbf24; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; padding: 0 1.25rem; margin: 0 0 0.5rem 0;">Authentication</p>
     <a class="mobile-nav-item" href="/admin/auth/user/">Users</a>
     <a class="mobile-nav-item" href="/admin/auth/group/">Groups</a>
   </div>
 
-  <div class="mobile-nav-section px-5 pb-5">
+  <div class="mobile-nav-section" style="padding: 0.85rem 1.25rem;">
     <a class="mobile-nav-item" href="/">View Store</a>
   </div>
 </nav>
 
-<button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+<button class="mobile-menu-btn" aria-label="Open navigation menu" onclick="toggleMobileMenu()">
   <i class="bi bi-list"></i>
 </button>
 
-<script>
-function toggleMobileMenu() {
-  const nav = document.getElementById('mobileNav');
-  const overlay = document.getElementById('mobileOverlay');
-  if (!nav || !overlay) return;
-  nav.classList.toggle('show');
-  overlay.classList.toggle('show');
-}
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    const nav = document.getElementById('mobileNav');
-    const overlay = document.getElementById('mobileOverlay');
-    if (nav && overlay && nav.classList.contains('show')) {
-      nav.classList.remove('show');
-      overlay.classList.remove('show');
-    }
-  }
-});
-</script>
+<script src="{% static 'js/admin.js' %}" defer></script>
 {% endblock %}

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.shortcuts import render, redirect
-from django.db.models import Sum, Count, F
+from django.db.models import Sum, Count
 from django.contrib.auth.models import User, Group
 from django.utils.html import format_html
 from django.core.exceptions import ObjectDoesNotExist
@@ -85,7 +85,6 @@ class MyAdminSite(admin.AdminSite):
     site_header = "F.B Nation Administration"
     site_title = "F.B Nation Admin"
     index_title = "Dashboard"
-    site_url = "/"
 
     # Move internal imports here to avoid circular dependencies if models change
     def index(self, request, extra_context=None):
@@ -138,7 +137,7 @@ class MyAdminSite(admin.AdminSite):
         ]
         extra_context['status_data'] = status_data
         # Top products
-        top_products = OrderItem.objects.filter(order__in=order_qs).values('product__name').annotate(product_name=F('product__name'), order_count=Sum('quantity')).order_by('-order_count')[:5]
+        top_products = OrderItem.objects.filter(order__in=order_qs).values('product_name').annotate(order_count=Sum('quantity')).order_by('-order_count')[:5]
         extra_context['top_products'] = top_products
         # Recent orders
         recent_orders = order_qs.select_related('user').order_by('-created_at')[:10]
@@ -169,9 +168,13 @@ class OrderAdmin(admin.ModelAdmin):
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ['order', 'product_name', 'price', 'quantity']
 
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ['order', 'reference', 'amount', 'status', 'paid_at']
+    list_filter = ['status']
+    search_fields = ['reference', 'order__order_number']
+
 # Register remaining models to custom site
 from orders.models import Order, OrderItem
-from payments.models import Payment
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 admin.site.register(User)
