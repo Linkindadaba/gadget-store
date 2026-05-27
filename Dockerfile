@@ -36,4 +36,4 @@ WORKDIR /app/gadget_store
 EXPOSE 8000
 
 # Start gunicorn (migrations and collectstatic run via preDeployCommand in railway.json)
-CMD ["gunicorn", "gadget_store.wsgi", "--bind", "0.0.0.0:${PORT:-8000}", "--workers", "2", "--timeout", "120"]
+CMD gunicorn gadget_store.wsgi --bind 0.0.0.0:${PORT:-8000} --workers 2 --timeout 120
