@@ -70,7 +70,7 @@ Railway will:
 2. Create PostgreSQL database
 3. Inject `DATABASE_URL` environment variable
 4. Run preDeployCommand: collect static files + migrate
-5. Start gunicorn server
+5. Start gunicorn server (via sh -c to expand $PORT)
 
 ### Step 5: Migrate Existing Data (SQLite to Postgres)
 If you have products or users in your local `db.sqlite3` that you want to move to Railway:
