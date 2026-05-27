@@ -69,6 +69,15 @@ Railway will:
 4. Run preDeployCommand: collect static files + migrate
 5. Start gunicorn server
 
+### Step 5: Migrate Existing Data (SQLite to Postgres)
+If you have products or users in your local `db.sqlite3` that you want to move to Railway:
+1. Copy your **Public Database URL** from the Railway PostgreSQL service variables.
+2. Run the migration script from your local terminal:
+   ```powershell
+   $env:DATABASE_URL="your-postgres-connection-string"
+   python scripts/migrate_to_postgres.py
+   ```
+
 ## Troubleshooting
 
 ### Error: "DATABASE_URL must be set when DEBUG=False"
