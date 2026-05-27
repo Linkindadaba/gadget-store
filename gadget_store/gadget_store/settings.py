@@ -3,11 +3,12 @@ import os
 from decouple import config
 import dj_database_url
 import cloudinary
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production-use-env-vars')
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='gadget-store-production-280d.up.railway.app,localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [host.strip() for host in config('ALLOWED_HOSTS', default='gadget-store-production-280d.up.railway.app,localhost,127.0.0.1').split(',') if host.strip()]
 
 # CSRF settings for production
 CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host not in ['localhost', '127.0.0.1']]
@@ -73,6 +74,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'gadget_store.wsgi.application'
 
 # Database configuration - uses PostgreSQL on Railway, SQLite locally
+DATABASE_URL = config('DATABASE_URL', default='')
+
 if DEBUG:
     DATABASES = {
         'default': {
@@ -81,9 +84,14 @@ if DEBUG:
         }
     }
 else:
+    if not DATABASE_URL:
+        raise ImproperlyConfigured(
+            'DATABASE_URL must be set when DEBUG=False. '
+            'Set the Railway environment variable to your PostgreSQL URL.'
+        )
     DATABASES = {
-        'default': dj_database_url.config(
-            default='sqlite:///db.sqlite3',
+        'default': dj_database_url.parse(
+            DATABASE_URL,
             conn_max_age=600,
             conn_health_checks=True,
         )
