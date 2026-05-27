@@ -1,5 +1,5 @@
 {% extends "admin/change_form.html" %}
-{% load static admin_modify %}
+{% load static admin_modify admin_urls %}
 
 {% block extrastyle %}
 {{ block.super }}
@@ -111,6 +111,18 @@
         fieldset.two-columns .field-description { grid-column: span 1; }
     }
 </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs" style="background: transparent; border: none; padding: 15px 0; font-size: 0.9rem; font-family: 'Syne', sans-serif;">
+    <a href="{% url 'admin:index' %}" style="color: var(--admin-accent); text-decoration: none;"><i class="bi bi-house-door me-1"></i>Home</a>
+    <span style="color: #ccc; margin: 0 8px;">&rsaquo;</span>
+    <a href="{% url 'admin:app_list' app_label=opts.app_label %}" style="color: var(--admin-accent); text-decoration: none;">{{ opts.app_config.verbose_name }}</a>
+    <span style="color: #ccc; margin: 0 8px;">&rsaquo;</span>
+    {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}" style="color: var(--admin-accent); text-decoration: none;">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+    <span style="color: #ccc; margin: 0 8px;">&rsaquo;</span>
+    <span style="color: #666;">{% if add %}Add {{ opts.verbose_name }}{% else %}{{ original|truncatewords:"18" }}{% endif %}</span>
+</div>
 {% endblock %}
 
 {% block content %}

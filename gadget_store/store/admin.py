@@ -85,6 +85,7 @@ class MyAdminSite(admin.AdminSite):
     site_header = "F.B Nation Administration"
     site_title = "F.B Nation Admin"
     index_title = "Dashboard"
+    site_url = "/"
 
     # Move internal imports here to avoid circular dependencies if models change
     def index(self, request, extra_context=None):
@@ -168,16 +169,10 @@ class OrderAdmin(admin.ModelAdmin):
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ['order', 'product_name', 'price', 'quantity']
 
-class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['order', 'reference', 'amount', 'status', 'paid_at']
-    list_filter = ['status']
-    search_fields = ['reference', 'order__order_number']
-
 # Register remaining models to custom site
 from orders.models import Order, OrderItem
 from payments.models import Payment
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
-admin.site.register(Payment, PaymentAdmin)
 admin.site.register(User)
 admin.site.register(Group)
