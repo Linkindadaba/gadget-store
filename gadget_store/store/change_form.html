@@ -1,5 +1,5 @@
 {% extends "admin/change_form.html" %}
-{% load static admin_modify %}
+{% load static admin_modify admin_urls %}
 
 {% block extrastyle %}
 {{ block.super }}
@@ -113,6 +113,18 @@
 </style>
 {% endblock %}
 
+{% block breadcrumbs %}
+<div class="breadcrumbs" style="background: transparent; border: none; padding: 15px 0; font-size: 0.9rem; font-family: 'Syne', sans-serif;">
+    <a href="{% url 'admin:index' %}" style="color: var(--admin-accent); text-decoration: none;"><i class="bi bi-house-door me-1"></i>Home</a>
+    <span style="color: #ccc; margin: 0 8px;">&rsaquo;</span>
+    <a href="{% url 'admin:app_list' app_label=opts.app_label %}" style="color: var(--admin-accent); text-decoration: none;">{{ opts.app_config.verbose_name }}</a>
+    <span style="color: #ccc; margin: 0 8px;">&rsaquo;</span>
+    {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}" style="color: var(--admin-accent); text-decoration: none;">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+    <span style="color: #ccc; margin: 0 8px;">&rsaquo;</span>
+    <span style="color: #666;">{% if add %}Add {{ opts.verbose_name }}{% else %}{{ original|truncatewords:"18" }}{% endif %}</span>
+</div>
+{% endblock %}
+
 {% block content %}
 <div id="content-main">
     <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>
@@ -121,10 +133,10 @@
         <div class="fieldsets-grid">
             <!-- Left Column: Primary Content -->
             <div class="main-content">
-                <div class="module">
-                    <h2><i class="bi bi-info-circle me-2"></i>General Information</h2>
-                    {% for fieldset in adminform %}
-                        {% if forloop.counter == 1 %} {# First fieldset for General Information #}
+                {% for fieldset in adminform %}
+                    {% if forloop.first %}
+                        <div class="module">
+                            <h2><i class="bi bi-info-circle me-2"></i>General Information</h2>
                             {# This fieldset contains: name, slug, description, category, is_featured, is_active #}
                             {% include "admin/includes/fieldset.html" %}
                         </div>
