@@ -37,5 +37,5 @@ RUN python manage.py collectstatic --noinput --clear
 # Expose port
 EXPOSE 8000
 
-# Run migrations and start gunicorn
-CMD ["sh", "-c", "python manage.py migrate && gunicorn gadget_store.wsgi --bind 0.0.0.0:8000"]
+# Start gunicorn (migrations run via preDeployCommand in railway.json)
+CMD ["gunicorn", "gadget_store.wsgi", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "120"]
