@@ -232,5 +232,19 @@ def account_settings(request):
     return render(request, 'store/account_settings.html', context)
 
 
+def category(request, slug):
+    category = get_object_or_404(Category, slug=slug)
+    products = Product.objects.filter(category=category, is_active=True).annotate(avg_rating=Avg('reviews__rating'))
+    categories = Category.objects.all()
+
+    context = {
+        'category': category,
+        'products': products,
+        'categories': categories,
+        'selected_category': category,
+    }
+    return render(request, 'store/product_list.html', context)
+
+
 def help_support(request):
     return render(request, 'store/help_support.html')
