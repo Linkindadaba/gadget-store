@@ -1,4 +1,4 @@
-{% extends "admin/base.html" %}
+{% extends "admin/base_site.html" %}
 {% load static %}
 {% block extrahead %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -199,7 +199,7 @@
 
 {% block breadcrumbs %}
 <div class="breadcrumbs" style="background: transparent; border: none; padding: 1.5rem 1rem 0 1rem; font-size: 0.85rem;">
-    <a href="{{ site_url|default:'/' }}" style="color: #facc15; text-decoration: none;"><i class="bi bi-globe me-1"></i>View Site</a>
+    <a href="{% url 'store:home' %}" style="color: #facc15; text-decoration: none;"><i class="bi bi-globe me-1"></i>View Site</a>
     <span style="color: rgba(255,255,255,0.3); margin: 0 8px;">/</span>
     <span style="color: #94a3b8;">Admin Dashboard</span>
 </div>

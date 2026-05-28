@@ -1,4 +1,5 @@
 import hmac
+from abc import ABC, abstractmethod
 import hashlib
 import json
 import uuid
@@ -19,27 +20,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+PAYSTACK_INIT_URL = "https://api.paystack.co/transaction/initialize"
+PAYSTACK_VERIFY_URL = "https://api.paystack.co/transaction/verify"
 FLW_PAYMENT_URL = "https://api.flutterwave.com/v3/payments"
-PAYSTACK_BASE_URL = "https://api.paystack.co"
-PAYSTACK_INIT_URL = f"{PAYSTACK_BASE_URL}/transaction/initialize"
-PAYSTACK_VERIFY_URL = f"{PAYSTACK_BASE_URL}/transaction/verify"
-FLUTTERWAVE_WEBHOOK_SECRET_HEADER = 'verif-hash'
 PAYSTACK_WEBHOOK_SECRET_HEADER = 'x-paystack-signature'
-
-
-class PaymentGatewayError(Exception):
-    pass
-
-
-def _flutterwave_headers(token, trace_id=None, idempotency_key=None):
-    headers = {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'application/json',
-        'X-Trace-Id': trace_id or str(uuid.uuid4()),
-    }
-    if idempotency_key:
-        headers['X-Idempotency-Key'] = idempotency_key
-    return headers
+FLUTTERWAVE_WEBHOOK_SECRET_HEADER = 'verif-hash'
 
 
 def _paystack_headers():
@@ -47,6 +32,113 @@ def _paystack_headers():
         'Authorization': f'Bearer {settings.PAYSTACK_SECRET_KEY}',
         'Content-Type': 'application/json',
     }
+
+
+def _flutterwave_headers(secret_key=None):
+    key = secret_key or settings.FLUTTERWAVE_SECRET_KEY
+    return {
+        'Authorization': f'Bearer {key}',
+        'Content-Type': 'application/json',
+    }
+
+class PaymentGatewayError(Exception):
+    pass
+
+class BasePaymentGateway(ABC):
+    @abstractmethod
+    def generate_link(self, request, order, payment, **kwargs):
+        pass
+
+    @abstractmethod
+    def verify(self, payment, transaction_id=None):
+        pass
+
+    @abstractmethod
+    def validate_webhook(self, request):
+        pass
+
+class FlutterwaveGateway(BasePaymentGateway):
+    def _get_headers(self):
+        return {
+            'Authorization': f'Bearer {settings.FLUTTERWAVE_SECRET_KEY}',
+            'Content-Type': 'application/json',
+        }
+
+    def generate_link(self, request, order, payment, **kwargs):
+        payload = {
+            "tx_ref": payment.reference,
+            "amount": str(payment.amount),
+            "currency": settings.FLUTTERWAVE_CURRENCY,
+            "redirect_url": request.build_absolute_uri(reverse('payments:payment_callback')),
+            "customer": {
+                "email": order.email,
+                "phonenumber": kwargs.get('phone_number', ""),
+                "name": f"{order.first_name} {order.last_name}",
+            },
+        }
+        try:
+            resp = requests.post("https://api.flutterwave.com/v3/payments", json=payload, headers=self._get_headers(), timeout=20)
+            data = resp.json()
+            if resp.status_code >= 400 or data.get('status') != 'success':
+                raise PaymentGatewayError(data.get('message', 'Flutterwave error'))
+            return data.get('data', {}).get('link')
+        except requests.exceptions.RequestException:
+            raise PaymentGatewayError("Flutterwave connection failed")
+
+    def verify(self, payment, transaction_id=None):
+        tid = transaction_id or payment.gateway_transaction_id
+        if not tid: raise PaymentGatewayError("No transaction ID")
+        url = f"https://api.flutterwave.com/v3/transactions/{tid}/verify"
+        resp = requests.get(url, headers=self._get_headers(), timeout=15)
+        return resp.json().get('data')
+
+    def validate_webhook(self, request):
+        sent_hash = request.headers.get('verif-hash')
+        return sent_hash and hmac.compare_digest(sent_hash, settings.FLUTTERWAVE_WEBHOOK_SECRET)
+
+class PaystackGateway(BasePaymentGateway):
+    def _get_headers(self):
+        return {
+            'Authorization': f'Bearer {settings.PAYSTACK_SECRET_KEY}',
+            'Content-Type': 'application/json',
+        }
+
+    def generate_link(self, request, order, payment, **kwargs):
+        payload = {
+            "email": order.email,
+            "amount": int(payment.amount * 100),
+            "currency": settings.PAYSTACK_CURRENCY,
+            "reference": payment.reference,
+            "callback_url": request.build_absolute_uri(reverse('payments:payment_callback')),
+        }
+        try:
+            resp = requests.post("https://api.api.paystack.co/transaction/initialize", json=payload, headers=self._get_headers(), timeout=20)
+            data = resp.json()
+            if resp.status_code >= 400 or not data.get('status'):
+                raise PaymentGatewayError(data.get('message', 'Paystack error'))
+            return data.get('data', {}).get('authorization_url')
+        except requests.exceptions.RequestException:
+            raise PaymentGatewayError("Paystack connection failed")
+
+    def verify(self, payment, transaction_id=None):
+        url = f"https://api.paystack.co/transaction/verify/{payment.reference}"
+        resp = requests.get(url, headers=self._get_headers(), timeout=15)
+        return resp.json().get('data')
+
+    def validate_webhook(self, request):
+        signature = request.headers.get('x-paystack-signature')
+        if not signature: return False
+        expected = hmac.new(settings.PAYSTACK_WEBHOOK_SECRET.encode('utf-8'), request.body, hashlib.sha512).hexdigest()
+        return hmac.compare_digest(signature, expected)
+
+GATEWAYS = {
+    'flutterwave': FlutterwaveGateway(),
+    'paystack': PaystackGateway(),
+}
+
+def _get_gateway_strategy(payment_or_name):
+    name = payment_or_name if isinstance(payment_or_name, str) else _get_payment_gateway(payment_or_name)
+    return GATEWAYS.get(name)
 
 
 def _payment_amount_matches(received_amount, expected_amount):
@@ -106,80 +198,6 @@ def _mark_payment_from_charge(payment, charge, gateway=None):
     return False
 
 
-def _generate_flutterwave_link(request, order, payment, network=None, phone_number=None):
-    payload = {
-        "tx_ref": payment.reference,
-        "amount": str(order.get_total_amount()),
-        "currency": settings.FLUTTERWAVE_CURRENCY,
-        "redirect_url": request.build_absolute_uri(reverse('payments:payment_callback')),
-        "customer": {
-            "email": order.email,
-            "phonenumber": phone_number or getattr(order, 'phone', ""),
-            "name": f"{order.first_name} {order.last_name}",
-        },
-        "customizations": {
-            "title": "F.B Nation Gadget Store",
-            "description": f"Payment for Order {order.order_number}",
-        },
-    }
-
-    headers = _flutterwave_headers(settings.FLUTTERWAVE_SECRET_KEY)
-
-    try:
-        response = requests.post(FLW_PAYMENT_URL, json=payload, headers=headers, timeout=20)
-        data = response.json()
-
-        if response.status_code >= 400 or data.get('status') != 'success':
-            logger.error(f"Flutterwave Link Error: {data}")
-            raise PaymentGatewayError(data.get('message', 'Could not generate payment link.'))
-
-        return data.get('data', {}).get('link')
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Flutterwave Request Exception: {e}")
-        raise PaymentGatewayError("Communication error with Flutterwave.")
-
-
-def _generate_paystack_link(request, order, payment):
-    payload = {
-        "email": order.email,
-        "amount": int(order.get_total_amount() * 100),
-        "currency": settings.PAYSTACK_CURRENCY,
-        "reference": payment.reference,
-        "callback_url": request.build_absolute_uri(reverse('payments:payment_callback')),
-        "metadata": {
-            "order_number": order.order_number,
-        },
-    }
-
-    headers = _paystack_headers()
-
-    try:
-        response = requests.post(PAYSTACK_INIT_URL, json=payload, headers=headers, timeout=20)
-        data = response.json()
-
-        if response.status_code >= 400 or not data.get('status'):
-            logger.error(f"Paystack Init Error: {data}")
-            raise PaymentGatewayError(data.get('message', 'Could not initialize Paystack payment.'))
-
-        return data.get('data', {}).get('authorization_url')
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Paystack Request Exception: {e}")
-        raise PaymentGatewayError("Communication error with Paystack.")
-
-
-def _verify_paystack_transaction(reference):
-    url = f"{PAYSTACK_VERIFY_URL}/{reference}"
-    headers = _paystack_headers()
-
-    response = requests.get(url, headers=headers, timeout=15)
-    data = response.json()
-
-    if response.status_code >= 400 or not data.get('status'):
-        raise PaymentGatewayError(data.get('message', 'Could not verify Paystack transaction.'))
-
-    return data.get('data', {})
-
-
 @require_http_methods(['GET', 'POST'])
 def initiate_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id, status='pending')
@@ -224,17 +242,23 @@ def initiate_payment(request, order_id):
 
     if request.method == 'POST':
         try:
-            if selected_gateway == 'paystack':
-                payment_link = _generate_paystack_link(request, order, payment)
-            else:
+            strategy = _get_gateway_strategy(selected_gateway)
+            if not strategy:
+                messages.error(request, "Invalid payment gateway selected.")
+                return redirect('payments:initiate', order_id=order.id)
+
+            gateway_kwargs = {}
+            if selected_gateway == 'flutterwave':
                 network = request.POST.get('network')
                 phone_number = request.POST.get('phone_number')
                 if not network or not phone_number:
-                    messages.error(request, 'Please select a network and provide a valid Ghana phone number for Flutterwave payments.')
+                    messages.error(request, 'Please select a network and provide a valid phone number for Flutterwave.')
                     return redirect('payments:initiate', order_id=order.id)
-                payment_link = _generate_flutterwave_link(request, order, payment, network=network, phone_number=phone_number)
+                gateway_kwargs.update({'network': network, 'phone_number': phone_number})
 
+            payment_link = strategy.generate_link(request, order, payment, **gateway_kwargs)
             return redirect(payment_link)
+            
         except PaymentGatewayError as e:
             messages.error(request, str(e))
             return redirect('store:cart')
@@ -358,21 +382,10 @@ def _handle_paystack_webhook(request):
 
 def _process_verification(payment, transaction_id=None):
     """Unified logic to verify and process a payment from any gateway."""
-    gateway = _get_payment_gateway(payment)
+    strategy = _get_gateway_strategy(payment)
     try:
-        if gateway == 'flutterwave':
-            tid = transaction_id or payment.gateway_transaction_id
-            if not tid:
-                raise PaymentGatewayError('Missing transaction ID for verification.')
-            
-            verify_url = f"https://api.flutterwave.com/v3/transactions/{tid}/verify"
-            headers = _flutterwave_headers(settings.FLUTTERWAVE_SECRET_KEY)
-            response = requests.get(verify_url, headers=headers, timeout=15)
-            data = response.json()
-            return _mark_payment_from_charge(payment, data.get('data'), gateway='flutterwave')
-        else:
-            paystack_data = _verify_paystack_transaction(payment.reference)
-            return _mark_payment_from_charge(payment, paystack_data, gateway='paystack')
+        charge_data = strategy.verify(payment, transaction_id=transaction_id)
+        return _mark_payment_from_charge(payment, charge_data, gateway=payment.gateway)
     except Exception as e:
         logger.error(f"Verification Failed for {payment.reference}: {e}")
         return False

@@ -61,8 +61,8 @@ class ProductAdmin(admin.ModelAdmin):
 
     def stock_alert(self, obj):
         if obj.stock <= 5:
-            return format_html('<span style="color: #f87171; font-weight: bold;"><i class="bi bi-exclamation-triangle-fill"></i> Low</span>')
-        return format_html('<span style="color: #22c55e;"><i class="bi bi-check-circle"></i> OK</span>')
+            return format_html('<span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> Low</span>')
+        return format_html('<span class="text-success"><i class="bi bi-check-circle"></i> OK</span>')
     stock_alert.short_description = 'Status'
 
 
@@ -73,10 +73,10 @@ class ProfileAdmin(admin.ModelAdmin):
     def thumbnail(self, obj):
         try:
             if obj.profile_picture and hasattr(obj.profile_picture, 'url'):
-                return format_html('<img src="{}" style="width: 45px; height:45px; border-radius: 50%; object-fit: cover;" />', obj.profile_picture.url)
+                return format_html('<img src="{}" class="rounded-circle object-fit-cover" style="width: 45px; height: 45px;" />', obj.profile_picture.url)
         except (AttributeError, ObjectDoesNotExist):
             pass
-        return format_html('<div style="width: 45px; height: 45px; border-radius: 50%; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #999;">No Pix</div>')
+        return format_html('<div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted" style="width: 45px; height: 45px; font-size: 10px;">No Pix</div>')
     thumbnail.short_description = 'Photo'
 
 
