@@ -1,0 +1,58 @@
+/* Button Styles */
+
+.btn-cart {
+    background: var(--primary);
+    color: #fff;
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    transition: all var(--transition-fast);
+    border: 2px solid var(--primary);
+}
+
+.btn-cart:hover {
+    background: var(--accent);
+    color: var(--primary);
+    border-color: var(--accent);
+    text-decoration: none;
+}
+
+.btn-primary-custom {
+    background: var(--accent);
+    color: var(--primary);
+    border: none;
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    padding: 0.6rem 1.8rem;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary-custom:hover {
+    background: #e6b800;
+    transform: translateY(-1px);
+    text-decoration: none;
+}
+
+.btn-dark-custom {
+    background: var(--primary);
+    color: #fff;
+    border: 2px solid var(--primary);
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    padding: 0.6rem 1.8rem;
+    transition: all var(--transition-fast);
+}
+
+.btn-dark-custom:hover {
+    background: transparent;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    text-decoration: none;
+}

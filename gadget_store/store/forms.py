@@ -5,10 +5,10 @@ from django.conf import settings
 from .models import Profile
 
 class SignupForm(forms.ModelForm):
-    password1 = forms.CharField(widget=forms.PasswordInput, label='Password')
-    password2 = forms.CharField(widget=forms.PasswordInput, label='Confirm Password')
-    phone = forms.CharField(max_length=20, label='Phone Number')
-    
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), label='Password')
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), label='Confirm Password')
+    phone = forms.CharField(max_length=20, label='Phone Number', widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Ghana phone number'}))
+
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name']
@@ -17,6 +17,10 @@ class SignupForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields:
             self.fields[field].widget.attrs.update({'class': 'form-control'})
+        self.fields['username'].widget.attrs['placeholder'] = 'Choose a username'
+        self.fields['email'].widget.attrs['placeholder'] = 'Enter your email'
+        self.fields['first_name'].widget.attrs['placeholder'] = 'First name (optional)'
+        self.fields['last_name'].widget.attrs['placeholder'] = 'Last name (optional)'
     
     def clean_email(self):
         email = self.cleaned_data.get('email')

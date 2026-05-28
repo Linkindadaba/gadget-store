@@ -1,76 +1,24 @@
 ﻿{% extends "admin/base.html" %}
 {% load static %}
 
-{% block title %}F.B Nation Admin | {{ title }}{% endblock %}
-
 {% block extrastyle %}
 {{ block.super }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-<link rel="stylesheet" href="{% static 'css/admin.css' %}">
-<link rel="stylesheet" href="{% static 'css/admin-mobile-nav.css' %}">
-{% endblock %}
-
-{% block branding %}
-<a href="{% url 'admin:index' %}" class="branding">
-  <span style="font-weight:700;letter-spacing:.06em;color:#facc15;">F.B Nation</span>
-</a>
+<link rel="stylesheet" type="text/css" href="{% static 'css/variables.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin-mobile-nav.css' %}">
 {% endblock %}
 
 {% block extrahead %}
 {{ block.super }}
-<script src="https://cdn.tailwindcss.com"></script>
-<script defer src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js"></script>
-<script src="https://unpkg.com/htmx.org@1.9.3"></script>
+<script src="{% static 'js/admin.js' %}" defer></script>
 {% endblock %}
 
-{% block footer %}
-{{ block.super }}
-<div class="mobile-overlay" id="mobileOverlay"></div>
-
-<nav class="mobile-nav" id="mobileNav">
-  <div class="mobile-nav-header">
-    <div>
-      <h3 style="font-size: 1.125rem; font-weight: 600; color: #fbbf24; margin: 0;">F.B Nation</h3>
-      <p style="font-size: 0.875rem; color: #cbd5e1; margin: 0.25rem 0 0 0;">Admin mobile navigation</p>
-    </div>
-    <button class="mobile-nav-close" aria-label="Close navigation" onclick="closeMobileMenu()">×</button>
-  </div>
-
-  <div class="mobile-nav-section">
-    <p class="mobile-nav-section-title">Store</p>
-    <a class="mobile-nav-item" href="/admin/store/category/">Categories</a>
-    <a class="mobile-nav-item" href="/admin/store/product/">Products</a>
-    <a class="mobile-nav-item" href="/admin/store/product/add/">+ Add Product</a>
-    <a class="mobile-nav-item" href="/admin/store/profile/">Profiles</a>
-  </div>
-
-  <div class="mobile-nav-section">
-    <p class="mobile-nav-section-title">Orders</p>
-    <a class="mobile-nav-item" href="/admin/orders/order/">Orders</a>
-    <a class="mobile-nav-item" href="/admin/orders/order/add/">+ Add Order</a>
-    <a class="mobile-nav-item" href="/admin/orders/orderitem/">Order Items</a>
-  </div>
-
-  <div class="mobile-nav-section">
-    <p class="mobile-nav-section-title">Payments</p>
-    <a class="mobile-nav-item" href="/admin/payments/payment/">Payments</a>
-    <a class="mobile-nav-item" href="/admin/payments/payment/add/">+ Add Payment</a>
-  </div>
-
-  <div class="mobile-nav-section">
-    <p class="mobile-nav-section-title">Authentication</p>
-    <a class="mobile-nav-item" href="/admin/auth/user/">Users</a>
-    <a class="mobile-nav-item" href="/admin/auth/group/">Groups</a>
-  </div>
-
-  <div class="mobile-nav-section" style="padding: 0.85rem 1.25rem;">
-    <a class="mobile-nav-item" href="/">View Store</a>
-  </div>
-</nav>
-
-<button class="mobile-menu-btn" aria-label="Open navigation menu" type="button">
-  <i class="bi bi-list"></i>
-</button>
-
-<script src="{% static 'js/admin.js' %}" defer></script>
+{% block branding %}
+<div class="d-flex align-items-center">
+    <button type="button" class="mobile-menu-toggle d-lg-none" onclick="toggleMobileMenu()">
+        <i class="bi bi-list"></i>
+    </button>
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">F.B Nation Admin</a></h1>
+</div>
 {% endblock %}

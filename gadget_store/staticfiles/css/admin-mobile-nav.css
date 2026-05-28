@@ -1,0 +1,121 @@
+/* Admin Mobile Navigation */
+
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #0f172a;
+    color: #facc15;
+    border: 1px solid rgba(250, 204, 21, 0.18);
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.4);
+    font-size: 1.45rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mobile-menu-btn:hover {
+    background: #111827;
+    transform: scale(1.05);
+}
+
+.mobile-menu-btn:active {
+    transform: scale(0.95);
+}
+
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.75);
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+    transition: opacity 0.2s ease;
+}
+
+.mobile-overlay.show {
+    display: block;
+}
+
+.mobile-nav {
+    display: none;
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 320px;
+    max-width: 95vw;
+    background: #0b1120;
+    z-index: 10001;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+}
+
+.mobile-nav.show {
+    display: block;
+    transform: translateX(0);
+}
+
+.mobile-nav-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mobile-nav-close {
+    background: none;
+    border: none;
+    color: #e2e8f0;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.mobile-nav-section {
+    padding: 0.85rem 0;
+}
+
+.mobile-nav-section-title {
+    color: #cbd5e1;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1.25rem;
+    margin: 0;
+}
+
+.mobile-nav-item {
+    display: block;
+    color: #e2e8f0 !important;
+    padding: 0.95rem 1.25rem !important;
+    text-decoration: none !important;
+    transition: background 0.2s ease, transform 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.mobile-nav-item:hover {
+    background: rgba(250, 204, 21, 0.12);
+    transform: translateX(4px);
+    border-left-color: #facc15;
+}
+
+.mobile-nav-item.active {
+    background: rgba(250, 204, 21, 0.2);
+    border-left-color: #facc15;
+    color: #facc15 !important;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+}

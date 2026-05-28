@@ -1,0 +1,40 @@
+/* Design System Variables */
+:root {
+    --primary: #0a0a0a;
+    --accent: #f5c518;
+    --accent2: #00d4aa;
+    --surface: #f8f8f6;
+    --card-bg: #ffffff;
+    --text-muted: #6b6b6b;
+    --transition-fast: 0.2s;
+    --transition-standard: 0.3s;
+    --radius-standard: 16px;
+    --radius-pill: 30px;
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 12px 40px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.2);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--primary);
+    line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6, .brand {
+    font-family: 'Syne', sans-serif;
+}
+
+a {
+    transition: color var(--transition-fast);
+}

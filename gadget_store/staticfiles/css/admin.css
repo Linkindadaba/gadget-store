@@ -1,0 +1,188 @@
+/* Admin Custom Styles */
+
+body {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+}
+
+#header {
+    background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+}
+
+#header .branding a {
+    color: #fbbf24 !important;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+#header a:link,
+#header a:visited,
+#user-tools a:link,
+#user-tools a:visited {
+    color: #cbd5e1 !important;
+}
+
+.module,
+.dashboard,
+.inline-group,
+.app-list,
+.dashboard-card,
+.admin-card,
+.results {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+    border-radius: 1rem !important;
+}
+
+.module h2,
+.inline-group h2,
+.module caption {
+    background: transparent !important;
+    color: #f8fafc !important;
+}
+
+.module table th,
+.module table td,
+.results table th,
+.results table td {
+    color: #cbd5e1 !important;
+}
+
+.dashboard-card,
+.admin-summary-card,
+.admin-card {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.82)) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+}
+
+.dashboard-card h3,
+.dashboard-card h4,
+.admin-card h4,
+.admin-summary-card h3 {
+    color: #facc15 !important;
+    margin-top: 0;
+}
+
+.stat-number,
+.admin-summary-card .value {
+    color: #f8fafc !important;
+    font-weight: 800;
+}
+
+.stat-label,
+.admin-card small,
+.dashboard-card p {
+    color: #94a3b8 !important;
+}
+
+.chart-card {
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(148, 163, 184, 0.10);
+}
+
+.btn-accent {
+    background: #facc15;
+    color: #0f172a;
+    box-shadow: 0 12px 30px rgba(250, 204, 21, 0.18);
+}
+
+.btn-accent:hover {
+    background: #eab308;
+}
+
+.badge-panel {
+    background: rgba(248, 250, 252, 0.08);
+    color: #e2e8f0;
+    border-radius: 9999px;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.85rem;
+}
+
+/* Form improvements */
+#admin input[type="text"],
+#admin input[type="email"],
+#admin input[type="password"],
+#admin input[type="number"],
+#admin textarea,
+#admin select {
+    background: rgba(30, 41, 59, 0.8) !important;
+    border: 1px solid rgba(148, 163, 184, 0.2) !important;
+    color: #e2e8f0 !important;
+    border-radius: 8px !important;
+}
+
+#admin input:focus,
+#admin textarea:focus,
+#admin select:focus {
+    border-color: #facc15 !important;
+    background: rgba(30, 41, 59, 0.95) !important;
+    box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.1) !important;
+}
+
+/* Table styling */
+.results table {
+    background: transparent;
+    border-collapse: collapse;
+}
+
+.results tbody tr {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.results tbody tr:hover {
+    background: rgba(250, 204, 21, 0.05);
+}
+
+/* Admin links */
+.admin-link,
+.view-on-site,
+.historylink {
+    color: #facc15 !important;
+}
+
+.admin-link:hover,
+.view-on-site:hover,
+.historylink:hover {
+    color: #eab308 !important;
+}
+
+/* Fieldset */
+fieldset {
+    background: rgba(30, 41, 59, 0.5) !important;
+    border: 1px solid rgba(148, 163, 184, 0.1) !important;
+}
+
+fieldset legend {
+    color: #facc15 !important;
+}
+
+@media (max-width: 992px) {
+    .dashboard-card,
+    .chart-card,
+    .admin-card,
+    .admin-summary-card {
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-card,
+    .admin-card {
+        padding: 1rem;
+    }
+
+    #admin input[type="text"],
+    #admin textarea,
+    #admin select {
+        font-size: 16px;
+    }
+}
+

@@ -18,9 +18,9 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price', 'discount_price', 'effective_price', 'stock', 'stock_alert', 'is_featured', 'is_active']
+    list_display = ['name', 'category', 'price', 'effective_price', 'stock_display', 'status_toggle', 'is_featured']
     list_filter = ['category', 'is_featured', 'is_active']
-    list_editable = ['price', 'discount_price', 'stock', 'is_featured', 'is_active']
+    list_editable = ['price', 'is_featured']
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name', 'description']
     fieldsets = (
@@ -39,6 +39,7 @@ class ProductAdmin(admin.ModelAdmin):
         # The 'image' field is handled separately in the custom template for the drop zone
     )
     inlines = [ProductImageInline]
+
     actions = ['set_discount_percent']
     
     def set_discount_percent(self, request, queryset):
@@ -59,11 +60,17 @@ class ProductAdmin(admin.ModelAdmin):
         })
     set_discount_percent.short_description = 'Set discount percentage on selected products'
 
-    def stock_alert(self, obj):
+    def stock_display(self, obj):
         if obj.stock <= 5:
-            return format_html('<span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> Low</span>')
-        return format_html('<span class="text-success"><i class="bi bi-check-circle"></i> OK</span>')
-    stock_alert.short_description = 'Status'
+            return format_html('<span class="badge bg-danger">Low Stock: {}</span>', obj.stock)
+        return format_html('<span class="text-muted">{} in stock</span>', obj.stock)
+    stock_display.short_description = 'Inventory'
+
+    def status_toggle(self, obj):
+        icon = "check-circle-fill" if obj.is_active else "x-circle"
+        color = "success" if obj.is_active else "secondary"
+        return format_html('<i class="bi bi-{} text-{}"></i>', icon, color)
+    status_toggle.short_description = 'Active'
 
 
 class ProfileAdmin(admin.ModelAdmin):

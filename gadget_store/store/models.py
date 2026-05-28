@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class Category(models.Model):
@@ -63,6 +64,11 @@ class Product(models.Model):
         if self.discount_price and self.price > 0:
             return round((1 - self.discount_price / self.price) * 100)
         return 0
+
+    @property
+    def is_new(self):
+        # Product is 'New' if created within the last 7 days
+        return (timezone.now() - self.created_at).days < 7
         
     @property
     def average_rating(self):
