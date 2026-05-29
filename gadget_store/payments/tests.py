@@ -130,7 +130,7 @@ class PaymentWebhookTests(TestCase):
             "data": {
                 "reference": self.payment.reference,
                 "status": "success",
-                "amount": 10000, # Paystack sends in kobo
+                "amount": 10000, # Paystack sends in pesewas
                 "currency": "GHS",
                 "id": "GT-ID-999"
             }
