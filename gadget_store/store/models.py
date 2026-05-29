@@ -3,6 +3,7 @@ from django.utils.text import slugify
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
+from cloudinary import CloudinaryImage
 
 
 class Category(models.Model):
@@ -54,6 +55,16 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse('store:product_detail', kwargs={'slug': self.slug})
+
+    def get_mobile_thumbnail_url(self):
+        """Returns a mobile-optimized Cloudinary URL."""
+        if not self.image:
+            return None
+        # f_auto and q_auto are best practices for performance
+        return CloudinaryImage(self.image.name).build_url(
+            width=450, height=450, crop='fill', gravity='auto',
+            fetch_format='auto', quality='auto'
+        )
 
     @property
     def effective_price(self):

@@ -264,7 +264,7 @@ def search_suggestions(request):
         'name': p.name,
         'price': float(p.effective_price),
         'url': p.get_absolute_url(),
-        'image': p.image.url if p.image else None,
+        'image': p.get_mobile_thumbnail_url() if p.image else None,
         'category': p.category.name if p.category else ""
     } for p in products]
     

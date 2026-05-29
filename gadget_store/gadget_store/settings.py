@@ -29,11 +29,11 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     'crispy_forms',
     'crispy_bootstrap5',
-    'cloudinary_storage',
-    'cloudinary',
     'store',
     'orders',
     'payments',
@@ -125,14 +125,16 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
 }
 
-if CLOUDINARY_STORAGE['CLOUD_NAME']:
-    cloudinary.config(
-        cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
-        api_key=CLOUDINARY_STORAGE['API_KEY'],
-        api_secret=CLOUDINARY_STORAGE['API_SECRET'],
-        secure=True
-    )
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# Storage Configuration (Django 4.2+)
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage" 
+        if CLOUDINARY_STORAGE['CLOUD_NAME'] else "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
