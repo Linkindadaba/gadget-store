@@ -238,27 +238,71 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function handleGalleryFiles(files) {
-        // The group ID is 'images-group' based on related_name='images' in models.py
-        const group = document.getElementById('images-group');
-        if (!group) return;
+        // Find the ProductImage inline formset group (Django uses various naming patterns)
+        let group = document.getElementById('images-group');
+        
+        // Fallback: search for the inline group by looking for forms with file inputs
+        if (!group) {
+            const allInlines = document.querySelectorAll('[id$="-group"]');
+            for (let inline of allInlines) {
+                if (inline.querySelector('input[type="file"][name*="image"]')) {
+                    group = inline;
+                    break;
+                }
+            }
+        }
+        
+        // Last resort: find by checking for ProductImage related content
+        if (!group) {
+            const formsets = document.querySelectorAll('.inline-group');
+            for (let formset of formsets) {
+                if (formset.querySelector('input[name*="productimage"]')) {
+                    group = formset;
+                    break;
+                }
+            }
+        }
+        
+        if (!group) {
+            console.warn('Could not find ProductImage inline formset group');
+            return;
+        }
 
-        const addButton = group.querySelector('.add-row a');
-        if (!addButton) return;
+        const addButton = group.querySelector('.add-row a, .add-row button, a.add-another-inline-related');
+        if (!addButton) {
+            console.warn('Could not find add button for inline formset');
+            return;
+        }
 
         Array.from(files).forEach((file) => {
             addButton.click();
-            const rows = group.querySelectorAll('tr.form-row:not(.empty-form)');
-            const lastRow = rows[rows.length - 1];
             
-            if (lastRow) {
-                const rowInput = lastRow.querySelector('input[type="file"]');
-                if (rowInput) {
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(file);
-                    rowInput.files = dataTransfer.files;
-                    rowInput.dispatchEvent(new Event('change', { bubbles: true }));
+            // Give the form time to render
+            setTimeout(() => {
+                const rows = group.querySelectorAll('tr.form-row:not(.empty-form)');
+                const lastRow = rows[rows.length - 1];
+                
+                if (lastRow) {
+                    const rowInput = lastRow.querySelector('input[type="file"]');
+                    if (rowInput) {
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        rowInput.files = dataTransfer.files;
+                        rowInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        
+                        // Optional: show preview if available
+                        const preview = lastRow.querySelector('img');
+                        if (preview) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                preview.src = e.target.result;
+                                preview.style.display = 'block';
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }
                 }
-            }
+            }, 100);
         });
     }
 });
