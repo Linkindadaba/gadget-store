@@ -37,8 +37,10 @@
         {% for product in products %}
         <div class="col-6 col-md-4">
           <div class="product-card card h-100 shadow-sm">
-            {% if product.image %}<img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-            {% else %}<div class="product-placeholder"><i class="bi bi-box-seam"></i></div>{% endif %}
+            {% with product.get_image_url as card_image_url %}
+              {% if card_image_url %}<img src="{{ card_image_url }}" class="card-img-top" alt="{{ product.name }}">
+              {% else %}<div class="product-placeholder"><i class="bi bi-box-seam"></i></div>{% endif %}
+            {% endwith %}
             <div class="card-body d-flex flex-column p-3">
               {% if product.discount_percent > 0 %}<span class="badge-discount mb-2 align-self-start">-{{ product.discount_percent }}%</span>{% endif %}
               <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px">{{ product.category.name }}</p>

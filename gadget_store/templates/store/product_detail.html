@@ -13,12 +13,14 @@
     <div class="col-lg-5">
       <!-- Main product image with gallery -->
       <div class="product-image-section">
-        {% if product.image %}
-          <img id="mainProductImage" src="{{ product.image.url }}" class="w-100 rounded-xl shadow-sm main-image" alt="{{ product.name }}" style="max-height:450px;object-fit:cover;cursor:pointer;">
-        {% else %}
-          <div class="rounded-xl shadow-sm d-flex align-items-center justify-content-center bg-white main-image" style="height:350px;font-size:8rem;color:#ddd"><i class="bi bi-box-seam"></i></div>
-        {% endif %}
-        
+        {% with product.get_image_url as image_url %}
+          {% if image_url %}
+            <img id="mainProductImage" src="{{ image_url }}" class="w-100 rounded-xl shadow-sm main-image" alt="{{ product.name }}" style="max-height:450px;object-fit:cover;cursor:pointer;">
+          {% else %}
+            <div class="rounded-xl shadow-sm d-flex align-items-center justify-content-center bg-white main-image" style="height:350px;font-size:8rem;color:#ddd"><i class="bi bi-box-seam"></i></div>
+          {% endif %}
+        {% endwith %}
+
         <!-- Gallery thumbnails -->
         {% if product.images.all %}
           <div class="mt-3 d-flex gap-2 flex-wrap">
@@ -28,9 +30,13 @@
               </div>
             {% endif %}
             {% for gallery_img in product.images.all %}
-              <div class="gallery-thumb" style="cursor:pointer;border:2px solid #ddd;border-radius:8px;overflow:hidden;transition:all 0.3s ease;" data-src="{{ gallery_img.image.url }}" data-alt="{{ gallery_img.alt_text|default:product.name }}">
-                <img src="{{ gallery_img.image.url }}" alt="{{ gallery_img.alt_text|default:product.name }}" style="width:60px;height:60px;object-fit:cover;" title="{{ gallery_img.alt_text|default:'Gallery image' }}">
-              </div>
+              {% with gallery_img.get_image_url as gallery_url %}
+                {% if gallery_url %}
+                  <div class="gallery-thumb" style="cursor:pointer;border:2px solid #ddd;border-radius:8px;overflow:hidden;transition:all 0.3s ease;" data-src="{{ gallery_url }}" data-alt="{{ gallery_img.alt_text|default:product.name }}">
+                    <img src="{{ gallery_url }}" alt="{{ gallery_img.alt_text|default:product.name }}" style="width:60px;height:60px;object-fit:cover;" title="{{ gallery_img.alt_text|default:'Gallery image' }}">
+                  </div>
+                {% endif %}
+              {% endwith %}
             {% endfor %}
           </div>
         {% endif %}

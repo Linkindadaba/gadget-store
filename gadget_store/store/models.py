@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
@@ -57,14 +58,21 @@ class Product(models.Model):
         return reverse('store:product_detail', kwargs={'slug': self.slug})
 
     def get_mobile_thumbnail_url(self):
-        """Returns a mobile-optimized Cloudinary URL."""
+        """Returns a mobile-optimized Cloudinary URL when Cloudinary is enabled."""
         if not self.image:
             return None
-        # f_auto and q_auto are best practices for performance
+        default_storage = settings.STORAGES.get('default', {}).get('BACKEND', '')
+        if 'cloudinary_storage' not in default_storage:
+            return None
         return CloudinaryImage(self.image.name).build_url(
             width=450, height=450, crop='fill', gravity='auto',
             fetch_format='auto', quality='auto'
         )
+
+    def get_image_url(self):
+        if not self.image:
+            return None
+        return self.get_mobile_thumbnail_url() or getattr(self.image, 'url', None)
 
     @property
     def effective_price(self):
@@ -98,6 +106,11 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.product.name}"
+
+    def get_image_url(self):
+        if not self.image:
+            return None
+        return getattr(self.image, 'url', None)
 
 
 class Profile(models.Model):
