@@ -6,7 +6,7 @@
   "deploy": {
     "restartPolicyType": "on_failure",
     "restartPolicyMaxRetries": 5,
-    "preDeployCommand": "python manage.py collectstatic --noinput --clear && python manage.py migrate --noinput",
+    "preDeployCommand": "python manage.py migrate --noinput",
     "startCommand": "sh -c \"gunicorn gadget_store.wsgi --bind 0.0.0.0:$PORT --workers 2 --timeout 120\""
   }
 }

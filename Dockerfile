@@ -29,8 +29,8 @@ RUN mkdir -p /app/gadget_store/staticfiles
 # Navigate to gadget_store directory (where manage.py is)
 WORKDIR /app/gadget_store
 
-# Note: collectstatic is deferred to preDeployCommand in railway.json
-# to allow DATABASE_URL environment variable to be available.
+# Collect static files at build time so the image contains production-ready assets.
+RUN python manage.py collectstatic --noinput --clear
 
 # Expose port
 EXPOSE 8000
