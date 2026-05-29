@@ -30,7 +30,7 @@ RUN mkdir -p /app/gadget_store/staticfiles
 WORKDIR /app/gadget_store
 
 # Collect static files at build time so the image contains production-ready assets.
-RUN python manage.py collectstatic --noinput --clear
+RUN python manage.py collectstatic --noinput
 
 # Expose port
 EXPOSE 8000
