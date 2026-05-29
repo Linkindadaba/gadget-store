@@ -15,4 +15,7 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('account-settings/', views.account_settings, name='account_settings'),
     path('help-support/', views.help_support, name='help_support'),
+    # New Features
+    path('search-suggestions/', views.search_suggestions, name='search_suggestions'),
+    path('track-order/', views.track_order, name='track_order'),
 ]

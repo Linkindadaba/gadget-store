@@ -248,3 +248,34 @@ def category(request, slug):
 
 def help_support(request):
     return render(request, 'store/help_support.html')
+
+def search_suggestions(request):
+    """AJAX endpoint for product search suggestions."""
+    query = request.GET.get('q', '')
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+    
+    products = Product.objects.filter(
+        is_active=True, 
+        name__icontains=query
+    )[:5]
+    
+    results = [{
+        'name': p.name,
+        'price': float(p.effective_price),
+        'url': p.get_absolute_url(),
+        'image': p.image.url if p.image else None,
+        'category': p.category.name if p.category else ""
+    } for p in products]
+    
+    return JsonResponse({'results': results})
+
+def track_order(request):
+    """View to handle live order tracking status."""
+    order_number = request.GET.get('order_number', '').strip()
+    order = None
+    if order_number:
+        from orders.models import Order
+        order = Order.objects.filter(order_number=order_number).first()
+        
+    return render(request, 'store/tracker.html', {'order': order, 'order_number': order_number})

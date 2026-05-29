@@ -10,6 +10,13 @@ from .models import Category, Product, ProductImage, Profile, Review
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
+    fields = ['image', 'image_preview', 'alt_text']
+    readonly_fields = ['image_preview']
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="height: 80px; width: 80px; object-fit: contain; border-radius: 8px; border: 1px solid #eee;" />', obj.image.url)
+        return "-"
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -23,24 +30,49 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ['price', 'is_featured']
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name', 'description']
+    readonly_fields = ['main_image_preview']
     fieldsets = (
-        (None, { # This fieldset will contain fields for the main content area
+        ('Product Information', {
             'fields': (
                 'name', 'slug', 'description', 'category',
                 'is_featured', 'is_active'
             ),
-            'classes': ('two-columns',),
             'description': 'Basic product details and categorization.',
         }),
         ('Pricing and Inventory', { # This fieldset will contain fields for the sidebar
             'fields': ('price', 'discount_price', 'stock'),
             'description': 'Set product pricing and manage stock levels.',
         }),
-        # The 'image' field is handled separately in the custom template for the drop zone
+        ('Media & Branding', {
+            'fields': ('image', 'main_image_preview'),
+            'description': 'Upload the primary product image seen in catalogs.',
+        }),
     )
     inlines = [ProductImageInline]
 
-    actions = ['set_discount_percent']
+    def main_image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<div style="background: #f8f9fa; padding: 15px; border-radius: 12px; display: inline-block; border: 2px dashed #dee2e6;">'
+                '<img src="{}" style="max-height: 200px; width: auto; display: block;" />'
+                '</div>', obj.image.url
+            )
+        return "No primary image uploaded."
+    main_image_preview.short_description = "Preview"
+
+    actions = ['set_discount_percent', 'duplicate_product']
+
+    def duplicate_product(self, request, queryset):
+        for obj in queryset:
+            original_pk = obj.pk
+            obj.pk = None  # Django creates a new record when PK is None
+            obj.slug = f"{obj.slug}-copy-{obj.pk or ''}" # Ensure slug uniqueness
+            obj.name = f"COPY: {obj.name}"
+            obj.is_active = False # Deactivate clone for safety
+            obj.save()
+            
+        self.message_user(request, f"Successfully duplicated {queryset.count()} products as drafts.")
+    duplicate_product.short_description = "Duplicate selected products as drafts"
     
     def set_discount_percent(self, request, queryset):
         if 'apply' in request.POST:
@@ -126,6 +158,11 @@ class MyAdminSite(admin.AdminSite):
         extra_context['total_products'] = Product.objects.count()
         extra_context['total_orders'] = order_qs.count()
         extra_context['pending_orders'] = order_qs.filter(status='pending').count()
+        
+        # Today's Sales
+        today_start = timezone.now().replace(hour=0, minute=0, second=0)
+        extra_context['today_sales'] = order_qs.filter(created_at__gte=today_start, status__in=['paid', 'shipped']).aggregate(Sum('total'))['total__sum'] or 0
+        
         extra_context['total_revenue'] = order_qs.filter(status__in=['paid', 'shipped', 'delivered']).aggregate(Sum('total'))['total__sum'] or 0
         
         # Low stock alerts (Threshold: 5)

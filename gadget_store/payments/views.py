@@ -20,13 +20,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-PAYSTACK_INIT_URL = "https://api.paystack.co/transaction/initialize"
-PAYSTACK_VERIFY_URL = "https://api.paystack.co/transaction/verify"
-FLW_PAYMENT_URL = "https://api.flutterwave.com/v3/payments"
-PAYSTACK_WEBHOOK_SECRET_HEADER = 'x-paystack-signature'
-FLUTTERWAVE_WEBHOOK_SECRET_HEADER = 'verif-hash'
-
-
 def _paystack_headers():
     return {
         'Authorization': f'Bearer {settings.PAYSTACK_SECRET_KEY}',
@@ -58,6 +51,8 @@ class BasePaymentGateway(ABC):
         pass
 
 class FlutterwaveGateway(BasePaymentGateway):
+    BASE_URL = "https://api.flutterwave.com/v3"
+
     def _get_headers(self):
         return {
             'Authorization': f'Bearer {settings.FLUTTERWAVE_SECRET_KEY}',
@@ -77,7 +72,7 @@ class FlutterwaveGateway(BasePaymentGateway):
             },
         }
         try:
-            resp = requests.post("https://api.flutterwave.com/v3/payments", json=payload, headers=self._get_headers(), timeout=20)
+            resp = requests.post(f"{self.BASE_URL}/payments", json=payload, headers=self._get_headers(), timeout=20)
             data = resp.json()
             if resp.status_code >= 400 or data.get('status') != 'success':
                 raise PaymentGatewayError(data.get('message', 'Flutterwave error'))
@@ -88,7 +83,7 @@ class FlutterwaveGateway(BasePaymentGateway):
     def verify(self, payment, transaction_id=None):
         tid = transaction_id or payment.gateway_transaction_id
         if not tid: raise PaymentGatewayError("No transaction ID")
-        url = f"https://api.flutterwave.com/v3/transactions/{tid}/verify"
+        url = f"{self.BASE_URL}/transactions/{tid}/verify"
         resp = requests.get(url, headers=self._get_headers(), timeout=15)
         return resp.json().get('data')
 
@@ -97,6 +92,8 @@ class FlutterwaveGateway(BasePaymentGateway):
         return sent_hash and hmac.compare_digest(sent_hash, settings.FLUTTERWAVE_WEBHOOK_SECRET)
 
 class PaystackGateway(BasePaymentGateway):
+    BASE_URL = "https://api.paystack.co"
+
     def _get_headers(self):
         return {
             'Authorization': f'Bearer {settings.PAYSTACK_SECRET_KEY}',
@@ -112,7 +109,7 @@ class PaystackGateway(BasePaymentGateway):
             "callback_url": request.build_absolute_uri(reverse('payments:payment_callback')),
         }
         try:
-            resp = requests.post("https://api.api.paystack.co/transaction/initialize", json=payload, headers=self._get_headers(), timeout=20)
+            resp = requests.post(f"{self.BASE_URL}/transaction/initialize", json=payload, headers=self._get_headers(), timeout=20)
             data = resp.json()
             if resp.status_code >= 400 or not data.get('status'):
                 raise PaymentGatewayError(data.get('message', 'Paystack error'))
@@ -121,7 +118,7 @@ class PaystackGateway(BasePaymentGateway):
             raise PaymentGatewayError("Paystack connection failed")
 
     def verify(self, payment, transaction_id=None):
-        url = f"https://api.paystack.co/transaction/verify/{payment.reference}"
+        url = f"{self.BASE_URL}/transaction/verify/{payment.reference}"
         resp = requests.get(url, headers=self._get_headers(), timeout=15)
         return resp.json().get('data')
 
