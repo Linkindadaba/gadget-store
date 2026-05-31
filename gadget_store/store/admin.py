@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.shortcuts import render, redirect
+from django.db import models, transaction
 from django.db.models import Sum, Count
 from django.contrib.auth.models import User, Group
 from django.utils.html import format_html
@@ -62,9 +63,9 @@ class ProductAdmin(admin.ModelAdmin):
 
     actions = ['set_discount_percent', 'duplicate_product']
 
+    @transaction.atomic
     def duplicate_product(self, request, queryset):
         for obj in queryset:
-            original_pk = obj.pk
             obj.pk = None  # Django creates a new record when PK is None
             obj.slug = f"{obj.slug}-copy-{obj.pk or ''}" # Ensure slug uniqueness
             obj.name = f"COPY: {obj.name}"
@@ -74,6 +75,7 @@ class ProductAdmin(admin.ModelAdmin):
         self.message_user(request, f"Successfully duplicated {queryset.count()} products as drafts.")
     duplicate_product.short_description = "Duplicate selected products as drafts"
     
+    @transaction.atomic
     def set_discount_percent(self, request, queryset):
         if 'apply' in request.POST:
             percent = int(request.POST.get('discount_percent', 0))

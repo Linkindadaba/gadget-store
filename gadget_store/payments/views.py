@@ -20,6 +20,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Expected header names for webhooks
+PAYSTACK_WEBHOOK_SECRET_HEADER = 'x-paystack-signature'
+FLUTTERWAVE_WEBHOOK_SECRET_HEADER = 'verif-hash'
+
 def _paystack_headers():
     return {
         'Authorization': f'Bearer {settings.PAYSTACK_SECRET_KEY}',
@@ -101,6 +105,12 @@ class PaystackGateway(BasePaymentGateway):
         }
 
     def generate_link(self, request, order, payment, **kwargs):
+        # Validate secret key early to provide a clear error message instead of
+        # allowing Paystack to respond with an opaque "invalid key" error.
+        sk = getattr(settings, 'PAYSTACK_SECRET_KEY', None)
+        if not sk or 'PAYSTACK_TEST' in sk or sk.strip() == '' or sk.startswith('PAYSTACK_TEST'):
+            raise PaymentGatewayError('Paystack secret key not configured. Set PAYSTACK_SECRET_KEY in environment.')
+
         payload = {
             "email": order.email,
             "amount": int(payment.amount * 100),
@@ -118,6 +128,10 @@ class PaystackGateway(BasePaymentGateway):
             raise PaymentGatewayError("Paystack connection failed")
 
     def verify(self, payment, transaction_id=None):
+        sk = getattr(settings, 'PAYSTACK_SECRET_KEY', None)
+        if not sk or 'PAYSTACK_TEST' in sk or sk.strip() == '' or sk.startswith('PAYSTACK_TEST'):
+            raise PaymentGatewayError('Paystack secret key not configured. Set PAYSTACK_SECRET_KEY in environment.')
+
         url = f"{self.BASE_URL}/transaction/verify/{payment.reference}"
         resp = requests.get(url, headers=self._get_headers(), timeout=15)
         return resp.json().get('data')

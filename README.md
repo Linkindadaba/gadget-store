@@ -99,6 +99,19 @@ FLUTTERWAVE_ENCRYPTION_KEY = 'UO9BOWQpvWbd1rY+Qs2+IzLhhHrwoqfAnD+h/SwQqOQ='
 FLUTTERWAVE_WEBHOOK_SECRET = 'your_flutterwave_webhook_secret'
 ```
 
+### Paystack Keys (settings.py)
+Set Paystack keys via environment variables (preferred) or a local `.env` file:
+
+```bash
+PAYSTACK_SECRET_KEY=sk_test_xxx_or_live_xxx   # server-side secret key
+PAYSTACK_PUBLIC_KEY=pk_test_xxx_or_live_xxx   # client-side public key (if used)
+PAYSTACK_WEBHOOK_SECRET=your_paystack_webhook_secret
+```
+
+Notes:
+- Do NOT commit your real keys into the repo. Use the `.env` file locally and set environment variables in production (Railway, Heroku, etc.).
+- If you see "invalid key" from Paystack during checkout, it's usually because `PAYSTACK_SECRET_KEY` is missing, incorrect, or a test key used in the wrong environment. Ensure the secret key is set and restart the app.
+
 ### Delivery Fees (settings.py)
 ```python
 DELIVERY_REGIONS = {
