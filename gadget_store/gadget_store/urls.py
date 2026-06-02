@@ -4,12 +4,18 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
 
+from .auth_views import RateLimitedLoginView, RateLimitedPasswordResetView, RateLimitedPasswordResetConfirmView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('store.urls')),
     path('orders/', include('orders.urls')),
     path('payments/', include('payments.urls')),
     path('logistics/', include('logistics.urls')),
+    # Override sensitive auth endpoints with rate-limited views
+    path('accounts/login/', RateLimitedLoginView.as_view(), name='login'),
+    path('accounts/password_reset/', RateLimitedPasswordResetView.as_view(), name='password_reset'),
+    path('accounts/reset/<uidb64>/<token>/', RateLimitedPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('accounts/', include('django.contrib.auth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

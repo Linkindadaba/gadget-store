@@ -16,6 +16,9 @@ class Category(models.Model):
     class Meta:
         verbose_name_plural = 'Categories'
         ordering = ['name']
+        indexes = [
+            models.Index(fields=['name']),
+        ]
 
     def __str__(self):
         return self.name
@@ -45,6 +48,11 @@ class Product(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['category']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['created_at']),
+        ]
 
     def __str__(self):
         return self.name
@@ -134,6 +142,26 @@ class Review(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['product', 'created_at']),
+        ]
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name} ({self.rating})"
+
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='wishlisted_by')
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')
+        ordering = ['-added_at']
+        indexes = [
+            models.Index(fields=['user']),
+            models.Index(fields=['product']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username}'s wishlist: {self.product.name}"

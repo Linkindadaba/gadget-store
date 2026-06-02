@@ -18,4 +18,7 @@ urlpatterns = [
     # New Features
     path('search-suggestions/', views.search_suggestions, name='search_suggestions'),
     path('track-order/', views.track_order, name='track_order'),
+    # Wishlist
+    path('wishlist/', views.wishlist_detail, name='wishlist_detail'),
+    path('wishlist/toggle/<int:product_id>/', views.wishlist_toggle, name='wishlist_toggle'),
 ]

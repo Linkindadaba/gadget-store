@@ -5,7 +5,7 @@ from django.db.models import Sum, Count
 from django.contrib.auth.models import User, Group
 from django.utils.html import format_html
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Category, Product, ProductImage, Profile, Review
+from .models import Category, Product, ProductImage, Profile, Review, Wishlist
 
 
 class ProductImageInline(admin.TabularInline):
@@ -200,6 +200,11 @@ class ReviewAdmin(admin.ModelAdmin):
     list_filter = ['rating', 'created_at']
     search_fields = ['product__name', 'user__username', 'comment']
 
+class WishlistAdmin(admin.ModelAdmin):
+    list_display = ['user', 'product', 'added_at']
+    list_filter = ['added_at']
+    search_fields = ['user__username', 'product__name']
+
 # Register Store models
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
@@ -207,6 +212,7 @@ admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Review, ReviewAdmin)
 
 class OrderAdmin(admin.ModelAdmin):
+    admin.site.register(Wishlist, WishlistAdmin)
     list_display = ['order_number', 'first_name', 'last_name', 'total', 'status', 'created_at']
     list_filter = ['status', 'region']
     search_fields = ['order_number', 'first_name', 'last_name', 'email']

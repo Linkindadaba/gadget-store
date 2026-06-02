@@ -99,6 +99,44 @@ FLUTTERWAVE_CLIENT_SECRET = os.getenv('FLUTTERWAVE_CLIENT_SECRET')
 FLUTTERWAVE_ENCRYPTION_KEY = os.getenv('FLUTTERWAVE_ENCRYPTION_KEY')
 ```
 
+### Paystack Test Keys (local testing only)
+```bash
+PAYSTACK_SECRET_KEY=sk_test_50dd7ba51e84e0b6128e1ccc1788a15a0b824e60
+PAYSTACK_PUBLIC_KEY=pk_test_03c30ee7d776a8167cc3b3d1e178e3028471e895
+PAYSTACK_WEBHOOK_SECRET=your_paystack_webhook_secret
+PAYSTACK_ALLOWED_IPS=127.0.0.1,::1
+```
+
+For local testing, the project already exposes these endpoints:
+- Test Callback URL: `http://localhost:8000/payments/callback/`
+- Test Webhook URL: `http://localhost:8000/payments/webhook/`
+
+If you expose the app through a public tunnel like ngrok, use the tunnel URL instead:
+- `https://<your-tunnel>.ngrok.io/payments/callback/`
+- `https://<your-tunnel>.ngrok.io/payments/webhook/`
+
+### ngrok Testing
+1. Start your app locally:
+```bash
+cd gadget_store
+.\.venv\Scripts\python.exe manage.py runserver
+```
+2. Open a second terminal and run ngrok:
+```bash
+ngrok http 8000
+```
+3. Copy the generated public URL and register these Paystack sandbox endpoints:
+   - `https://<your-tunnel>.ngrok.io/payments/callback/`
+   - `https://<your-tunnel>.ngrok.io/payments/webhook/`
+4. If you set `PAYSTACK_ALLOWED_IPS`, also add the webhook source IP(s) reported by ngrok.
+
+If `PAYSTACK_ALLOWED_IPS` is set, webhook requests will be rejected unless the source IP matches the allowlist.
+
+### Delivery Fees (settings.py)
+4. If you set `PAYSTACK_ALLOWED_IPS`, also add the webhook source IP(s) reported by ngrok.
+
+If `PAYSTACK_ALLOWED_IPS` is set, webhook requests will be rejected unless the source IP matches the allowlist.
+
 ### Delivery Fees (settings.py)
 ```python
 DELIVERY_REGIONS = {

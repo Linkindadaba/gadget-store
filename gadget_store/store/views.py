@@ -10,9 +10,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import SignupForm, ProfileForm
 from django.conf import settings
-from .models import Product, Category, Profile, Review
+from .models import Product, Category, Profile, Review, Wishlist
 import json
+import logging
+from django_ratelimit.decorators import ratelimit
+from django.utils.html import strip_tags
 
+logger = logging.getLogger(__name__)
 
 def home(request):
     featured_products = Product.objects.filter(is_featured=True, is_active=True).annotate(avg_rating=Avg('reviews__rating'))[:8]
@@ -64,16 +68,25 @@ def product_detail(request, slug):
     
     if request.method == 'POST' and request.user.is_authenticated:
         rating = request.POST.get('rating')
-        comment = request.POST.get('comment')
-        if rating and comment:
+        comment = request.POST.get('comment', '').strip()
+        # Basic sanitization and validation
+        try:
+            rating_val = int(rating)
+        except Exception:
+            rating_val = None
+
+        if rating_val and 1 <= rating_val <= 5 and comment and len(strip_tags(comment)) <= 2000:
             Review.objects.create(
                 product=product,
                 user=request.user,
-                rating=rating,
+                rating=rating_val,
                 comment=comment
             )
             messages.success(request, 'Thank you for your review!')
             return redirect('store:product_detail', slug=slug)
+        else:
+            logger.warning(f"Invalid review submission by user={request.user.id} for product={product.id}")
+            messages.error(request, 'Invalid review data. Please ensure your rating is 1-5 and comment is present.')
 
     related_products = Product.objects.filter(
         category=product.category, is_active=True
@@ -168,6 +181,7 @@ def remove_from_cart(request, product_id):
     return redirect('store:cart')
 
 
+@ratelimit(key='ip', rate='6/h', block=True)
 def signup(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
@@ -177,6 +191,7 @@ def signup(request):
             user.save()
             Profile.objects.create(user=user, phone=form.cleaned_data['phone'])
             login(request, user)
+            logger.info(f"New user created: {user.username} (id={user.id})")
             messages.success(request, 'Account created successfully!')
             return redirect('store:home')
     else:
@@ -279,3 +294,29 @@ def track_order(request):
         order = Order.objects.filter(order_number=order_number).first()
         
     return render(request, 'store/tracker.html', {'order': order, 'order_number': order_number})
+
+@login_required
+def wishlist_detail(request):
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
+    return render(request, 'store/wishlist.html', {'wishlist_items': wishlist_items})
+
+@login_required
+@require_POST
+def wishlist_toggle(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+    
+    action = "added to"
+    if not created:
+        wishlist_item.delete()
+        action = "removed from"
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True,
+            'action': action,
+            'is_wishlisted': created
+        })
+    
+    messages.success(request, f'"{product.name}" {action} your wishlist.')
+    return redirect(request.META.get('HTTP_REFERER', 'store:home'))

@@ -4,11 +4,13 @@ from decouple import config
 import dj_database_url
 import cloudinary
 from django.core.exceptions import ImproperlyConfigured
+import logging
+import logging.config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production-use-env-vars')
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = [host.strip() for host in config('ALLOWED_HOSTS', default='gadget-store-production-280d.up.railway.app,localhost,127.0.0.1').split(',') if host.strip()]
+ALLOWED_HOSTS = [host.strip() for host in config('ALLOWED_HOSTS', default='gadget-store-production-280d.up.railway.app,localhost,127.0.0.1,testserver').split(',') if host.strip()]
 
 # CSRF settings for production
 CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host not in ['localhost', '127.0.0.1']]
@@ -24,6 +26,7 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +45,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # For serving static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -139,6 +143,15 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Cache backend used by Django for session and other caching needs.
+# django-ratelimit decorators work without installing the app entry.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
 # Log database configuration for debugging (shown in Railway logs)
 import sys
 _db_engine = DATABASES['default'].get('ENGINE', 'unknown')
@@ -170,9 +183,12 @@ FLUTTERWAVE_MOBILE_MONEY_NETWORKS = [
 ]
 
 # Payment settings (Paystack)
-PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default='PAYSTACK_TEST_xxxxxxxxxxxxxxxxxxxxxxxxx')
-PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default='PAYSTACK_TEST_xxxxxxxxxxxxxxxxxxxxxxxxx')
+PAYSTACK_TEST_SECRET_KEY = 'sk_test_50dd7ba51e84e0b6128e1ccc1788a15a0b824e60'
+PAYSTACK_TEST_PUBLIC_KEY = 'pk_test_03c30ee7d776a8167cc3b3d1e178e3028471e895'
+PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default=PAYSTACK_TEST_SECRET_KEY if DEBUG else 'PAYSTACK_TEST_xxxxxxxxxxxxxxxxxxxxxxxxx')
+PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default=PAYSTACK_TEST_PUBLIC_KEY if DEBUG else 'PAYSTACK_TEST_xxxxxxxxxxxxxxxxxxxxxxxxx')
 PAYSTACK_WEBHOOK_SECRET = config('PAYSTACK_WEBHOOK_SECRET', default='your_paystack_webhook_secret')
+PAYSTACK_ALLOWED_IPS = [ip.strip() for ip in config('PAYSTACK_ALLOWED_IPS', default='').split(',') if ip.strip()]
 PAYSTACK_CURRENCY = 'GHS'
 
 # Delivery fee settings (in GHS)
@@ -197,6 +213,55 @@ DELIVERY_REGIONS = {
 
 # Ensure auth form inputs have Bootstrap styling
 from django import forms
+
+# CORS configuration (use strict origins in production)
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    f"https://{host}" for host in ALLOWED_HOSTS if host not in ['localhost', '127.0.0.1']
+]
+
+# Email / Password reset security
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+PASSWORD_RESET_TIMEOUT = config('PASSWORD_RESET_TIMEOUT', default=3600, cast=int)  # seconds
+
+# Basic logging configuration
+LOG_LEVEL = config('LOG_LEVEL', default='INFO')
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '[%(asctime)s] %(levelname)s %(name)s: %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': LOG_LEVEL,
+    },
+}
+
+# Optional Sentry integration for alerts (configure SENTRY_DSN in env)
+SENTRY_DSN = config('SENTRY_DSN', default='')
+if SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+
+        sentry_sdk.init(dsn=SENTRY_DSN, integrations=[DjangoIntegration()], traces_sample_rate=0.0)
+    except Exception:
+        # Don't fail startup if Sentry isn't available
+        logging.getLogger(__name__).exception('Failed to initialize Sentry')
+
+# Rate limiting defaults (use django-ratelimit decorators or middleware per-view)
+RATE_LIMIT_DEFAULT = config('RATE_LIMIT_DEFAULT', default='100/h')
 
 # Social Media Handles
 SOCIAL_MEDIA = {

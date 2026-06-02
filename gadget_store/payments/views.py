@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
+from django_ratelimit.decorators import ratelimit
 
 from orders.models import Order
 from .models import Payment
@@ -108,7 +109,8 @@ class PaystackGateway(BasePaymentGateway):
         # Validate secret key early to provide a clear error message instead of
         # allowing Paystack to respond with an opaque "invalid key" error.
         sk = getattr(settings, 'PAYSTACK_SECRET_KEY', None)
-        if not sk or 'PAYSTACK_TEST' in sk or sk.strip() == '' or sk.startswith('PAYSTACK_TEST'):
+        if not sk or sk.strip() == '' or 'xxxx' in sk:
+            logger.error("Paystack API call attempted but Secret Key is missing or using placeholder.")
             raise PaymentGatewayError('Paystack secret key not configured. Set PAYSTACK_SECRET_KEY in environment.')
 
         payload = {
@@ -119,17 +121,19 @@ class PaystackGateway(BasePaymentGateway):
             "callback_url": request.build_absolute_uri(reverse('payments:payment_callback')),
         }
         try:
+            logger.info(f"Initializing Paystack transaction for Order {order.order_number}")
             resp = requests.post(f"{self.BASE_URL}/transaction/initialize", json=payload, headers=self._get_headers(), timeout=20)
             data = resp.json()
             if resp.status_code >= 400 or not data.get('status'):
-                raise PaymentGatewayError(data.get('message', 'Paystack error'))
+                raise PaymentGatewayError(f"Paystack Error: {data.get('message', 'Unknown Error')}")
             return data.get('data', {}).get('authorization_url')
-        except requests.exceptions.RequestException:
-            raise PaymentGatewayError("Paystack connection failed")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Paystack connection error: {e}")
+            raise PaymentGatewayError("Could not connect to Paystack. Please check your internet or try again later.")
 
     def verify(self, payment, transaction_id=None):
         sk = getattr(settings, 'PAYSTACK_SECRET_KEY', None)
-        if not sk or 'PAYSTACK_TEST' in sk or sk.strip() == '' or sk.startswith('PAYSTACK_TEST'):
+        if not sk or sk.strip() == '' or 'xxxx' in sk:
             raise PaymentGatewayError('Paystack secret key not configured. Set PAYSTACK_SECRET_KEY in environment.')
 
         url = f"{self.BASE_URL}/transaction/verify/{payment.reference}"
@@ -210,6 +214,8 @@ def _mark_payment_from_charge(payment, charge, gateway=None):
 
 
 @require_http_methods(['GET', 'POST'])
+@require_http_methods(['GET', 'POST'])
+@ratelimit(key='ip', rate='200/h', block=True)
 def initiate_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id, status='pending')
 
@@ -289,6 +295,7 @@ def initiate_payment(request, order_id):
 
 @csrf_exempt
 @require_http_methods(['POST'])
+@ratelimit(key='ip', rate='1000/h', block=True)
 def payment_webhook(request):
     if request.headers.get(PAYSTACK_WEBHOOK_SECRET_HEADER):
         return _handle_paystack_webhook(request)
@@ -350,6 +357,15 @@ def _handle_paystack_webhook(request):
     if not secret:
         logger.error("Paystack Webhook: Secret not configured in settings.")
         return HttpResponseBadRequest("Webhook secret not configured on server.")
+
+    remote_addr = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+    if ',' in remote_addr:
+        remote_addr = remote_addr.split(',')[0].strip()
+
+    allowed_ips = getattr(settings, 'PAYSTACK_ALLOWED_IPS', [])
+    if allowed_ips and remote_addr and remote_addr not in allowed_ips:
+        logger.warning(f"Paystack Webhook: Request from disallowed IP {remote_addr}")
+        return HttpResponseBadRequest("Webhook source IP not allowed.")
 
     signature = request.headers.get(PAYSTACK_WEBHOOK_SECRET_HEADER)
     if not signature:

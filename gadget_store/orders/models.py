@@ -40,6 +40,13 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order #{self.order_number}"
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['user']),
+            models.Index(fields=['status']),
+            models.Index(fields=['created_at']),
+        ]
 
     def save(self, *args, **kwargs):
         if not self.order_number:
