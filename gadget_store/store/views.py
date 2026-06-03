@@ -100,6 +100,10 @@ def product_detail(request, slug):
         'related_products': related_products,
         'reviews': reviews,
         'avg_rating': avg_rating,
+        'share_title': product.name,
+        'share_text': f"Check out this amazing product: {product.name}!",
+        'share_url': request.build_absolute_uri(product.get_absolute_url()),
+        'whatsapp_share_url': product.get_whatsapp_share_data(request),
     }
     return render(request, 'store/product_detail.html', context)
 
