@@ -8,9 +8,16 @@ import logging
 import logging.config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production-use-env-vars')
-DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = [host.strip() for host in config('ALLOWED_HOSTS', default='gadget-store-production-280d.up.railway.app,localhost,127.0.0.1,testserver').split(',') if host.strip()]
+# Security: require SECRET_KEY in environment for predictable behavior in production
+SECRET_KEY = config('SECRET_KEY', default=None)
+if not SECRET_KEY:
+    raise ImproperlyConfigured('SECRET_KEY environment variable is required and must not be empty.')
+
+# Default to safe production setting. Development machines should explicitly opt-in with DEBUG=True.
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+# ALLOWED_HOSTS should be set explicitly. Empty list is safest default.
+ALLOWED_HOSTS = [host.strip() for host in config('ALLOWED_HOSTS', default='').split(',') if host.strip()]
 
 # CSRF settings for production
 CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host not in ['localhost', '127.0.0.1']]
@@ -172,10 +179,10 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Payment settings (Flutterwave)
-FLUTTERWAVE_SECRET_KEY = config('FLUTTERWAVE_SECRET_KEY', default='FLWSECK_TEST-XXXXXXXXXXXXXXXX-X') # IMPORTANT: Replace with your actual Secret Key
-FLUTTERWAVE_ENCRYPTION_KEY = config('FLUTTERWAVE_ENCRYPTION_KEY', default='UO9BOWQpvWbd1rY+Qs2+IzLhhHrwoqfAnD+h/SwQqOQ=')
-FLUTTERWAVE_WEBHOOK_SECRET = config('FLUTTERWAVE_WEBHOOK_SECRET', default='your_flutterwave_webhook_secret') # IMPORTANT: Change this default!
-FLUTTERWAVE_CURRENCY = 'GHS' # Assuming Ghana Cedi
+FLUTTERWAVE_SECRET_KEY = config('FLUTTERWAVE_SECRET_KEY', default=None)
+FLUTTERWAVE_ENCRYPTION_KEY = config('FLUTTERWAVE_ENCRYPTION_KEY', default=None)
+FLUTTERWAVE_WEBHOOK_SECRET = config('FLUTTERWAVE_WEBHOOK_SECRET', default=None)
+FLUTTERWAVE_CURRENCY = config('FLUTTERWAVE_CURRENCY', default='GHS')
 FLUTTERWAVE_MOBILE_MONEY_NETWORKS = [
     ('MTN', 'MTN Mobile Money'),
     ('VODAFONE', 'Vodafone Cash'),
@@ -183,13 +190,26 @@ FLUTTERWAVE_MOBILE_MONEY_NETWORKS = [
 ]
 
 # Payment settings (Paystack)
-PAYSTACK_TEST_SECRET_KEY = 'sk_test_50dd7ba51e84e0b6128e1ccc1788a15a0b824e60'
-PAYSTACK_TEST_PUBLIC_KEY = 'pk_test_03c30ee7d776a8167cc3b3d1e178e3028471e895'
-PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default=PAYSTACK_TEST_SECRET_KEY if DEBUG else 'PAYSTACK_TEST_xxxxxxxxxxxxxxxxxxxxxxxxx')
-PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default=PAYSTACK_TEST_PUBLIC_KEY if DEBUG else 'PAYSTACK_TEST_xxxxxxxxxxxxxxxxxxxxxxxxx')
-PAYSTACK_WEBHOOK_SECRET = config('PAYSTACK_WEBHOOK_SECRET', default='your_paystack_webhook_secret')
+PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default=None)
+PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default=None)
+PAYSTACK_WEBHOOK_SECRET = config('PAYSTACK_WEBHOOK_SECRET', default=None)
 PAYSTACK_ALLOWED_IPS = [ip.strip() for ip in config('PAYSTACK_ALLOWED_IPS', default='').split(',') if ip.strip()]
-PAYSTACK_CURRENCY = 'GHS'
+PAYSTACK_CURRENCY = config('PAYSTACK_CURRENCY', default='GHS')
+
+# Enforce required payment secrets in production; allow test placeholders only when DEBUG=True
+if not DEBUG:
+    if not PAYSTACK_SECRET_KEY:
+        raise ImproperlyConfigured('PAYSTACK_SECRET_KEY must be set in production as an environment variable.')
+    if not FLUTTERWAVE_SECRET_KEY:
+        raise ImproperlyConfigured('FLUTTERWAVE_SECRET_KEY must be set in production as an environment variable.')
+else:
+    # Provide non-sensitive test placeholders for local development to avoid crashes.
+    PAYSTACK_SECRET_KEY = PAYSTACK_SECRET_KEY or 'sk_test_PLACEHOLDER'
+    PAYSTACK_PUBLIC_KEY = PAYSTACK_PUBLIC_KEY or 'pk_test_PLACEHOLDER'
+    PAYSTACK_WEBHOOK_SECRET = PAYSTACK_WEBHOOK_SECRET or 'webhook_test_placeholder'
+    FLUTTERWAVE_SECRET_KEY = FLUTTERWAVE_SECRET_KEY or 'FLWSECK_TEST_PLACEHOLDER'
+    FLUTTERWAVE_ENCRYPTION_KEY = FLUTTERWAVE_ENCRYPTION_KEY or 'ENCRYPTION_KEY_PLACEHOLDER'
+    FLUTTERWAVE_WEBHOOK_SECRET = FLUTTERWAVE_WEBHOOK_SECRET or 'webhook_test_placeholder'
 
 # Delivery fee settings (in GHS)
 DELIVERY_REGIONS = {
