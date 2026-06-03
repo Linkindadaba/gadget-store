@@ -31,6 +31,7 @@ WORKDIR /app/gadget_store
 
 # Collect static files at build time so the image contains production-ready assets.
 RUN SECRET_KEY=build-time-dummy-key DATABASE_URL=postgres://none:none@localhost:5432/none \
+    DEBUG=True \
     python manage.py collectstatic --noinput
 
 # Expose port
