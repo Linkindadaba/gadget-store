@@ -39,7 +39,7 @@
 
       <a class="nav-link cart-btn me-2" href="{% url 'store:cart' %}">
         <i class="bi bi-bag"></i> <span class="d-none d-sm-inline ms-1">Cart</span>
-        {% if cart_count > 0 %}<span class="cart-badge ms-1">{{ cart_count }}</span>{% endif %}
+        <span class="cart-badge cart-count-badge ms-1{% if cart_count == 0 %} d-none{% endif %}">{{ cart_count }}</span>
       </a>
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -88,7 +88,7 @@
 </div>
 {% endif %}
 
-<div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px;"></div>
+<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px;"></div>
 
 {% block content %}{% endblock %}
 

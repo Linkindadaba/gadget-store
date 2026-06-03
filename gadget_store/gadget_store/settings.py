@@ -152,12 +152,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Cache backend used by Django for session and other caching needs.
 # django-ratelimit decorators work without installing the app entry.
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+# Redis is recommended for production to share rate-limit state across workers.
+if config('REDIS_URL', default=''):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": config('REDIS_URL'),
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+        }
+    }
 
 # Log database configuration for debugging (shown in Railway logs)
 import sys
