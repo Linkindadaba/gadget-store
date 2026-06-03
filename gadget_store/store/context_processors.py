@@ -1,4 +1,5 @@
 from django.conf import settings
+from .models import Category
 
 def cart_count(request):
     cart = request.session.get('cart', {})
@@ -7,3 +8,6 @@ def cart_count(request):
 
 def social_media_links(request):
     return {'SOCIAL_MEDIA': settings.SOCIAL_MEDIA}
+
+def categories(request):
+    return {'nav_categories': Category.objects.all()}

@@ -17,7 +17,10 @@ if not SECRET_KEY:
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # ALLOWED_HOSTS should be set explicitly. Empty list is safest default.
-ALLOWED_HOSTS = [host.strip() for host in config('ALLOWED_HOSTS', default='').split(',') if host.strip()]
+ALLOWED_HOSTS = [
+    host.strip() for host in config('ALLOWED_HOSTS', default='').split(',')
+    if host.strip()
+]
 
 # CSRF settings for production
 CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host not in ['localhost', '127.0.0.1']]
@@ -77,6 +80,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'store.context_processors.social_media_links',
                 'store.context_processors.cart_count',
+                'store.context_processors.categories',
+                'store.context_processors.support_contacts',
             ],
         },
     },
@@ -153,6 +158,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Cache backend used by Django for session and other caching needs.
 # django-ratelimit decorators work without installing the app entry.
 # Redis is recommended for production to share rate-limit state across workers.
+
+# Session settings for security and user experience
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True # Logs users out when they close their browser
+
 if config('REDIS_URL', default=''):
     CACHES = {
         "default": {
@@ -246,8 +255,13 @@ from django import forms
 # CORS configuration (use strict origins in production)
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    f"https://{host}" for host in ALLOWED_HOSTS if host not in ['localhost', '127.0.0.1']
+    f"https://{host}" for host in ALLOWED_HOSTS if host not in ['localhost', '127.0.0.1'] # Production origins
 ]
+# For local development, add HTTP origins if DEBUG is True
+if DEBUG:
+    CORS_ALLOWED_ORIGINS.extend([
+        'http://localhost:8000', 'http://127.0.0.1:8000'
+    ])
 
 # Email / Password reset security
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
@@ -297,5 +311,18 @@ SOCIAL_MEDIA = {
     'facebook': config('SOCIAL_FB', default='https://facebook.com/fbnation'),
     'instagram': config('SOCIAL_INSTA', default='https://instagram.com/fbnation'),
     'twitter': config('SOCIAL_TWITTER', default='https://x.com/fbnation'),
-    'tiktok': config('SOCIAL_TIKTOK', default='https://tiktok.com/@fbnation'),
+    'tiktok': config('SOCIAL_TIKTOK', default='https://www.tiktok.com/@felixbani00?_r=1&_t=ZS-966GeMXj9Gf'),
+}
+
+# Support and Help Contact Information
+SUPPORT_CONTACTS = {
+    'developer': {
+        'email': config('DEV_EMAIL', default='sikapalinkz@gmail.com'),
+        'whatsapp': config('DEV_WHATSAPP', default='233557185634'),
+    },
+    'client': {
+        'email': config('CLIENT_EMAIL', default='felixejike2004@gmail.com'),
+        'whatsapp': config('CLIENT_WHATSAPP', default='+233 50 878 7783'),
+        'tiktok': config('CLIENT_TIKTOK', default='https://www.tiktok.com/@felixbani00?_r=1&_t=ZS-966GeMXj9Gf'),
+    }
 }

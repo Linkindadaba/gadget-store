@@ -88,6 +88,7 @@ def export_sqlite_data(fixture_path: Path) -> None:
     excluded = [
         "--exclude=contenttypes",
         "--exclude=auth.permission",
+        "--exclude=sessions",
     ]
 
     run(
