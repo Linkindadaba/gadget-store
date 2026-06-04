@@ -11,3 +11,7 @@ def social_media_links(request):
 
 def categories(request):
     return {'nav_categories': Category.objects.all()}
+
+
+def support_contacts(request):
+    return {'SUPPORT_CONTACTS': settings.SUPPORT_CONTACTS}

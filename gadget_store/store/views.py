@@ -97,7 +97,7 @@ def product_detail(request, slug):
     
     context = {
         'product': product,
-        'related_products': related_products,
+        'related_przoducts': related_products,
         'reviews': reviews,
         'avg_rating': avg_rating,
         'share_title': product.name,
