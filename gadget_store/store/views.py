@@ -1,30 +1,42 @@
-from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Avg
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import login, update_session_auth_hash
-from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import SignupForm, ProfileForm
 from django.conf import settings
 from .models import Product, Category, Profile, Review, Wishlist
-import json
 import logging
 from django_ratelimit.decorators import ratelimit
 from django.utils.html import strip_tags
 
 logger = logging.getLogger(__name__)
 
+
+def get_recently_viewed(request, limit=8):
+    """Returns recently viewed products from session."""
+    recently_viewed_ids = request.session.get('recently_viewed', [])
+    if not recently_viewed_ids:
+        return Product.objects.none()
+    products = Product.objects.filter(id__in=recently_viewed_ids, is_active=True)
+    # Maintain order from session
+    products = sorted(products, key=lambda p: recently_viewed_ids.index(str(p.id)))[:limit]
+    return products
+
+
 def home(request):
     featured_products = Product.objects.filter(is_featured=True, is_active=True).annotate(avg_rating=Avg('reviews__rating'))[:8]
     categories = Category.objects.all()
     new_arrivals = Product.objects.filter(is_active=True).annotate(avg_rating=Avg('reviews__rating')).order_by('-created_at')[:8]
+    recently_viewed = get_recently_viewed(request)
     context = {
         'featured_products': featured_products,
         'categories': categories,
+        'recently_viewed': recently_viewed,
         'new_arrivals': new_arrivals,
     }
     return render(request, 'store/home.html', context)
@@ -65,7 +77,17 @@ def product_list(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
-    
+
+    # Track recently viewed products in session
+    recently_viewed = request.session.get('recently_viewed', [])
+    product_id_str = str(product.id)
+    if product_id_str in recently_viewed:
+        recently_viewed.remove(product_id_str)
+    recently_viewed.insert(0, product_id_str)
+    recently_viewed = recently_viewed[:8]  # Keep last 8 viewed
+    request.session['recently_viewed'] = recently_viewed
+    request.session.modified = True
+
     if request.method == 'POST' and request.user.is_authenticated:
         rating = request.POST.get('rating')
         comment = request.POST.get('comment', '').strip()
@@ -97,7 +119,7 @@ def product_detail(request, slug):
     
     context = {
         'product': product,
-        'related_przoducts': related_products,
+        'related_products': related_products,
         'reviews': reviews,
         'avg_rating': avg_rating,
         'share_title': product.name,

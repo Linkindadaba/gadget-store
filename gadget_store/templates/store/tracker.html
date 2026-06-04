@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Track Order - F.B Nation{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'store:home' %}">Home</a></li>
+      <li class="breadcrumb-item active">Track Order</li>
+    </ol>
+  </nav>
+
+  <h1 class="mb-4" style="font-family:'Syne',sans-serif;font-weight:800">Track Your Order</h1>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body p-4">
+      <form method="get" class="d-flex gap-3">
+        <input type="text" name="order_number" class="form-control" placeholder="Enter your order number" value="{{ order_number|default:'' }}" required>
+        <button type="submit" class="btn btn-primary-custom">Track</button>
+      </form>
+    </div>
+  </div>
+
+  {% if order %}
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Order #{{ order.order_number }}</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4">
+          <p class="text-muted mb-1">Status</p>
+          <span class="badge bg-{% if order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}danger{% else %}warning{% endif %}">
+            {{ order.get_status_display }}
+          </span>
+        </div>
+        <div class="col-md-4">
+          <p class="text-muted mb-1">Total</p>
+          <strong>GHS {{ order.total_amount }}</strong>
+        </div>
+        <div class="col-md-4">
+          <p class="text-muted mb-1">Date</p>
+          <strong>{{ order.created_at|date:"M d, Y" }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% elif order_number %}
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>No order found with number "{{ order_number }}". Please check and try again.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

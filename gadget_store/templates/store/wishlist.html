@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Wishlist - Gadget Store{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">My Wishlist</h1>
+
+    {% if wishlist_items %}
+        <div class="row">
+            {% for item in wishlist_items %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" class="card-img-top" alt="{{ item.product.name }}">
+                        {% else %}
+                            <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="Placeholder">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.product.name }}</h5>
+                            <p class="card-text text-primary">${{ item.product.effective_price }}</p>
+                            <a href="{% url 'store:product_detail' item.product.slug %}" class="btn btn-outline-primary btn-sm">View Product</a>
+                            <form action="{% url 'store:wishlist_toggle' item.product.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">Your wishlist is empty. <a href="{% url 'store:product_list' %}">Browse products</a> to add items.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

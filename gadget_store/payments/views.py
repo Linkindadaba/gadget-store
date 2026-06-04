@@ -202,6 +202,10 @@ def _mark_payment_from_charge(payment, charge, gateway=None):
         if order.status != 'paid':
             order.status = 'paid'
             order.save(update_fields=['status'])
+            
+            # Trigger background task for email
+            from orders.tasks import send_order_confirmation_email
+            send_order_confirmation_email.delay(order.id)
 
         payment.status = 'success'
         payment.paid_at = timezone.now()
@@ -213,7 +217,6 @@ def _mark_payment_from_charge(payment, charge, gateway=None):
     return False
 
 
-@require_http_methods(['GET', 'POST'])
 @require_http_methods(['GET', 'POST'])
 @ratelimit(key='ip', rate='200/h', block=True)
 def initiate_payment(request, order_id):
