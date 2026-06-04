@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from decimal import Decimal
 from .models import Order, OrderItem
 from .forms import CheckoutForm
@@ -105,3 +107,43 @@ def my_orders(request):
         return redirect('login')
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'orders/my_orders.html', {'orders': orders})
+
+
+@require_POST
+def cancel_order(request, order_id):
+    """Cancel a pending order (AJAX endpoint)."""
+    try:
+        order = Order.objects.get(id=order_id)
+    except Order.DoesNotExist:
+        return JsonResponse({'error': 'Order not found'}, status=404)
+    
+    # Check permission: user must be owner or staff
+    if order.user != request.user and not request.user.is_staff:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    # Only allow cancelling pending orders
+    if order.status != 'pending':
+        return JsonResponse({'error': f'Cannot cancel {order.status} orders'}, status=400)
+    
+    order.status = 'cancelled'
+    order.notes = (order.notes or '') + f"\nCancelled by user on {order.updated_at.strftime('%Y-%m-%d %H:%M')}"
+    order.save(update_fields=['status', 'notes', 'updated_at'])
+    
+    return JsonResponse({'ok': True, 'message': 'Order cancelled successfully', 'status': order.status})
+
+
+@require_POST
+def delete_order(request, order_id):
+    """Delete an order (AJAX endpoint, staff only)."""
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    try:
+        order = Order.objects.get(id=order_id)
+    except Order.DoesNotExist:
+        return JsonResponse({'error': 'Order not found'}, status=404)
+    
+    order_number = order.order_number
+    order.delete()
+    
+    return JsonResponse({'ok': True, 'message': f'Order {order_number} deleted', 'order_id': order_id})
