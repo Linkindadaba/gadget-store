@@ -12,3 +12,5 @@ env/
 *.md
 Procfile
 railway.json
+staticfiles/
+media/
