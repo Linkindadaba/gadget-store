@@ -1,0 +1,120 @@
+/* Form Styles */
+
+.form-control,
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    transition: all var(--transition-fast);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.2rem rgba(245, 197, 24, 0.15);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: #b0b0b0;
+}
+
+.form-label {
+    font-size: 0.95rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.form-label.required::after {
+    content: '*';
+    color: #ff4757;
+    margin-left: 4px;
+}
+
+/* Error states */
+.is-invalid {
+    border-color: #ff4757 !important;
+}
+
+.invalid-feedback {
+    color: #ff4757;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Textarea styles */
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* File input styling */
+.form-control[type="file"] {
+    padding: 0.5rem 1rem;
+}
+
+/* Radio and Checkbox */
+.form-check {
+    padding-left: 0;
+    margin-bottom: 0.75rem;
+}
+
+.form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.15rem;
+    margin-right: 0.75rem;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.form-check-input:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: none;
+}
+
+.form-check-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.2rem rgba(245, 197, 24, 0.15);
+}
+
+.form-check-label {
+    cursor: pointer;
+    margin-bottom: 0;
+    user-select: none;
+}
+
+/* Select/Dropdown styling */
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%230a0a0a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px 12px;
+    padding-right: 2.5rem;
+}
+
+/* Form group spacing */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+/* Help text */
+.form-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .form-control,
+    .form-select {
+        font-size: 16px;
+    }
+}

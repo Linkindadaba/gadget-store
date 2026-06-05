@@ -1,0 +1,77 @@
+/* Premium Product Studio Styles */
+
+/* Modernizing File Inputs */
+.field-image input[type="file"], 
+.inline-related input[type="file"] {
+    padding: 8px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: var(--radius-sm, 8px);
+    width: 100%;
+    cursor: pointer;
+}
+
+/* Gallery Inline Refinement */
+.inline-group .tabular td.field-image_preview {
+    width: 100px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.inline-group fieldset.module {
+    border: 1px solid #eee !important;
+    box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.05));
+    border-radius: var(--radius-md, 12px);
+    overflow: hidden;
+}
+
+/* Form Row Consistency */
+.form-row {
+    border-bottom: 1px solid #f1f1f1 !important;
+    padding: 15px 12px !important;
+}
+
+/* Hide redundant Help Text if it clutters the UI */
+.help {
+    color: #999 !important;
+    font-style: italic;
+}
+
+/* Mobile-Specific Compaction for Django Admin */
+@media (max-width: 991px) {
+    /* 1. Compact Sidebar Menu */
+    #nav-sidebar .module th,
+    #nav-sidebar .module td {
+        padding: 6px 12px !important;
+        font-size: 13px !important;
+        line-height: 1.2 !important;
+    }
+
+    #nav-sidebar .module th a {
+        padding: 2px 0;
+        display: block;
+    }
+
+    /* 2. Compact Dashboard (Index) Menu List */
+    .dashboard .module table th,
+    .dashboard .module table td {
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+    }
+
+    .dashboard .module caption {
+        padding: 6px 12px !important;
+        font-size: 14px !important;
+        font-weight: 600;
+    }
+
+    /* 3. Reduce Header and Breadcrumb bulk */
+    #header {
+        padding: 10px 20px !important;
+    }
+
+    .breadcrumbs {
+        padding: 8px 20px !important;
+        font-size: 12px !important;
+    }
+}

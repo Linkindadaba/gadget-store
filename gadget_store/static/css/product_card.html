@@ -1,0 +1,55 @@
+{% load static %}
+<div class="product-card">
+    <!-- Badges -->
+    <div class="badge-stack">
+        {% if product.is_new %}
+        <span class="badge-premium bg-dark text-white">New Arrival</span>
+        {% endif %}
+        
+        {% if product.discount_percent > 0 %}
+        <span class="badge-premium bg-danger text-white">-{{ product.discount_percent }}%</span>
+        {% endif %}
+    </div>
+
+    <!-- Image Section -->
+    <div class="product-image-wrapper">
+        <a href="{{ product.get_absolute_url }}">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid">
+            {% else %}
+                <img src="{% static 'images/placeholder.png' %}" alt="No image" class="img-fluid opacity-25">
+            {% endif %}
+        </a>
+        
+        <!-- Quick View & Interactions Overlay -->
+        <div class="card-actions-overlay">
+            <button class="btn btn-sm btn-white shadow-sm rounded-pill px-3" onclick="openQuickView('{{ product.id }}')">
+                <i class="bi bi-eye"></i> Quick View
+            </button>
+        </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="product-info">
+        <span class="product-category">{{ product.category.name }}</span>
+        <h3 class="h6 mb-2 fw-bold">
+            <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-dark">{{ product.name }}</a>
+        </h3>
+        
+        <div class="d-flex align-items-center mb-3">
+            <div class="text-warning me-2" style="font-size: 12px;">
+                <i class="bi bi-star-fill"></i> {{ product.average_rating|floatformat:1 }}
+            </div>
+            <div class="h5 mb-0 fw-bold">
+                GHS {{ product.effective_price|floatformat:2 }}
+                {% if product.discount_price %}
+                <small class="text-decoration-line-through text-muted fw-normal ms-2" style="font-size: 0.8rem;">GHS {{ product.price }}</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <button class="btn btn-primary-accent w-100 rounded-pill mt-auto" onclick="addToCart('{{ product.id }}')">
+            <i class="bi bi-cart-plus me-2"></i> Add to Cart
+        </button>
+    </div>
+</div>

@@ -1,0 +1,112 @@
+/* Navigation Bar Styles */
+
+.navbar {
+    background: var(--primary) !important;
+    padding: 0.5rem 0;
+    box-shadow: var(--shadow-sm);
+}
+
+.navbar-brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: var(--accent) !important;
+    letter-spacing: -1px;
+    transition: transform var(--transition-fast);
+}
+
+.navbar-brand:hover {
+    transform: translateY(-2px);
+}
+
+.navbar-brand span {
+    color: #fff;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+    padding: 0.5rem 0.75rem;
+}
+
+.nav-link:hover {
+    color: var(--accent) !important;
+}
+
+.cart-btn {
+    background: var(--accent);
+    color: var(--primary) !important;
+    border-radius: var(--radius-pill);
+    padding: 0.3rem 0.85rem !important;
+    font-weight: 700;
+    transition: background var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+}
+
+.cart-btn:hover {
+    background: #e6b800;
+    text-decoration: none;
+}
+
+.cart-badge {
+    background: var(--accent2);
+    color: #fff;
+    border-radius: 50%;
+    min-width: 1.1rem;
+    height: 1.1rem;
+    line-height: 1.1rem;
+    text-align: center;
+    padding: 0 0.25rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: inline-block;
+    margin-left: 0.5rem;
+}
+
+/* Search Bar */
+.search-form .form-control {
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+    transition: all var(--transition-fast);
+}
+
+.search-form .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.search-form .form-control:focus {
+    box-shadow: none;
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.search-form .btn {
+    border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+    background: var(--accent);
+    border: none;
+    color: var(--primary);
+    font-weight: 700;
+    transition: background var(--transition-fast);
+}
+
+.search-form .btn:hover {
+    background: #e6b800;
+}
+
+/* Mobile Search Collapse Animation */
+@media (max-width: 991.98px) {
+    #searchCollapse.collapsing {
+        transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        opacity: 0.5;
+    }
+
+    #searchCollapse.show {
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+}
