@@ -155,9 +155,9 @@ STORAGES = {
     # to break WhiteNoise's compression step. Use the non-compressed manifest
     # storage when DEBUG=True so collectstatic doesn't hard-fail.
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"
         if not DEBUG
-        else "whitenoise.storage.ManifestStaticFilesStorage",
+        else "whitenoise.storage.StaticFilesStorage",
     },
 }
 
