@@ -203,9 +203,11 @@ def _mark_payment_from_charge(payment, charge, gateway=None):
             order.status = 'paid'
             order.save(update_fields=['status'])
             
-            # Trigger background task for email
-            from orders.tasks import send_order_confirmation_email
-            send_order_confirmation_email.delay(order.id)
+            # Reduce stock now that payment is confirmed
+            for item in order.items.all():
+                if item.product:
+                    item.product.stock = max(0, item.product.stock - item.quantity)
+                    item.product.save(update_fields=['stock'])
 
         payment.status = 'success'
         payment.paid_at = timezone.now()

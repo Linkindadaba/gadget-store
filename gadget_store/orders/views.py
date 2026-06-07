@@ -53,10 +53,6 @@ def checkout(request):
                     price=item['product'].effective_price,
                     quantity=item['quantity'],
                 )
-                # Reduce stock
-                p = item['product']
-                p.stock = max(0, p.stock - item['quantity'])
-                p.save()
             
             # Clear cart
             request.session['cart'] = {}
