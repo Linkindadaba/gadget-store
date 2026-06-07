@@ -147,13 +147,20 @@ CLOUDINARY_STORAGE = {
 # Storage Configuration (Django 4.2+)
 STORAGES = {
     "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage" 
-        if CLOUDINARY_STORAGE['CLOUD_NAME'] else "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
+        if CLOUDINARY_STORAGE['CLOUD_NAME']
+        else "django.core.files.storage.FileSystemStorage",
     },
+    # During Docker builds your DEBUG=True makes missing static inputs more likely
+    # to break WhiteNoise's compression step. Use the non-compressed manifest
+    # storage when DEBUG=True so collectstatic doesn't hard-fail.
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        if not DEBUG
+        else "whitenoise.storage.ManifestStaticFilesStorage",
     },
 }
+
 
 # Prevent build failures if a static file is missing or has casing issues.
 # Highly recommended for Windows -> Linux deployments.
