@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import SignupForm, ProfileForm
 from django.conf import settings
+from orders.models import Order
 from .models import Product, Category, Profile, Review, Wishlist
 import logging
 from django_ratelimit.decorators import ratelimit
@@ -316,8 +317,7 @@ def track_order(request):
     order_number = request.GET.get('order_number', '').strip()
     order = None
     if order_number:
-        from orders.models import Order
-        order = Order.objects.filter(order_number=order_number).first() #
+        order = Order.objects.filter(order_number=order_number).first()
         
     return render(request, 'store/tracker.html', {'order': order, 'order_number': order_number})
 

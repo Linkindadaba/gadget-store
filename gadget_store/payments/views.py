@@ -204,12 +204,14 @@ def _mark_payment_from_charge(payment, charge, gateway=None):
         
         if updated_count > 0:
             # Only reduce stock if we were the ones to change the status to 'paid'
-            for item in payment.order.items.all():
+            for item in payment.order.items.select_related('product').all():
                 if item.product:
-                    from store.models import Product
-                    Product.objects.filter(id=item.product.id).update(
+                    item.product.__class__.objects.filter(id=item.product.id).update(
                         stock=F('stock') - item.quantity
                     )
+            # Trigger background task for email
+            from orders.tasks import send_order_confirmation_email
+            send_order_confirmation_email.delay(payment.order.id)
 
         payment.status = 'success'
         payment.paid_at = timezone.now()
