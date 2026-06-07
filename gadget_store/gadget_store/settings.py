@@ -131,7 +131,6 @@ STATIC_URL = '/static/'
 # Ensure Django looks at the project root for static files in Docker
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
-    BASE_DIR.parent / 'static',
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
