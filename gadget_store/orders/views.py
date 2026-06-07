@@ -21,14 +21,19 @@ def checkout(request):
 
     cart_items = []
     subtotal = 0
-    for product_id, item in cart.items():
-        try:
-            product = Product.objects.get(id=product_id)
-            item_total = product.effective_price * item['quantity']
+    product_ids = [int(pid) for pid in cart.keys()]
+    products_map = Product.objects.in_bulk(product_ids)
+    
+    for pid_str, item in cart.items():
+        product = products_map.get(int(pid_str))
+        if product:
+            item_total = product.effective_price * item.get('quantity', 1)
             subtotal += item_total
-            cart_items.append({'product': product, 'quantity': item['quantity'], 'item_total': item_total})
-        except Product.DoesNotExist:
-            pass
+            cart_items.append({
+                'product': product,
+                'quantity': item['quantity'],
+                'item_total': item_total,
+            })
 
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
