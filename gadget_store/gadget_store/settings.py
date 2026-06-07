@@ -155,6 +155,10 @@ STORAGES = {
     },
 }
 
+# Prevent build failures if a static file is missing or has casing issues.
+# Highly recommended for Windows -> Linux deployments.
+WHITENOISE_MANIFEST_STRICT = False
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -187,6 +191,13 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+
+CELERY_BEAT_SCHEDULE = {
+    'cleanup-expired-orders-hourly': {
+        'task': 'orders.tasks.cleanup_expired_orders',
+        'schedule': 3600.0,  # Run every hour (3600 seconds)
+    },
+}
 
 # Log database configuration for debugging (shown in Railway logs)
 import sys

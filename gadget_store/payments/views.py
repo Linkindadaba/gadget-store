@@ -4,6 +4,7 @@ import hashlib
 import json
 import uuid
 from decimal import Decimal
+from django.db.models import F
 
 import requests
 from django.conf import settings
@@ -198,16 +199,17 @@ def _mark_payment_from_charge(payment, charge, gateway=None):
         and currency == expected_currency
         and _payment_amount_matches(amount, payment.amount)
     ):
-        order = payment.order
-        if order.status != 'paid':
-            order.status = 'paid'
-            order.save(update_fields=['status'])
-            
-            # Reduce stock now that payment is confirmed
-            for item in order.items.all():
+        # Atomic update to prevent double-processing if webhook and callback hit simultaneously
+        updated_count = Order.objects.filter(id=payment.order.id).exclude(status='paid').update(status='paid')
+        
+        if updated_count > 0:
+            # Only reduce stock if we were the ones to change the status to 'paid'
+            for item in payment.order.items.all():
                 if item.product:
-                    item.product.stock = max(0, item.product.stock - item.quantity)
-                    item.product.save(update_fields=['stock'])
+                    from store.models import Product
+                    Product.objects.filter(id=item.product.id).update(
+                        stock=F('stock') - item.quantity
+                    )
 
         payment.status = 'success'
         payment.paid_at = timezone.now()
