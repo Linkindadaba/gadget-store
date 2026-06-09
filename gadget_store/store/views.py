@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Avg
+from django.db.models import Avg, Q
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import SignupForm, ProfileForm
 from django.conf import settings
+from orders.models import Order
 from .models import Product, Category, Profile, Review, Wishlist
 import logging
 from django_ratelimit.decorators import ratelimit
@@ -56,7 +57,9 @@ def product_list(request):
         products = products.filter(category=selected_category)
     
     if search_query:
-        products = products.filter(name__icontains=search_query) | products.filter(description__icontains=search_query)
+        products = products.filter(
+            Q(name__icontains=search_query) | Q(description__icontains=search_query)
+        ).distinct()
     
     if sort_by == 'price_asc':
         products = products.order_by('price')
@@ -114,14 +117,11 @@ def product_detail(request, slug):
         category=product.category, is_active=True
     ).annotate(avg_rating=Avg('reviews__rating')).exclude(id=product.id)[:4]
     
-    reviews = product.reviews.all()
-    avg_rating = reviews.aggregate(Avg('rating'))['rating__avg']
-    
     context = {
         'product': product,
         'related_products': related_products,
-        'reviews': reviews,
-        'avg_rating': avg_rating,
+        'reviews': product.reviews.all(),
+        'avg_rating': product.average_rating,
         'share_title': product.name,
         'share_text': f"Check out this amazing product: {product.name}!",
         'share_url': request.build_absolute_uri(product.get_absolute_url()),
@@ -316,8 +316,7 @@ def track_order(request):
     order_number = request.GET.get('order_number', '').strip()
     order = None
     if order_number:
-        from orders.models import Order
-        order = Order.objects.filter(order_number=order_number).first() #
+        order = Order.objects.filter(order_number=order_number).first()
         
     return render(request, 'store/tracker.html', {'order': order, 'order_number': order_number})
 

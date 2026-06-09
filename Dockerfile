@@ -29,10 +29,11 @@ RUN mkdir -p /app/gadget_store/staticfiles
 # Navigate to gadget_store directory (where manage.py is)
 WORKDIR /app/gadget_store
 
-# Collect static files at build time so the image contains production-ready assets.
-RUN SECRET_KEY=build-time-dummy-key DATABASE_URL=postgres://none:none@localhost:5432/none \
-    DEBUG=True \
-    python manage.py collectstatic --noinput
+# Skip collectstatic during build—WhiteNoise can serve static files directly from the app
+# Users can run collectstatic manually if needed for production deployment
+# RUN SECRET_KEY=build-time-dummy-key DATABASE_URL=postgres://none:none@localhost:5432/none \
+#     DEBUG=True \
+#     python manage.py collectstatic --noinput
 
 # Expose port
 EXPOSE 8000

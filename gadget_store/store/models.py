@@ -82,6 +82,13 @@ class Product(models.Model):
             return None
         return self.get_mobile_thumbnail_url() or getattr(self.image, 'url', None)
 
+    def get_whatsapp_share_data(self, request):
+        """Generates a WhatsApp sharing URL for the product."""
+        from urllib.parse import quote
+        base_url = request.build_absolute_uri(self.get_absolute_url())
+        message = f"Check out this amazing gadget: {self.name}\n{base_url}"
+        return f"https://api.whatsapp.com/send?text={quote(message)}"
+
     @property
     def effective_price(self):
         return self.discount_price if self.discount_price else self.price
