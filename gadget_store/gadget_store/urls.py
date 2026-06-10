@@ -17,7 +17,11 @@ urlpatterns = [
     path('accounts/password_reset/', RateLimitedPasswordResetView.as_view(), name='password_reset'),
     path('accounts/reset/<uidb64>/<token>/', RateLimitedPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('accounts/', include('django.contrib.auth.urls')),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Serve local media when using FileSystemStorage in containers or production.
 if settings.STORAGES.get('default', {}).get('BACKEND', '') == 'django.core.files.storage.FileSystemStorage':
