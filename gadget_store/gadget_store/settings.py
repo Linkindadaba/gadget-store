@@ -171,8 +171,14 @@ STORAGES = {
 # Highly recommended for Windows -> Linux deployments.
 WHITENOISE_MANIFEST_STRICT = False
 
+# Ensure WhiteNoise serves static files with correct content-type.
+# This avoids “MIME type text/html is not supported” errors when the CDN returns an HTML fallback.
+# If a static file is missing, WhiteNoise will raise 404 rather than HTML.
+WHITENOISE_USE_FINDERS = True
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # Cache backend used by Django for session and other caching needs.
 # django-ratelimit decorators work without installing the app entry.
