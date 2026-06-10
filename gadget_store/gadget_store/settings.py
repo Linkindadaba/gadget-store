@@ -160,7 +160,7 @@ STORAGES = {
     # to break WhiteNoise's compression step. Use the non-compressed manifest
     # storage when DEBUG=True so collectstatic doesn't hard-fail.
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
         if not DEBUG
         else "whitenoise.storage.StaticFilesStorage",
     },
@@ -174,7 +174,7 @@ WHITENOISE_MANIFEST_STRICT = False
 # Ensure WhiteNoise serves static files with correct content-type.
 # This avoids “MIME type text/html is not supported” errors when the CDN returns an HTML fallback.
 # If a static file is missing, WhiteNoise will raise 404 rather than HTML.
-WHITENOISE_USE_FINDERS = True
+WHITENOISE_USE_FINDERS = DEBUG
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
