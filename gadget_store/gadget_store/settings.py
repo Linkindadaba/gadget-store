@@ -160,11 +160,12 @@ STORAGES = {
     # to break WhiteNoise's compression step. Use the non-compressed manifest
     # storage when DEBUG=True so collectstatic doesn't hard-fail.
     "staticfiles": {
-        # CompressedManifestStaticFilesStorage requires collectstatic to have produced
-        # a matching manifest (otherwise templates crash when resolving static URLs).
-        # ManifestStaticFilesStorage keeps the app running even if a manifest entry is missing.
-        "BACKEND": "whitenoise.storage.ManifestStaticFilesStorage",
+        # Use the non-manifest backend in Railway/production to avoid hard 500s when
+        # collectstatic hasn’t produced/updated the manifest inside the container.
+        # This restores rendering even if a single static asset is missing.
+        "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
+
 
 }
 
