@@ -34,7 +34,7 @@ WORKDIR /app/gadget_store
 RUN SECRET_KEY=build-time-dummy-key \
     DATABASE_URL=postgres://none:none@localhost:5432/none \
     DEBUG=False \
-    python manage.py collectstatic --noinput
+    python -m django collectstatic --noinput
 
 
 
