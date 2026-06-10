@@ -160,10 +160,12 @@ STORAGES = {
     # to break WhiteNoise's compression step. Use the non-compressed manifest
     # storage when DEBUG=True so collectstatic doesn't hard-fail.
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
-        if not DEBUG
-        else "whitenoise.storage.StaticFilesStorage",
+        # CompressedManifestStaticFilesStorage requires collectstatic to have produced
+        # a matching manifest (otherwise templates crash when resolving static URLs).
+        # ManifestStaticFilesStorage keeps the app running even if a manifest entry is missing.
+        "BACKEND": "whitenoise.storage.ManifestStaticFilesStorage",
     },
+
 }
 
 
