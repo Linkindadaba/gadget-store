@@ -8,13 +8,18 @@ import logging
 import logging.config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-# Security: require SECRET_KEY in environment for predictable behavior in production
-SECRET_KEY = config('SECRET_KEY', default=None)
-if not SECRET_KEY:
-    raise ImproperlyConfigured('SECRET_KEY environment variable is required and must not be empty.')
-
 # Default to safe production setting. Development machines should explicitly opt-in with DEBUG=True.
 DEBUG = config('DEBUG', default=False, cast=bool)
+
+# Security: require SECRET_KEY in environment for production, but allow local/dev boot.
+SECRET_KEY = config('SECRET_KEY', default=None)
+if not SECRET_KEY:
+    if DEBUG:
+        # Deterministic fallback for dev/local where we just need Django to start.
+        SECRET_KEY = 'dev-only-secret-key-change-me'
+    else:
+        raise ImproperlyConfigured('SECRET_KEY environment variable is required and must not be empty when DEBUG=False.')
+
 
 # ALLOWED_HOSTS should be set explicitly. Empty list is safest default.
 ALLOWED_HOSTS = [

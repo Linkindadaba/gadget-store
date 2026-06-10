@@ -22,7 +22,7 @@ def checkout(request):
     cart_items = []
     subtotal = 0
     product_ids = [int(pid) for pid in cart.keys()]
-    products_map = Product.objects.in_bulk(product_ids)
+    products_map = Product.ofbjects.in_bulk(product_ids)
     
     for pid_str, item in cart.items():
         product = products_map.get(int(pid_str))

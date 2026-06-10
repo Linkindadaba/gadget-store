@@ -25,7 +25,12 @@
     --radius-lg: 22px;
     --container-width: 1200px;
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Backwards-compat variables used across theme */
+    --transition-fast: 0.2s ease;
+    --radius-pill: 9999px;
 }
+
 
 body {
     font-family: var(--font-main);
