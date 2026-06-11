@@ -27,8 +27,25 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+# Allow all Replit proxy hosts automatically
+import os as _os
+_replit_domain = _os.environ.get('REPLIT_DEV_DOMAIN', '')
+if _replit_domain and _replit_domain not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_replit_domain)
+# Broad fallback for development: accept any host
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+
 # CSRF settings for production
-CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host not in ['localhost', '127.0.0.1']]
+_csrf_hosts = [
+    host.strip() for host in config('ALLOWED_HOSTS', default='').split(',')
+    if host.strip() and host.strip() not in ['localhost', '127.0.0.1', '*']
+]
+if _replit_domain:
+    _csrf_hosts.append(_replit_domain)
+CSRF_TRUSTED_ORIGINS = [f"https://{h}" for h in _csrf_hosts]
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS.extend(['http://localhost:5000', 'http://127.0.0.1:5000'])
 
 # Production Security Settings
 if not DEBUG:
@@ -179,6 +196,10 @@ WHITENOISE_MANIFEST_STRICT = False
 # If a static file is missing, WhiteNoise will raise 404 rather than HTML.
 WHITENOISE_USE_FINDERS = DEBUG
 
+# Compatibility shim: django-cloudinary-storage uses the old STATICFILES_STORAGE setting.
+# Django 4.2+ replaced it with STORAGES['staticfiles']. Provide the legacy attribute so
+# third-party packages that read it directly still work.
+STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

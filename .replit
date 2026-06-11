@@ -1,0 +1,48 @@
+modules = ["python-3.12", "web", "nodejs-20"]
+[agent]
+expertMode = true
+stack = "BEST_EFFORT_FALLBACK"
+
+[nix]
+channel = "stable-25_05"
+packages = ["freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "tcl", "tk", "zlib"]
+
+[userenv]
+
+[userenv.shared]
+DEBUG = "True"
+ALLOWED_HOSTS = "localhost,127.0.0.1,0.0.0.0,.replit.dev,.replit.app,.repl.co"
+SECRET_KEY = "dev-replit-secret-key-fb-nation-2024"
+PORT = "5000"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd gadget_store && python manage.py runserver 0.0.0.0:5000"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["bash", "-c", "cd gadget_store && python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn gadget_store.wsgi:application --bind 0.0.0.0:5000 --workers 2"]
