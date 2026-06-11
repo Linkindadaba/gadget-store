@@ -173,17 +173,9 @@ STORAGES = {
         if CLOUDINARY_STORAGE['CLOUD_NAME']
         else "django.core.files.storage.FileSystemStorage",
     },
-    # During Docker builds your DEBUG=True makes missing static inputs more likely
-    # to break WhiteNoise's compression step. Use the non-compressed manifest
-    # storage when DEBUG=True so collectstatic doesn't hard-fail.
     "staticfiles": {
-        # Use the non-manifest backend in Railway/production to avoid hard 500s when
-        # collectstatic hasn’t produced/updated the manifest inside the container.
-        # This restores rendering even if a single static asset is missing.
-        "BACKEND": "whitenoise.storage.StaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
-
-
 }
 
 
