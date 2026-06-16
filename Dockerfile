@@ -1,33 +1,22 @@
-# Use official Python runtime as base image
 FROM python:3.11-slim
 
-# Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV DJANGO_SETTINGS_MODULE=gadget_store.settings
 
-# Set work directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
 COPY requirements.txt .
-
-# Install Python dependencies
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy Django project into the container at the expected app root
 COPY gadget_store /app/gadget_store
 
-# Create staticfiles directory
-RUN mkdir -p /app/gadget_store/staticfiles
-
-# Navigate to gadget_store directory (where manage.py is)
 WORKDIR /app/gadget_store
 
-# Expose port
+# Collect static files at build time so they are baked into the image.
+# DEBUG=True + a dummy SECRET_KEY lets settings load without a database connection.
+RUN DEBUG=True SECRET_KEY=build-time-key python manage.py collectstatic --noinput
+
 EXPOSE 8000
