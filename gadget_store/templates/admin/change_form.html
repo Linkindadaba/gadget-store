@@ -194,7 +194,7 @@ label { font-weight: 600 !important; font-size: 0.85rem !important; color: #444 
 
 {% block content %}
 <div id="content-main">
-<form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>
+<form enctype="multipart/form-data" {% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>
 {% csrf_token %}
 
 <div class="change-form-grid">

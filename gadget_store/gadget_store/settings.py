@@ -38,19 +38,28 @@ if DEBUG:
     ALLOWED_HOSTS = ['*']
 
 # ── CSRF trusted origins ───────────────────────────────────────────────────────
-_csrf_hosts = [
-    h.strip() for h in config('ALLOWED_HOSTS', default='').split(',')
-    if h.strip() and h.strip() not in ('localhost', '127.0.0.1', '*')
-]
-if _replit_domain:
-    _csrf_hosts.append(_replit_domain)
-# Include Railway app domain automatically when set
-_railway_domain = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '') or os.environ.get('RAILWAY_STATIC_URL', '')
-if _railway_domain and _railway_domain not in _csrf_hosts:
-    _csrf_hosts.append(_railway_domain.lstrip('https://').rstrip('/'))
-CSRF_TRUSTED_ORIGINS = [f"https://{h}" for h in _csrf_hosts]
+# Priority 1: explicit env var — set this in Railway as a comma-separated list
+# e.g. CSRF_TRUSTED_ORIGINS=https://gadget-store-production-280d.up.railway.app
+_csrf_explicit = config('CSRF_TRUSTED_ORIGINS', default='')
+if _csrf_explicit:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_explicit.split(',') if o.strip()]
+else:
+    # Priority 2: derive from ALLOWED_HOSTS + known platform domains
+    _csrf_hosts = [
+        h.strip() for h in config('ALLOWED_HOSTS', default='').split(',')
+        if h.strip() and h.strip() not in ('localhost', '127.0.0.1', '*')
+    ]
+    if _replit_domain:
+        _csrf_hosts.append(_replit_domain)
+    # Railway sets RAILWAY_PUBLIC_DOMAIN automatically
+    for _env_key in ('RAILWAY_PUBLIC_DOMAIN', 'RAILWAY_STATIC_URL', 'RAILWAY_SERVICE_DOMAIN'):
+        _rdomain = os.environ.get(_env_key, '').strip().lstrip('https://').rstrip('/')
+        if _rdomain and _rdomain not in _csrf_hosts:
+            _csrf_hosts.append(_rdomain)
+    CSRF_TRUSTED_ORIGINS = [f"https://{h}" for h in _csrf_hosts]
+
 if DEBUG:
-    CSRF_TRUSTED_ORIGINS.extend(['http://localhost:5000', 'http://127.0.0.1:5000'])
+    CSRF_TRUSTED_ORIGINS += ['http://localhost:5000', 'http://127.0.0.1:5000']
 
 # ── Production security ────────────────────────────────────────────────────────
 if not DEBUG:
