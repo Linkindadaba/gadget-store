@@ -58,81 +58,77 @@ input:focus, textarea:focus, select:focus {
 }
 label { font-weight: 600 !important; font-size: 0.85rem !important; color: #444 !important; }
 
-/* ── Primary image upload ── */
-.img-upload-zone {
-    border: 2px dashed #ddd;
-    border-radius: var(--adm-radius);
-    padding: 28px 20px 20px;
+/* ── Image section ── */
+.img-current-wrap {
+    background: #f5f5f7;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    min-height: 160px;
+}
+.img-current-wrap img {
+    max-height: 180px;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+    display: block;
+}
+.img-no-image {
+    color: #ccc;
+    font-size: 3.5rem;
     text-align: center;
+}
+
+/* New image preview after selection */
+#imgNewPreview {
+    display: none;
+    width: 100%;
+    max-height: 180px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-top: 10px;
+    border: 2px solid var(--adm-yellow);
+    background: #f5f5f7;
+    padding: 8px;
+}
+
+/* Simple file input */
+.img-file-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.img-file-label {
+    font-size: 0.8rem !important;
+    color: #666 !important;
+    font-weight: 500 !important;
+    margin-bottom: 2px;
+}
+.img-file-input {
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    padding: 8px 10px !important;
+    width: 100% !important;
+    font-size: 0.85rem !important;
     background: #fafafa;
     cursor: pointer;
-    transition: border-color 0.25s, background 0.25s;
-    position: relative;
-    overflow: hidden;
+    box-sizing: border-box;
 }
-.img-upload-zone:hover, .img-upload-zone.drag-over {
-    border-color: var(--adm-yellow);
-    background: #fffdf0;
-}
-.img-upload-icon { font-size: 2.2rem; color: #ccc; display: block; margin-bottom: 8px; transition: color 0.2s; }
-.img-upload-zone:hover .img-upload-icon { color: var(--adm-yellow); }
-.img-upload-hint { color: #999; font-size: 0.82rem; margin: 0; }
-.img-upload-hint strong { color: #555; }
+.img-file-input:focus { border-color: var(--adm-yellow) !important; outline: none !important; }
 
-/* Current image preview */
-.img-current-preview {
-    width: 100%;
-    max-height: 200px;
-    object-fit: contain;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    background: #f0f0f0;
-    display: block;
-}
-.img-current-label {
-    font-size: 0.75rem;
-    color: #888;
-    margin-bottom: 10px;
-    display: block;
-}
-
-/* New image preview (after selection) */
-.img-new-preview {
-    width: 100%;
-    max-height: 200px;
-    object-fit: contain;
-    border-radius: 8px;
-    margin-top: 12px;
-    display: none;
-    border: 2px solid var(--adm-yellow);
-}
-
-/* Hide the raw Django file widget, keep it functional */
-.img-file-input-wrapper {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-}
-.img-file-input-wrapper input[type=file] {
-    position: absolute;
-    inset: 0;
-    width: 100% !important;
-    height: 100% !important;
-    opacity: 0;
-    cursor: pointer;
-}
-
-/* Clear checkbox — show it below the zone */
 .img-clear-row {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-top: 10px;
     font-size: 0.82rem;
-    color: #888;
+    color: #999;
 }
-.img-clear-row input[type=checkbox] { width: auto !important; accent-color: #dc3545; }
+.img-clear-row input[type=checkbox] { width: auto !important; accent-color: #dc3545; cursor: pointer; }
+.img-clear-row label { font-weight: 400 !important; color: #999 !important; cursor: pointer; }
 
 /* ── Gallery inline ── */
 .inline-group { border: none !important; }
@@ -171,7 +167,11 @@ label { font-weight: 600 !important; font-size: 0.85rem !important; color: #444 
     font-weight: 700 !important;
     padding: 10px 20px !important;
 }
-.submit-row input[name=_save] { background: var(--adm-yellow) !important; color: #000 !important; border: none !important; }
+.submit-row input[name=_save] {
+    background: var(--adm-yellow) !important;
+    color: #000 !important;
+    border: none !important;
+}
 .submit-row input[name=_continue], .submit-row input[name=_addanother] {
     background: #fff !important;
     border: 1px solid #ddd !important;
@@ -215,38 +215,51 @@ label { font-weight: 600 !important; font-size: 0.85rem !important; color: #444 
         <!-- Gallery images inline -->
         {% for inline_admin_formset in inline_admin_formsets %}
         <div class="cf-card">
-            <h3 class="cf-card-title"><i class="bi bi-images"></i> Gallery Images <small style="font-weight:400;color:#aaa;font-size:0.78rem;margin-left:6px;">optional — shown in product detail page</small></h3>
+            <h3 class="cf-card-title">
+                <i class="bi bi-images"></i> Gallery Images
+                <small style="font-weight:400;color:#aaa;font-size:0.75rem;margin-left:4px;">shown on product page — customers can browse them</small>
+            </h3>
             {% include inline_admin_formset.opts.template %}
         </div>
         {% endfor %}
     </div>
 
-    <!-- ── Right: image upload + save ── -->
+    <!-- ── Right: image + save ── -->
     <div>
         <div class="cf-card">
             <h3 class="cf-card-title"><i class="bi bi-image"></i> Main Product Image</h3>
 
-            <!-- Show existing image when editing -->
-            {% if original and original.image %}
-            <img src="{{ original.image.url }}" alt="Current image" class="img-current-preview" id="imgCurrentPreview">
-            <span class="img-current-label">Current image — upload a new one below to replace it</span>
-            {% endif %}
-
-            <div class="img-upload-zone" id="imgDropZone">
-                <i class="bi bi-cloud-arrow-up img-upload-icon" id="imgUploadIcon"></i>
-                <p class="img-upload-hint"><strong>Click to upload</strong> or drag &amp; drop</p>
-                <p class="img-upload-hint" style="margin-top:4px;">JPG, PNG, WebP</p>
-                <img id="imgNewPreview" class="img-new-preview" src="" alt="New image preview">
-                <div class="img-file-input-wrapper">
-                    {{ adminform.form.image }}
+            <!-- Current image display -->
+            <div class="img-current-wrap" id="imgCurrentWrap">
+                {% if original and original.image %}
+                <img src="{{ original.image.url }}" alt="Current" id="imgCurrentDisplay">
+                {% else %}
+                <div class="img-no-image" id="imgNoImage">
+                    <i class="bi bi-image"></i>
+                    <p style="font-size:0.8rem;color:#bbb;margin-top:8px;">No image yet</p>
                 </div>
+                {% endif %}
+                <!-- Preview of newly selected file shown here -->
+                <img id="imgNewPreview" src="" alt="New image preview">
             </div>
 
-            <!-- Clear checkbox (if widget renders it) -->
-            {% if not add %}
-            <div class="img-clear-row" id="imgClearRow" style="{% if not original.image %}display:none;{% endif %}">
+            <!-- Simple file select -->
+            <div class="img-file-row">
+                <label class="img-file-label" for="id_image">
+                    {% if original and original.image %}Replace image{% else %}Select image{% endif %}
+                </label>
+                <input type="file"
+                       name="image"
+                       id="id_image"
+                       accept="image/*"
+                       class="img-file-input">
+            </div>
+
+            <!-- Remove checkbox (edit mode only) -->
+            {% if not add and original and original.image %}
+            <div class="img-clear-row">
                 <input type="checkbox" name="image-clear" id="image-clear_id">
-                <label for="image-clear_id" style="font-weight:400 !important;color:#888 !important;">Remove current image</label>
+                <label for="image-clear_id">Remove current image</label>
             </div>
             {% endif %}
         </div>
@@ -262,50 +275,37 @@ label { font-weight: 600 !important; font-size: 0.85rem !important; color: #444 
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const zone      = document.getElementById('imgDropZone');
-    const newPrev   = document.getElementById('imgNewPreview');
-    const icon      = document.getElementById('imgUploadIcon');
-    const currPrev  = document.getElementById('imgCurrentPreview');
-    const clearRow  = document.getElementById('imgClearRow');
-
-    // Find the real file input rendered by Django inside the drop zone
-    const fileInput = zone ? zone.querySelector('input[type="file"]') : null;
-
-    function showNewPreview(file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            newPrev.src = e.target.result;
-            newPrev.style.display = 'block';
-            if (icon) icon.style.display = 'none';
-            // Hide current preview — user chose a replacement
-            if (currPrev) currPrev.style.opacity = '0.3';
-        };
-        reader.readAsDataURL(file);
-    }
+    const fileInput    = document.getElementById('id_image');
+    const newPreview   = document.getElementById('imgNewPreview');
+    const currentDisp  = document.getElementById('imgCurrentDisplay');
+    const noImageDisp  = document.getElementById('imgNoImage');
+    const clearChk     = document.getElementById('image-clear_id');
 
     if (fileInput) {
         fileInput.addEventListener('change', function () {
-            if (this.files && this.files[0]) showNewPreview(this.files[0]);
+            if (!this.files || !this.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                // Show new preview, hide old
+                newPreview.src = e.target.result;
+                newPreview.style.display = 'block';
+                if (currentDisp) currentDisp.style.opacity = '0.25';
+                if (noImageDisp) noImageDisp.style.display = 'none';
+                // Uncheck "remove" if user selects a new file
+                if (clearChk) clearChk.checked = false;
+            };
+            reader.readAsDataURL(this.files[0]);
         });
     }
 
-    if (zone) {
-        zone.addEventListener('dragover', function (e) {
-            e.preventDefault();
-            zone.classList.add('drag-over');
-        });
-        zone.addEventListener('dragleave', function () {
-            zone.classList.remove('drag-over');
-        });
-        zone.addEventListener('drop', function (e) {
-            e.preventDefault();
-            zone.classList.remove('drag-over');
-            const files = e.dataTransfer.files;
-            if (files && files[0] && fileInput) {
-                const dt = new DataTransfer();
-                dt.items.add(files[0]);
-                fileInput.files = dt.files;
-                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+    if (clearChk) {
+        clearChk.addEventListener('change', function () {
+            if (this.checked) {
+                if (currentDisp) currentDisp.style.opacity = '0.25';
+                newPreview.style.display = 'none';
+                fileInput.value = '';
+            } else {
+                if (currentDisp) currentDisp.style.opacity = '1';
             }
         });
     }

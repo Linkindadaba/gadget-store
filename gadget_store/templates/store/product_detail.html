@@ -1,5 +1,141 @@
 {% extends 'base.html' %}
 {% block title %}{{ product.name }} - F.B Nation{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Product image gallery ───────────────────────────────── */
+.pdp-gallery { display: flex; flex-direction: column; gap: 12px; }
+
+.pdp-main-wrap {
+    background: #f5f5f7;
+    border-radius: 18px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    cursor: zoom-in;
+}
+
+.pdp-main-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    padding: 24px;
+    transition: opacity 0.22s ease;
+    border-radius: 10px;
+    display: block;
+}
+.pdp-main-img.fading { opacity: 0; }
+
+.pdp-no-image {
+    font-size: 7rem;
+    color: #d0d0d5;
+}
+
+/* Thumbnail strip */
+.pdp-thumbs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pdp-thumb {
+    width: 68px;
+    height: 68px;
+    border-radius: 10px;
+    border: 2px solid #e5e5e7;
+    background: #f5f5f7;
+    overflow: hidden;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.18s ease, transform 0.18s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.pdp-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+    display: block;
+}
+
+.pdp-thumb:hover {
+    border-color: #aaa;
+    transform: translateY(-2px);
+}
+
+.pdp-thumb.active {
+    border-color: #f5c518;
+    box-shadow: 0 0 0 3px rgba(245,197,24,0.25);
+}
+
+/* Lightbox overlay */
+.pdp-lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+.pdp-lightbox.open { display: flex; }
+.pdp-lightbox img {
+    max-width: 90vw;
+    max-height: 86vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.pdp-lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    font-size: 2rem;
+    color: #fff;
+    cursor: pointer;
+    background: none;
+    border: none;
+    line-height: 1;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+.pdp-lightbox-close:hover { opacity: 1; }
+.pdp-lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    color: #fff;
+    cursor: pointer;
+    background: rgba(255,255,255,0.12);
+    border: none;
+    border-radius: 50%;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+.pdp-lightbox-nav:hover { background: rgba(255,255,255,0.25); }
+.pdp-lightbox-prev { left: 16px; }
+.pdp-lightbox-next { right: 16px; }
+
+@media (max-width: 576px) {
+    .pdp-thumb { width: 56px; height: 56px; }
+    .pdp-main-img { padding: 14px; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
 
@@ -14,63 +150,82 @@
 
   <div class="row g-5">
 
-    <!-- ── Images ── -->
+    <!-- ── Image gallery column ── -->
     <div class="col-lg-5">
-      <div class="product-image-section">
+      <div class="pdp-gallery">
 
-        {% with product.get_image_url as image_url %}
-        {% if image_url %}
-        <div style="background:#f5f5f7;border-radius:16px;overflow:hidden;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;padding:24px;">
-          <img id="mainProductImage" src="{{ image_url }}" class="w-100" alt="{{ product.name }}"
-               style="max-height:380px;object-fit:contain;cursor:pointer;border-radius:8px;">
+        <!-- Main image -->
+        <div class="pdp-main-wrap" id="pdpMainWrap">
+          {% with product.get_image_url as image_url %}
+          {% if image_url %}
+          <img id="pdpMainImg"
+               src="{{ image_url }}"
+               alt="{{ product.name }}"
+               class="pdp-main-img"
+               title="Click to zoom">
+          {% else %}
+          <div class="pdp-no-image"><i class="bi bi-box-seam"></i></div>
+          {% endif %}
+          {% endwith %}
         </div>
-        {% else %}
-        <div style="background:#f5f5f7;border-radius:16px;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:7rem;color:#d0d0d5;">
-          <i class="bi bi-box-seam"></i>
-        </div>
-        {% endif %}
-        {% endwith %}
 
-        <!-- Gallery thumbnails -->
-        {% if product.images.all %}
-        <div class="mt-3 d-flex gap-2 flex-wrap">
-          {% if product.image %}
-          <div class="gallery-thumb active"
-               data-src="{{ product.image.url }}"
-               style="cursor:pointer;border:2px solid #f5c518;border-radius:10px;overflow:hidden;width:64px;height:64px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;">
-            <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:100%;height:100%;object-fit:contain;padding:4px;">
+        <!-- Thumbnail strip — shown whenever at least one image exists -->
+        {% with product.get_image_url as main_url %}
+        {% if main_url or product.images.all %}
+        <div class="pdp-thumbs" id="pdpThumbs">
+
+          <!-- Main image thumb -->
+          {% if main_url %}
+          <div class="pdp-thumb active"
+               data-src="{{ main_url }}"
+               data-idx="0"
+               title="{{ product.name }}">
+            <img src="{{ main_url }}" alt="{{ product.name }}" loading="lazy">
           </div>
           {% endif %}
+
+          <!-- Gallery image thumbs -->
           {% for gi in product.images.all %}
           {% with gi.get_image_url as gurl %}
           {% if gurl %}
-          <div class="gallery-thumb"
+          <div class="pdp-thumb"
                data-src="{{ gurl }}"
-               style="cursor:pointer;border:2px solid #e5e5e7;border-radius:10px;overflow:hidden;width:64px;height:64px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;">
-            <img src="{{ gurl }}" alt="{{ gi.alt_text|default:product.name }}" style="width:100%;height:100%;object-fit:contain;padding:4px;">
+               data-idx="{{ forloop.counter }}"
+               title="{{ gi.alt_text|default:product.name }}">
+            <img src="{{ gurl }}" alt="{{ gi.alt_text|default:product.name }}" loading="lazy">
           </div>
           {% endif %}
           {% endwith %}
           {% endfor %}
+
         </div>
         {% endif %}
+        {% endwith %}
 
-      </div>
+      </div><!-- /pdp-gallery -->
     </div>
 
-    <!-- ── Details ── -->
+    <!-- ── Product details column ── -->
     <div class="col-lg-7">
-      <p class="text-muted mb-1" style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">{{ product.category.name }}</p>
-      <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.9rem;line-height:1.2;">{{ product.name }}</h1>
+      <p class="text-muted mb-1" style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">
+        {{ product.category.name }}
+      </p>
+      <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.9rem;line-height:1.2;">
+        {{ product.name }}
+      </h1>
 
       <div class="d-flex align-items-center gap-2 my-2">
         <span class="text-warning"><i class="bi bi-star-fill" style="font-size:0.85rem;"></i></span>
         <strong>{{ product.average_rating|floatformat:1 }}</strong>
-        <span class="text-muted" style="font-size:0.85rem;">/ 5{% if reviews %} &nbsp;·&nbsp; {{ reviews|length }} review{{ reviews|length|pluralize }}{% endif %}</span>
+        <span class="text-muted" style="font-size:0.85rem;">
+          / 5{% if reviews %} &nbsp;·&nbsp; {{ reviews|length }} review{{ reviews|length|pluralize }}{% endif %}
+        </span>
       </div>
 
       <div class="d-flex align-items-baseline gap-3 my-3">
-        <span style="font-size:2rem;font-weight:800;font-family:'Syne',sans-serif;">GHS {{ product.effective_price }}</span>
+        <span style="font-size:2rem;font-weight:800;font-family:'Syne',sans-serif;">
+          GHS {{ product.effective_price }}
+        </span>
         {% if product.discount_price %}
         <span class="price-old" style="font-size:1.1rem;">GHS {{ product.price }}</span>
         <span class="badge-discount">-{{ product.discount_percent }}%</span>
@@ -83,13 +238,21 @@
       <p class="mb-3" style="color:#198754;font-weight:600;font-size:0.9rem;">
         <i class="bi bi-check-circle-fill me-1"></i> In Stock &nbsp;({{ product.stock }} available)
       </p>
-      <form method="post" action="{% url 'store:add_to_cart' product.id %}" class="ajax-add-to-cart d-flex gap-3 align-items-center mt-2" data-product-name="{{ product.name }}">
+      <form method="post"
+            action="{% url 'store:add_to_cart' product.id %}"
+            class="ajax-add-to-cart d-flex gap-3 align-items-center mt-2"
+            data-product-name="{{ product.name }}">
         {% csrf_token %}
-        <div class="d-flex align-items-center border rounded-pill" style="background:#fff;border-color:#e5e5e7 !important;">
-          <button type="button" class="btn px-3" onclick="adjustQty(-1)" style="font-size:1.1rem;line-height:1;">−</button>
-          <input type="number" name="quantity" id="qty" value="1" min="1" max="{{ product.stock }}"
-                 class="form-control border-0 text-center fw-bold" style="width:56px;font-family:'Syne',sans-serif;">
-          <button type="button" class="btn px-3" onclick="adjustQty(1)" style="font-size:1.1rem;line-height:1;">+</button>
+        <div class="d-flex align-items-center border rounded-pill"
+             style="background:#fff;border-color:#e5e5e7 !important;">
+          <button type="button" class="btn px-3" onclick="adjustQty(-1)"
+                  style="font-size:1.1rem;line-height:1;">−</button>
+          <input type="number" name="quantity" id="qty" value="1"
+                 min="1" max="{{ product.stock }}"
+                 class="form-control border-0 text-center fw-bold"
+                 style="width:56px;font-family:'Syne',sans-serif;">
+          <button type="button" class="btn px-3" onclick="adjustQty(1)"
+                  style="font-size:1.1rem;line-height:1;">+</button>
         </div>
         <button type="submit" class="btn btn-primary-custom btn-lg flex-grow-1">
           <i class="bi bi-bag-plus me-2"></i>Add to Cart
@@ -101,7 +264,8 @@
       </div>
       {% endif %}
 
-      <div class="mt-4 p-3 rounded-xl d-flex gap-4 flex-wrap" style="background:#f5f5f7;border:1px solid #e5e5e7;">
+      <div class="mt-4 p-3 rounded-xl d-flex gap-4 flex-wrap"
+           style="background:#f5f5f7;border:1px solid #e5e5e7;">
         <div style="font-size:0.85rem;"><i class="bi bi-truck text-success me-2"></i>Fast delivery nationwide</div>
         <div style="font-size:0.85rem;"><i class="bi bi-shield-check text-primary me-2"></i>Genuine product</div>
         <div style="font-size:0.85rem;"><i class="bi bi-arrow-return-left text-warning me-2"></i>Easy returns</div>
@@ -127,26 +291,112 @@
 
 </div><!-- /container -->
 
+<!-- Lightbox -->
+<div class="pdp-lightbox" id="pdpLightbox">
+  <button class="pdp-lightbox-close" id="pdpLbClose" aria-label="Close">
+    <i class="bi bi-x-lg"></i>
+  </button>
+  <button class="pdp-lightbox-nav pdp-lightbox-prev" id="pdpLbPrev" aria-label="Previous">
+    <i class="bi bi-chevron-left"></i>
+  </button>
+  <img id="pdpLbImg" src="" alt="Product image">
+  <button class="pdp-lightbox-nav pdp-lightbox-next" id="pdpLbNext" aria-label="Next">
+    <i class="bi bi-chevron-right"></i>
+  </button>
+</div>
+
 <script>
+/* ── Quantity ── */
 function adjustQty(delta) {
   const input = document.getElementById('qty');
-  input.value = Math.max(1, Math.min(parseInt(input.max) || 99, parseInt(input.value) + delta));
+  if (input) {
+    input.value = Math.max(1, Math.min(parseInt(input.max) || 99, parseInt(input.value) + delta));
+  }
 }
 
+/* ── Gallery ── */
 document.addEventListener('DOMContentLoaded', function () {
-  const mainImg   = document.getElementById('mainProductImage');
-  const thumbs    = document.querySelectorAll('.gallery-thumb');
+  const mainImg  = document.getElementById('pdpMainImg');
+  const thumbs   = Array.from(document.querySelectorAll('.pdp-thumb'));
+  const lightbox = document.getElementById('pdpLightbox');
+  const lbImg    = document.getElementById('pdpLbImg');
+  const lbClose  = document.getElementById('pdpLbClose');
+  const lbPrev   = document.getElementById('pdpLbPrev');
+  const lbNext   = document.getElementById('pdpLbNext');
 
-  thumbs.forEach(function (thumb) {
+  if (!mainImg || thumbs.length === 0) return;
+
+  let activeIdx = 0; // index into thumbs array
+
+  /* Collect all image URLs from thumbs */
+  function allSrcs() { return thumbs.map(function(t){ return t.getAttribute('data-src'); }); }
+
+  /* Swap the main image with a quick fade */
+  function setMainImage(src, thumbIdx) {
+    mainImg.classList.add('fading');
+    setTimeout(function () {
+      mainImg.src = src;
+      mainImg.classList.remove('fading');
+    }, 180);
+    thumbs.forEach(function (t) { t.classList.remove('active'); });
+    if (thumbs[thumbIdx]) thumbs[thumbIdx].classList.add('active');
+    activeIdx = thumbIdx;
+  }
+
+  /* Thumb clicks */
+  thumbs.forEach(function (thumb, idx) {
     thumb.addEventListener('click', function () {
       const src = this.getAttribute('data-src');
-      if (src && mainImg) {
-        mainImg.src = src;
-        thumbs.forEach(function (t) { t.style.borderColor = '#e5e5e7'; });
-        this.style.borderColor = '#f5c518';
-      }
+      if (src) setMainImage(src, idx);
     });
   });
+
+  /* Open lightbox on main image click */
+  document.getElementById('pdpMainWrap').addEventListener('click', function () {
+    const srcs = allSrcs();
+    if (srcs.length === 0) return;
+    lbImg.src = srcs[activeIdx] || mainImg.src;
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+
+  /* Close lightbox */
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  lbClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  /* Lightbox navigation */
+  function lbNavigate(dir) {
+    const srcs = allSrcs();
+    if (srcs.length <= 1) return;
+    activeIdx = (activeIdx + dir + srcs.length) % srcs.length;
+    lbImg.src = srcs[activeIdx];
+    thumbs.forEach(function (t) { t.classList.remove('active'); });
+    if (thumbs[activeIdx]) thumbs[activeIdx].classList.add('active');
+    // Also update main image behind lightbox
+    mainImg.src = srcs[activeIdx];
+  }
+  lbPrev.addEventListener('click', function () { lbNavigate(-1); });
+  lbNext.addEventListener('click', function () { lbNavigate(1); });
+
+  /* Keyboard navigation */
+  document.addEventListener('keydown', function (e) {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft')  lbNavigate(-1);
+    if (e.key === 'ArrowRight') lbNavigate(1);
+  });
+
+  /* Hide prev/next arrows when only one image */
+  if (thumbs.length <= 1) {
+    if (lbPrev) lbPrev.style.display = 'none';
+    if (lbNext) lbNext.style.display = 'none';
+  }
 });
 </script>
 {% endblock %}
