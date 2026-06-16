@@ -5,304 +5,308 @@
 {{ block.super }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <style>
-    :root { --admin-accent: #f5c518; --admin-dark: #0a0a0a; }
-    
-    /* Layout Overrides */
-    #content { background: #f8f8f6; padding: 20px !important; }
-    .fieldsets-grid { display: grid; grid-template-columns: 1fr 350px; gap: 24px; align-items: start; }
-    @media (max-width: 1024px) { .fieldsets-grid { grid-template-columns: 1fr; } }
+:root { --adm-yellow: #f5c518; --adm-dark: #0a0a0a; --adm-radius: 12px; }
 
-    /* Card Styling */
-    .module { 
-        background: #ffffff !important; 
-        border: 1px solid rgba(0,0,0,0.05) !important; 
-        border-radius: 12px !important; 
-        box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
-        margin-bottom: 24px !important;
-        padding: 20px !important;
-        overflow: hidden;
-    }
-    .module h2 { 
-        background: transparent !important; 
-        color: var(--admin-dark) !important; 
-        font-family: 'Syne', sans-serif; 
-        font-weight: 800; 
-        padding: 0 0 15px 0 !important;
-        border-bottom: 1px solid #eee !important;
-        margin-bottom: 20px !important;
-        text-transform: none !important;
-    }
+#content { background: #f4f4f2 !important; padding: 24px !important; }
 
-    /* Modern Form Inputs */
-    .form-row { border-bottom: none !important; padding: 10px 0 !important; }
-    input[type=text], input[type=number], select, textarea {
-        border: 1px solid #ddd !important;
-        border-radius: 8px !important;
-        padding: 10px !important;
-        width: 100% !important;
-        box-sizing: border-box;
-    }
-    input:focus { border-color: var(--admin-accent) !important; box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.1) !important; }
+/* ── Two-column grid ── */
+.change-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+    align-items: start;
+}
+@media (max-width: 1080px) { .change-form-grid { grid-template-columns: 1fr; } }
 
-    /* Image Drop Zone */
-    .image-drop-zone {
-        border: 2px dashed #ccc;
-        border-radius: 12px;
-        padding: 30px 20px;
-        text-align: center;
-        background: #fafafa;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-    .image-drop-zone:hover, .image-drop-zone.dragover {
-        border-color: var(--admin-accent);
-        background: #fffdf5;
-    }
-    .image-drop-zone i { font-size: 2.5rem; color: #bbb; display: block; margin-bottom: 10px; }
-    .image-drop-zone p { margin: 0; color: #777; font-size: 0.9rem; }
-    .image-preview { 
-        width: 100%; 
-        height: 200px; 
-        object-fit: contain; 
-        display: none; 
-        margin-top: 15px; 
-        border-radius: 8px;
-        background: #fff;
-    }
-    
-    /* Hide original file input text but keep functional */
-    .file-upload input[type=file] { opacity: 0; position: absolute; width: 100%; height: 100%; top: 0; left: 0; cursor: pointer; }
-    .file-upload .clearable-file-input { display: flex; flex-direction: column; align-items: center; }
+/* ── Cards ── */
+.cf-card {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: var(--adm-radius);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    padding: 24px;
+    margin-bottom: 20px;
+}
+.cf-card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--adm-dark);
+    margin: 0 0 18px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
-    /* Gallery Drop Zone */
-    .gallery-uploader {
-        margin-bottom: 24px;
-    }
-    .gallery-drop-zone {
-        border: 2px dashed #ccc;
-        border-radius: 12px;
-        padding: 40px;
-        text-align: center;
-        background: #fafafa;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    .gallery-drop-zone:hover, .gallery-drop-zone.dragover {
-        border-color: var(--admin-accent);
-        background: #fffdf5;
-    }
-    .gallery-drop-zone i { font-size: 3rem; color: #bbb; display: block; margin-bottom: 10px; }
-    .gallery-drop-zone p { margin: 0; color: #777; font-weight: 600; }
+/* ── Inputs ── */
+.form-row { border-bottom: none !important; padding: 8px 0 !important; }
+input[type=text], input[type=number], select, textarea {
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    padding: 10px 12px !important;
+    width: 100% !important;
+    box-sizing: border-box;
+    font-size: 0.92rem !important;
+    transition: border-color 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+    border-color: var(--adm-yellow) !important;
+    box-shadow: 0 0 0 3px rgba(245,197,24,0.12) !important;
+    outline: none !important;
+}
+label { font-weight: 600 !important; font-size: 0.85rem !important; color: #444 !important; }
 
-    /* Two-Column Fieldset Layout */
-    fieldset.two-columns {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr;
-        gap: 0 30px;
-        border: none !important;
-    }
-    fieldset.two-columns .form-row { grid-column: span 1; width: 100% !important; border-bottom: none !important; }
-    /* Make the description field span both columns */
-    fieldset.two-columns .field-description { grid-column: span 2; }
-    
-    @media (max-width: 768px) {
-        fieldset.two-columns { grid-template-columns: 1fr; }
-        fieldset.two-columns .field-description { grid-column: span 1; }
-    }
+/* ── Primary image upload ── */
+.img-upload-zone {
+    border: 2px dashed #ddd;
+    border-radius: var(--adm-radius);
+    padding: 28px 20px 20px;
+    text-align: center;
+    background: #fafafa;
+    cursor: pointer;
+    transition: border-color 0.25s, background 0.25s;
+    position: relative;
+    overflow: hidden;
+}
+.img-upload-zone:hover, .img-upload-zone.drag-over {
+    border-color: var(--adm-yellow);
+    background: #fffdf0;
+}
+.img-upload-icon { font-size: 2.2rem; color: #ccc; display: block; margin-bottom: 8px; transition: color 0.2s; }
+.img-upload-zone:hover .img-upload-icon { color: var(--adm-yellow); }
+.img-upload-hint { color: #999; font-size: 0.82rem; margin: 0; }
+.img-upload-hint strong { color: #555; }
+
+/* Current image preview */
+.img-current-preview {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    background: #f0f0f0;
+    display: block;
+}
+.img-current-label {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* New image preview (after selection) */
+.img-new-preview {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-top: 12px;
+    display: none;
+    border: 2px solid var(--adm-yellow);
+}
+
+/* Hide the raw Django file widget, keep it functional */
+.img-file-input-wrapper {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.img-file-input-wrapper input[type=file] {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Clear checkbox — show it below the zone */
+.img-clear-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 0.82rem;
+    color: #888;
+}
+.img-clear-row input[type=checkbox] { width: auto !important; accent-color: #dc3545; }
+
+/* ── Gallery inline ── */
+.inline-group { border: none !important; }
+.inline-group h2 { display: none !important; }
+.inline-related {
+    border: 1px solid #ececec !important;
+    border-radius: 10px !important;
+    margin-bottom: 10px !important;
+    padding: 12px 14px !important;
+    background: #fafafa;
+    transition: background 0.2s;
+}
+.inline-related:hover { background: #fff; }
+.inline-related .field-image_preview img { border-radius: 6px; }
+.add-row a, .add-row button {
+    background: var(--adm-yellow) !important;
+    color: #000 !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    border: none !important;
+    text-decoration: none !important;
+    display: inline-block;
+}
+
+/* ── Submit bar ── */
+.submit-row {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin-top: 4px;
+}
+.submit-row input[type=submit], .submit-row a.closelink {
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+    padding: 10px 20px !important;
+}
+.submit-row input[name=_save] { background: var(--adm-yellow) !important; color: #000 !important; border: none !important; }
+.submit-row input[name=_continue], .submit-row input[name=_addanother] {
+    background: #fff !important;
+    border: 1px solid #ddd !important;
+    color: #333 !important;
+}
 </style>
 {% endblock %}
 
 {% block breadcrumbs %}
-<div class="breadcrumbs" style="background: transparent; border: none; padding: 15px 0; font-size: 0.9rem; font-family: 'Syne', sans-serif;">
-    <a href="{% url 'admin:index' %}" style="color: var(--admin-accent); text-decoration: none;"><i class="bi bi-house-door me-1"></i>Home</a>
-    <span style="color: #ccc; margin: 0 8px;">&rsaquo;</span>
-    <a href="{% url 'admin:app_list' app_label=opts.app_label %}" style="color: var(--admin-accent); text-decoration: none;">{{ opts.app_config.verbose_name }}</a>
-    <span style="color: #ccc; margin: 0 8px;">&rsaquo;</span>
-    {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}" style="color: var(--admin-accent); text-decoration: none;">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
-    <span style="color: #ccc; margin: 0 8px;">&rsaquo;</span>
-    <span style="color: #666;">{% if add %}Add {{ opts.verbose_name }}{% else %}{{ original|truncatewords:"18" }}{% endif %}</span>
+<div class="breadcrumbs" style="background:transparent;border:none;padding:14px 0;font-size:0.88rem;">
+    <a href="{% url 'admin:index' %}" style="color:var(--adm-yellow);text-decoration:none;"><i class="bi bi-house-door"></i> Home</a>
+    <span style="color:#ccc;margin:0 6px;">›</span>
+    <a href="{% url 'admin:app_list' app_label=opts.app_label %}" style="color:var(--adm-yellow);text-decoration:none;">{{ opts.app_config.verbose_name }}</a>
+    <span style="color:#ccc;margin:0 6px;">›</span>
+    {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}" style="color:var(--adm-yellow);text-decoration:none;">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+    <span style="color:#ccc;margin:0 6px;">›</span>
+    <span style="color:#666;">{% if add %}Add {{ opts.verbose_name }}{% else %}{{ original|truncatewords:"18" }}{% endif %}</span>
 </div>
 {% endblock %}
 
 {% block content %}
 <div id="content-main">
-    <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>
-        {% csrf_token %}
-        
-        <div class="fieldsets-grid">
-            <!-- Left Column: Primary Content -->
-            <div class="main-content">
-                {% for fieldset in adminform %}
-                    {% if forloop.first %}
-                        <div class="module">
-                            <h2><i class="bi bi-info-circle me-2"></i>General Information</h2>
-                            {% include "admin/includes/fieldset.html" %}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-                
-                <!-- Multi-image Gallery Uploader -->
-                <div class="gallery-uploader module">
-                    <h2><i class="bi bi-images me-2"></i>Quick Gallery Upload</h2>
-                    <div class="gallery-drop-zone" id="galleryDropZone">
-                        <i class="bi bi-collection"></i>
-                        <p>Drag & drop multiple images here to auto-fill gallery inlines</p>
-                        <input type="file" id="galleryInput" multiple class="d-none" accept="image/*">
-                    </div>
-                </div>
+<form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>
+{% csrf_token %}
 
-                <!-- Inlines (Product Gallery) -->
-                {% for inline_admin_formset in inline_admin_formsets %}
-                    <div class="module">
-                        {% include inline_admin_formset.opts.template %}
-                    </div>
-                {% endfor %}
-            </div>
+<div class="change-form-grid">
 
-            <!-- Right Column: Sidebar (Pricing, Status, Media) -->
-            <div class="sidebar-content">
-                <div class="module">
-                    <h2><i class="bi bi-tag me-2"></i>Pricing & Stock</h2>
-                    {% for fieldset in adminform %}
-                        {% if not forloop.first %}
-                            {% include "admin/includes/fieldset.html" %}
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-                <div class="module">
-                    <h2><i class="bi bi-image me-2"></i>Product Image</h2>
-                    <div class="image-drop-zone" id="mainDropZone">
-                        <i class="bi bi-cloud-arrow-up"></i>
-                        <p>Drag & drop or click to upload</p>
-                        <img id="mainPreview" class="image-preview" src="">
-                        <div class="file-upload">
-                            {{ adminform.form.image }}
-                        </div>
-                    </div>
-                </div>
-                
-                {% block submit_buttons_bottom %}
-                    {% submit_row %}
-                {% endblock %}
-            </div>
+    <!-- ── Left: main fields + gallery ── -->
+    <div>
+        {% for fieldset in adminform %}
+        <div class="cf-card">
+            {% if forloop.first %}
+            <h3 class="cf-card-title"><i class="bi bi-info-circle"></i> Product Details</h3>
+            {% else %}
+            <h3 class="cf-card-title"><i class="bi bi-tag"></i> Pricing &amp; Inventory</h3>
+            {% endif %}
+            {% include "admin/includes/fieldset.html" %}
         </div>
-    </form>
+        {% endfor %}
+
+        <!-- Gallery images inline -->
+        {% for inline_admin_formset in inline_admin_formsets %}
+        <div class="cf-card">
+            <h3 class="cf-card-title"><i class="bi bi-images"></i> Gallery Images <small style="font-weight:400;color:#aaa;font-size:0.78rem;margin-left:6px;">optional — shown in product detail page</small></h3>
+            {% include inline_admin_formset.opts.template %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ── Right: image upload + save ── -->
+    <div>
+        <div class="cf-card">
+            <h3 class="cf-card-title"><i class="bi bi-image"></i> Main Product Image</h3>
+
+            <!-- Show existing image when editing -->
+            {% if original and original.image %}
+            <img src="{{ original.image.url }}" alt="Current image" class="img-current-preview" id="imgCurrentPreview">
+            <span class="img-current-label">Current image — upload a new one below to replace it</span>
+            {% endif %}
+
+            <div class="img-upload-zone" id="imgDropZone">
+                <i class="bi bi-cloud-arrow-up img-upload-icon" id="imgUploadIcon"></i>
+                <p class="img-upload-hint"><strong>Click to upload</strong> or drag &amp; drop</p>
+                <p class="img-upload-hint" style="margin-top:4px;">JPG, PNG, WebP</p>
+                <img id="imgNewPreview" class="img-new-preview" src="" alt="New image preview">
+                <div class="img-file-input-wrapper">
+                    {{ adminform.form.image }}
+                </div>
+            </div>
+
+            <!-- Clear checkbox (if widget renders it) -->
+            {% if not add %}
+            <div class="img-clear-row" id="imgClearRow" style="{% if not original.image %}display:none;{% endif %}">
+                <input type="checkbox" name="image-clear" id="image-clear_id">
+                <label for="image-clear_id" style="font-weight:400 !important;color:#888 !important;">Remove current image</label>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="cf-card">
+            {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
+        </div>
+    </div>
+
+</div>
+</form>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const fileInput = document.querySelector('.file-upload input[type=file]');
-    const dropZone = document.getElementById('mainDropZone');
-    const preview = document.getElementById('mainPreview');
+document.addEventListener('DOMContentLoaded', function () {
+    const zone      = document.getElementById('imgDropZone');
+    const newPrev   = document.getElementById('imgNewPreview');
+    const icon      = document.getElementById('imgUploadIcon');
+    const currPrev  = document.getElementById('imgCurrentPreview');
+    const clearRow  = document.getElementById('imgClearRow');
+
+    // Find the real file input rendered by Django inside the drop zone
+    const fileInput = zone ? zone.querySelector('input[type="file"]') : null;
+
+    function showNewPreview(file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            newPrev.src = e.target.result;
+            newPrev.style.display = 'block';
+            if (icon) icon.style.display = 'none';
+            // Hide current preview — user chose a replacement
+            if (currPrev) currPrev.style.opacity = '0.3';
+        };
+        reader.readAsDataURL(file);
+    }
 
     if (fileInput) {
-        fileInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    dropZone.querySelector('i').style.display = 'none';
-                    dropZone.querySelector('p').style.display = 'none';
-                }
-                reader.readAsDataURL(this.files[0]);
-            }
+        fileInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) showNewPreview(this.files[0]);
         });
     }
 
-    // Gallery Multi-upload Logic
-    const galleryDropZone = document.getElementById('galleryDropZone');
-    const galleryInput = document.getElementById('galleryInput');
-
-    galleryDropZone.addEventListener('click', () => galleryInput.click());
-
-    galleryInput.addEventListener('change', function() {
-        handleGalleryFiles(this.files);
-    });
-
-    galleryDropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        galleryDropZone.classList.add('dragover');
-    });
-
-    galleryDropZone.addEventListener('dragleave', () => {
-        galleryDropZone.classList.remove('dragover');
-    });
-
-    galleryDropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        galleryDropZone.classList.remove('dragover');
-        handleGalleryFiles(e.dataTransfer.files);
-    });
-
-    function handleGalleryFiles(files) {
-        // Find the ProductImage inline formset group (Django uses various naming patterns)
-        let group = document.getElementById('images-group');
-        
-        // Fallback: search for the inline group by looking for forms with file inputs
-        if (!group) {
-            const allInlines = document.querySelectorAll('[id$="-group"]');
-            for (let inline of allInlines) {
-                if (inline.querySelector('input[type="file"][name*="image"]')) {
-                    group = inline;
-                    break;
-                }
+    if (zone) {
+        zone.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            zone.classList.add('drag-over');
+        });
+        zone.addEventListener('dragleave', function () {
+            zone.classList.remove('drag-over');
+        });
+        zone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files && files[0] && fileInput) {
+                const dt = new DataTransfer();
+                dt.items.add(files[0]);
+                fileInput.files = dt.files;
+                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
             }
-        }
-        
-        // Last resort: find by checking for ProductImage related content
-        if (!group) {
-            const formsets = document.querySelectorAll('.inline-group');
-            for (let formset of formsets) {
-                if (formset.querySelector('input[name*="productimage"]')) {
-                    group = formset;
-                    break;
-                }
-            }
-        }
-        
-        if (!group) {
-            console.warn('Could not find ProductImage inline formset group');
-            return;
-        }
-
-        const addButton = group.querySelector('.add-row a, .add-row button, a.add-another-inline-related');
-        if (!addButton) {
-            console.warn('Could not find add button for inline formset');
-            return;
-        }
-
-        Array.from(files).forEach((file) => {
-            addButton.click();
-            
-            // Give the form time to render
-            setTimeout(() => {
-                const rows = group.querySelectorAll('tr.form-row:not(.empty-form)');
-                const lastRow = rows[rows.length - 1];
-                
-                if (lastRow) {
-                    const rowInput = lastRow.querySelector('input[type="file"]');
-                    if (rowInput) {
-                        const dataTransfer = new DataTransfer();
-                        dataTransfer.items.add(file);
-                        rowInput.files = dataTransfer.files;
-                        rowInput.dispatchEvent(new Event('change', { bubbles: true }));
-                        
-                        // Optional: show preview if available
-                        const preview = lastRow.querySelector('img');
-                        if (preview) {
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                                preview.src = e.target.result;
-                                preview.style.display = 'block';
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    }
-                }
-            }, 100);
         });
     }
 });

@@ -11,13 +11,18 @@ from .models import Category, Product, ProductImage, Profile, Review, Wishlist
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
-    fields = ['image', 'image_preview', 'alt_text']
+    fields = ['image', 'image_preview']
     readonly_fields = ['image_preview']
 
     def image_preview(self, obj):
         if obj.image:
-            return format_html('<img src="{}" style="height: 80px; width: 80px; object-fit: contain; border-radius: 8px; border: 1px solid #eee;" />', obj.image.url)
-        return "-"
+            return format_html(
+                '<img src="{}" style="height:72px;width:72px;object-fit:contain;'
+                'border-radius:8px;border:1px solid #eee;background:#f8f8f8;" />',
+                obj.image.url
+            )
+        return "—"
+    image_preview.short_description = "Preview"
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -26,63 +31,61 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price', 'effective_price', 'stock_display', 'status_toggle', 'is_featured']
+    list_display = [
+        'name', 'category', 'price', 'effective_price',
+        'stock_display', 'status_toggle', 'is_featured',
+    ]
     list_filter = ['category', 'is_featured', 'is_active']
     list_editable = ['price', 'is_featured']
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name', 'description']
-    readonly_fields = ['main_image_preview']
+    # 'image' is rendered by the custom change_form.html drop zone — NOT in fieldsets.
+    # Listing it here would render it twice.
     fieldsets = (
         ('Product Information', {
-            'fields': (
-                'name', 'slug', 'description', 'category',
-                'is_featured', 'is_active'
-            ),
-            'description': 'Basic product details and categorization.',
+            'fields': ('name', 'slug', 'description', 'category', 'is_featured', 'is_active'),
         }),
-        ('Pricing and Inventory', { # This fieldset will contain fields for the sidebar
+        ('Pricing & Inventory', {
             'fields': ('price', 'discount_price', 'stock'),
-            'description': 'Set product pricing and manage stock levels.',
-        }),
-        ('Media & Branding', {
-            'fields': ('image', 'main_image_preview'),
-            'description': 'Upload the primary product image seen in catalogs.',
         }),
     )
     inlines = [ProductImageInline]
 
-    def main_image_preview(self, obj):
-        if obj.image:
-            return format_html(
-                '<div style="background: #f8f9fa; padding: 15px; border-radius: 12px; display: inline-block; border: 2px dashed #dee2e6;">'
-                '<img src="{}" style="max-height: 200px; width: auto; display: block;" />'
-                '</div>', obj.image.url
-            )
-        return "No primary image uploaded."
-    main_image_preview.short_description = "Preview"
-
     actions = ['set_discount_percent', 'duplicate_product']
+
+    def stock_display(self, obj):
+        if obj.stock == 0:
+            return format_html('<span style="color:#dc3545;font-weight:600;">Out of Stock</span>')
+        if obj.stock <= 5:
+            return format_html('<span style="color:#fd7e14;font-weight:600;">Low: {}</span>', obj.stock)
+        return format_html('<span style="color:#198754;">{} in stock</span>', obj.stock)
+    stock_display.short_description = 'Stock'
+
+    def status_toggle(self, obj):
+        if obj.is_active:
+            return format_html('<span style="color:#198754;font-weight:600;">● Active</span>')
+        return format_html('<span style="color:#adb5bd;font-weight:600;">○ Draft</span>')
+    status_toggle.short_description = 'Status'
 
     @transaction.atomic
     def duplicate_product(self, request, queryset):
         for obj in queryset:
-            obj.pk = None  # Django creates a new record when PK is None
-            obj.slug = f"{obj.slug}-copy-{obj.pk or ''}" # Ensure slug uniqueness
+            original_slug = obj.slug
+            obj.pk = None
+            obj.slug = f"{original_slug}-copy"
             obj.name = f"COPY: {obj.name}"
-            obj.is_active = False # Deactivate clone for safety
+            obj.is_active = False
             obj.save()
-            
-        self.message_user(request, f"Successfully duplicated {queryset.count()} products as drafts.")
+        self.message_user(request, f"Duplicated {queryset.count()} product(s) as drafts.")
     duplicate_product.short_description = "Duplicate selected products as drafts"
-    
+
     @transaction.atomic
     def set_discount_percent(self, request, queryset):
         if 'apply' in request.POST:
             percent = int(request.POST.get('discount_percent', 0))
             for product in queryset:
                 if percent > 0:
-                    discount = product.price * percent / 100
-                    product.discount_price = product.price - discount
+                    product.discount_price = round(product.price * (1 - percent / 100), 2)
                 else:
                     product.discount_price = None
                 product.save()
@@ -94,18 +97,6 @@ class ProductAdmin(admin.ModelAdmin):
         })
     set_discount_percent.short_description = 'Set discount percentage on selected products'
 
-    def stock_display(self, obj):
-        if obj.stock <= 5:
-            return format_html('<span class="badge bg-danger">Low Stock: {}</span>', obj.stock)
-        return format_html('<span class="text-muted">{} in stock</span>', obj.stock)
-    stock_display.short_description = 'Inventory'
-
-    def status_toggle(self, obj):
-        icon = "check-circle-fill" if obj.is_active else "x-circle"
-        color = "success" if obj.is_active else "secondary"
-        return format_html('<i class="bi bi-{} text-{}"></i>', icon, color)
-    status_toggle.short_description = 'Active'
-
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'thumbnail', 'phone', 'city', 'region']
@@ -114,20 +105,24 @@ class ProfileAdmin(admin.ModelAdmin):
     def thumbnail(self, obj):
         try:
             if obj.profile_picture and hasattr(obj.profile_picture, 'url'):
-                return format_html('<img src="{}" class="rounded-circle object-fit-cover" style="width: 45px; height: 45px;" />', obj.profile_picture.url)
+                return format_html(
+                    '<img src="{}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" />',
+                    obj.profile_picture.url
+                )
         except (AttributeError, ObjectDoesNotExist):
             pass
-        return format_html('<div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted" style="width: 45px; height: 45px; font-size: 10px;">No Pix</div>')
+        return format_html(
+            '<div style="width:40px;height:40px;border-radius:50%;background:#eee;'
+            'display:flex;align-items:center;justify-content:center;font-size:11px;color:#aaa;">—</div>'
+        )
     thumbnail.short_description = 'Photo'
 
 
-# Custom admin site
 class MyAdminSite(admin.AdminSite):
     site_header = "F.B Nation Administration"
     site_title = "F.B Nation Admin"
     index_title = "Dashboard"
 
-    # Move internal imports here to avoid circular dependencies if models change
     def index(self, request, extra_context=None):
         from orders.models import Order, OrderItem
         from django.utils import timezone
@@ -135,7 +130,6 @@ class MyAdminSite(admin.AdminSite):
 
         extra_context = extra_context or {}
 
-        # Date range filtering
         start_date_str = request.GET.get('start_date')
         end_date_str = request.GET.get('end_date')
         order_qs = Order.objects.all()
@@ -157,77 +151,83 @@ class MyAdminSite(admin.AdminSite):
             except ValueError:
                 pass
 
+        today_start = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
         extra_context['total_products'] = Product.objects.count()
         extra_context['total_orders'] = order_qs.count()
         extra_context['pending_orders'] = order_qs.filter(status='pending').count()
-        
-        # Today's Sales
-        today_start = timezone.now().replace(hour=0, minute=0, second=0)
-        extra_context['today_sales'] = order_qs.filter(created_at__gte=today_start, status__in=['paid', 'shipped']).aggregate(Sum('total'))['total__sum'] or 0
-        
-        extra_context['total_revenue'] = order_qs.filter(status__in=['paid', 'shipped', 'delivered']).aggregate(Sum('total'))['total__sum'] or 0
-        
-        # Low stock alerts (Threshold: 5)
+        extra_context['today_sales'] = (
+            order_qs.filter(created_at__gte=today_start, status__in=['paid', 'shipped'])
+            .aggregate(Sum('total'))['total__sum'] or 0
+        )
+        extra_context['total_revenue'] = (
+            order_qs.filter(status__in=['paid', 'shipped', 'delivered'])
+            .aggregate(Sum('total'))['total__sum'] or 0
+        )
+
         low_stock_qs = Product.objects.filter(stock__lte=5, is_active=True)
         extra_context['low_stock_count'] = low_stock_qs.count()
         extra_context['low_stock_list'] = low_stock_qs.order_by('stock')[:5]
 
-        # Status data
-        status_counts = order_qs.values('status').annotate(count=Count('status')).order_by('status')
-        status_data = [
-            {
-                'label': dict(Order.STATUS_CHOICES).get(s['status'], s['status']),
-                'count': s['count'],
-            }
+        status_counts = (
+            order_qs.values('status').annotate(count=Count('status')).order_by('status')
+        )
+        extra_context['status_data'] = [
+            {'label': dict(Order.STATUS_CHOICES).get(s['status'], s['status']), 'count': s['count']}
             for s in status_counts
         ]
-        extra_context['status_data'] = status_data
-        # Top products
-        top_products = OrderItem.objects.filter(order__in=order_qs).values('product_name').annotate(order_count=Sum('quantity')).order_by('-order_count')[:5]
-        extra_context['top_products'] = top_products
-        # Recent orders
-        recent_orders = order_qs.select_related('user').order_by('-created_at')[:10]
-        extra_context['recent_orders'] = recent_orders
+        extra_context['top_products'] = (
+            OrderItem.objects.filter(order__in=order_qs)
+            .values('product_name').annotate(order_count=Sum('quantity'))
+            .order_by('-order_count')[:5]
+        )
+        extra_context['recent_orders'] = (
+            order_qs.select_related('user').order_by('-created_at')[:10]
+        )
         return super().index(request, extra_context)
 
 
 # Replace the default admin site
 admin.site = MyAdminSite()
 
-# Defined here so it uses the new admin.site
+
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ['product', 'user', 'rating', 'created_at']
     list_filter = ['rating', 'created_at']
     search_fields = ['product__name', 'user__username', 'comment']
+
 
 class WishlistAdmin(admin.ModelAdmin):
     list_display = ['user', 'product', 'added_at']
     list_filter = ['added_at']
     search_fields = ['user__username', 'product__name']
 
-# Register Store models
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Product, ProductAdmin)
-admin.site.register(Profile, ProfileAdmin)
-admin.site.register(Review, ReviewAdmin)
 
 class OrderAdmin(admin.ModelAdmin):
-    admin.site.register(Wishlist, WishlistAdmin)
     list_display = ['order_number', 'first_name', 'last_name', 'total', 'status', 'created_at']
     list_filter = ['status', 'region']
     search_fields = ['order_number', 'first_name', 'last_name', 'email']
 
+
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ['order', 'product_name', 'price', 'quantity']
+
 
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ['order', 'reference', 'amount', 'status', 'paid_at']
     list_filter = ['status']
     search_fields = ['reference', 'order__order_number']
 
-# Register remaining models to custom site
+
+# ── Register all models ────────────────────────────────────────────────────────
+admin.site.register(Category, CategoryAdmin)
+admin.site.register(Product, ProductAdmin)
+admin.site.register(Profile, ProfileAdmin)
+admin.site.register(Review, ReviewAdmin)
+admin.site.register(Wishlist, WishlistAdmin)
+admin.site.register(User)
+admin.site.register(Group)
+
 from orders.models import Order, OrderItem
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
-admin.site.register(User)
-admin.site.register(Group)

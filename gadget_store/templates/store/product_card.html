@@ -1,55 +1,52 @@
 {% load static %}
-<div class="product-card">
+<div class="pc-card">
+
     <!-- Badges -->
-    <div class="badge-stack">
+    <div class="pc-badges">
         {% if product.is_new %}
-        <span class="badge-premium bg-dark text-white">New Arrival</span>
+        <span class="pc-badge pc-badge-new">New</span>
         {% endif %}
-        
         {% if product.discount_percent > 0 %}
-        <span class="badge-premium bg-danger text-white">-{{ product.discount_percent }}%</span>
+        <span class="pc-badge pc-badge-sale">-{{ product.discount_percent }}%</span>
         {% endif %}
     </div>
 
-    <!-- Image Section -->
-    <div class="product-image-wrapper">
-        <a href="{{ product.get_absolute_url }}">
-            {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid">
+    <!-- Image -->
+    <a href="{{ product.get_absolute_url }}" class="pc-image-link" tabindex="-1">
+        <div class="pc-image-wrap">
+            {% with product.get_image_url as img_url %}
+            {% if img_url %}
+            <img src="{{ img_url }}" alt="{{ product.name }}" loading="lazy" class="pc-img">
             {% else %}
-                <img src="{% static 'images/placeholder.png' %}" alt="No image" class="img-fluid opacity-25">
+            <div class="pc-no-image"><i class="bi bi-box-seam"></i></div>
             {% endif %}
-        </a>
-        
-        <!-- Quick View & Interactions Overlay -->
-        <div class="card-actions-overlay">
-            <button class="btn btn-sm btn-white shadow-sm rounded-pill px-3" onclick="openQuickView('{{ product.id }}')">
-                <i class="bi bi-eye"></i> Quick View
-            </button>
+            {% endwith %}
         </div>
-    </div>
+    </a>
 
-    <!-- Content Section -->
-    <div class="product-info">
-        <span class="product-category">{{ product.category.name }}</span>
-        <h3 class="h6 mb-2 fw-bold">
-            <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-dark">{{ product.name }}</a>
+    <!-- Info -->
+    <div class="pc-info">
+        <span class="pc-category">{{ product.category.name }}</span>
+        <h3 class="pc-name">
+            <a href="{{ product.get_absolute_url }}" class="pc-name-link">{{ product.name }}</a>
         </h3>
-        
-        <div class="d-flex align-items-center mb-3">
-            <div class="text-warning me-2" style="font-size: 12px;">
-                <i class="bi bi-star-fill"></i> {{ product.average_rating|floatformat:1 }}
-            </div>
-            <div class="h5 mb-0 fw-bold">
-                GHS {{ product.effective_price|floatformat:2 }}
-                {% if product.discount_price %}
-                <small class="text-decoration-line-through text-muted fw-normal ms-2" style="font-size: 0.8rem;">GHS {{ product.price }}</small>
-                {% endif %}
-            </div>
+        <div class="pc-price-row">
+            <span class="pc-price">GHS {{ product.effective_price|floatformat:2 }}</span>
+            {% if product.discount_price %}
+            <span class="pc-price-old">GHS {{ product.price|floatformat:2 }}</span>
+            {% endif %}
         </div>
-
-        <button class="btn btn-primary-accent w-100 rounded-pill mt-auto" onclick="addToCart('{{ product.id }}')">
-            <i class="bi bi-cart-plus me-2"></i> Add to Cart
-        </button>
+        {% if product.in_stock %}
+        <form method="post" action="{% url 'store:add_to_cart' product.id %}" class="ajax-add-to-cart" data-product-name="{{ product.name }}">
+            {% csrf_token %}
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="pc-btn-cart">
+                <i class="bi bi-bag-plus"></i> Add to Cart
+            </button>
+        </form>
+        {% else %}
+        <button class="pc-btn-oos" disabled>Out of Stock</button>
+        {% endif %}
     </div>
+
 </div>
