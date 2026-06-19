@@ -39,8 +39,10 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ['price', 'is_featured']
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name', 'description']
-    # 'image' is rendered by the custom change_form.html drop zone — NOT in fieldsets.
-    # Listing it here would render it twice.
+    # 'image' is excluded from fieldsets because the custom change_form.html
+    # renders its own file input in the sidebar. save_model() below reads the
+    # uploaded file directly from request.FILES so it is always persisted.
+    exclude = ['image']
     fieldsets = (
         ('Product Information', {
             'fields': ('name', 'slug', 'description', 'category', 'is_featured', 'is_active'),
@@ -52,6 +54,16 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductImageInline]
 
     actions = ['set_discount_percent', 'duplicate_product']
+
+    def save_model(self, request, obj, form, change):
+        # Handle image upload from the custom sidebar file input.
+        # Because 'image' is excluded from fieldsets, Django's form does not
+        # process it automatically — we do it here instead.
+        if 'image' in request.FILES:
+            obj.image = request.FILES['image']
+        elif request.POST.get('image-clear') == 'on':
+            obj.image = None
+        super().save_model(request, obj, form, change)
 
     def stock_display(self, obj):
         if obj.stock == 0:
