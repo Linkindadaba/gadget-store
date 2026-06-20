@@ -1,0 +1,96 @@
+
+--- [Django Startup] ---
+------------------------
+[2026-06-19 22:29:56 +0000] [2] [INFO] Listening at: http://0.0.0.0:8080 (2)
+Mode: Production
+--- [Django Startup] ---
+DB Engine: django.db.backends.postgresql
+DB Host: postgres.railway.internal
+DB Host: postgres.railway.internal
+Mode: Production
+------------------------
+DB Engine: django.db.backends.postgresql
+[2026-06-19 22:29:56 +0000] [2] [INFO] Using worker: sync
+[2026-06-19 22:29:56 +0000] [3] [INFO] Booting worker with pid: 3
+[2026-06-19 22:29:56 +0000] [4] [INFO] Booting worker with pid: 4
+[2026-06-19 22:29:56 +0000] [2] [INFO] Control socket listening at /root/.gunicorn/gunicorn.ctl
+[2026-06-19 22:45:46,513] WARNING django.request: Not Found: /favicon.ico
+[2026-06-19 22:46:49,967] ERROR django.request: Internal Server Error: /admin/store/product/15/change/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/contrib/admin/options.py", line 720, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/views/decorators/cache.py", line 80, in _view_wrapper
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/contrib/admin/options.py", line 1844, in changeform_view
+    response = view_func(request, *args, **kwargs)
+    return self._changeform_view(request, object_id, form_url, extra_context)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/contrib/admin/sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+  File "/usr/local/lib/python3.11/site-packages/django/contrib/admin/options.py", line 1988, in change_view
+    response = view_func(request, *args, **kwargs)
+    return self.changeform_view(request, object_id, form_url, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/utils/decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    super().save_model(request, obj, form, change)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/contrib/admin/options.py", line 1315, in save_model
+  File "/usr/local/lib/python3.11/site-packages/django/contrib/admin/options.py", line 1895, in _changeform_view
+    obj.save()
+    self.save_model(request, new_object, form, not add)
+  File "/app/gadget_store/store/models.py", line 63, in save
+  File "/app/gadget_store/store/admin.py", line 66, in save_model
+    super().save(*args, **kwargs)
+  File "/usr/local/lib/python3.11/site-packages/django/db/models/base.py", line 902, in save
+    self.save_base(
+  File "/usr/local/lib/python3.11/site-packages/django/db/models/base.py", line 1008, in save_base
+    updated = self._save_table(
+              ^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/db/models/base.py", line 1128, in _save_table
+    values = [
+             ^
+  File "/usr/local/lib/python3.11/site-packages/django/db/models/base.py", line 1132, in <listcomp>
+    (getattr(self, f.attname) if raw else f.pre_save(self, False)),
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/db/models/fields/files.py", line 338, in pre_save
+    file.save(file.name, file.file, save=False)
+  File "/usr/local/lib/python3.11/site-packages/django/db/models/fields/files.py", line 99, in save
+    self.name = self.storage.save(name, content, max_length=self.field.max_length)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/django/core/files/storage/base.py", line 49, in save
+    name = self._save(name, content)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/cloudinary_storage/storage.py", line 68, in _save
+    response = self._upload(name, content)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/cloudinary_storage/storage.py", line 62, in _upload
+    return cloudinary.uploader.upload(content, **options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/cloudinary/uploader.py", line 198, in upload
+    return call_cacheable_api("upload", params, file=file, **options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/cloudinary/uploader.py", line 834, in call_cacheable_api
+    result = call_api(action, params, http_headers, return_error, unsigned, file, timeout, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/cloudinary/uploader.py", line 921, in call_api
+    raise exception_class(result["error"]["message"])
+cloudinary.exceptions.AuthorizationRequired: Invalid Signature fcc59f032557464983ab09a2ddf4319c2c47a964. String to sign - 'folder=media/products&tags=media&timestamp=1781909209&use
