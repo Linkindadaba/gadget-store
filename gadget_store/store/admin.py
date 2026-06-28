@@ -59,11 +59,33 @@ class ProductAdmin(admin.ModelAdmin):
         # Handle image upload from the custom sidebar file input.
         # Because 'image' is excluded from fieldsets, Django's form does not
         # process it automatically — we do it here instead.
-        if 'image' in request.FILES:
-            obj.image = request.FILES['image']
+        image_file = request.FILES.get('image')
+        if image_file:
+            obj.image = image_file
         elif request.POST.get('image-clear') == 'on':
             obj.image = None
-        super().save_model(request, obj, form, change)
+
+        try:
+            super().save_model(request, obj, form, change)
+        except Exception as e:
+            msg = str(e)
+            # Catch Cloudinary credential/upload errors so the product still
+            # saves — admin gets a clear warning instead of a 500 crash.
+            if any(kw in msg.lower() for kw in ('signature', 'authorization', 'cloudinary', 'invalid')):
+                obj.image = None          # drop the image, keep the product
+                super().save_model(request, obj, form, change)
+                self.message_user(
+                    request,
+                    (
+                        "Product saved, but the image could not be uploaded — "
+                        "your Cloudinary credentials are invalid. "
+                        "Please fix CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and "
+                        "CLOUDINARY_API_SECRET in your environment variables, then re-upload the image."
+                    ),
+                    level='WARNING',
+                )
+            else:
+                raise
 
     def stock_display(self, obj):
         if obj.stock == 0:
